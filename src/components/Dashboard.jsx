@@ -176,9 +176,16 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                         {req.status === 'pending' && <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-600 rounded text-[10px]">Pendiente</span>}
                         {req.status === 'approved' && <span className="px-1.5 py-0.5 bg-green-100 text-green-600 rounded text-[10px] flex items-center gap-0.5"><CheckCircle size={10} />Aprobada</span>}
                         {req.status === 'rejected' && (
-                          <span className="px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[10px] flex items-center gap-0.5" title={req.rejection_reason}>
-                            <XCircle size={10} />Rechazada
-                          </span>
+                          <div className="flex flex-col items-end">
+                            <span className="px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[10px] flex items-center gap-0.5">
+                              <XCircle size={10} />Rechazada
+                            </span>
+                            {req.rejection_reason && (
+                              <p className="text-[10px] text-red-500 mt-0.5 text-right max-w-[180px]">
+                                {req.rejection_reason}
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
                     ))}

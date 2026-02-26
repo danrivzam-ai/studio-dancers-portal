@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogIn, AlertCircle } from 'lucide-react'
+import { LogIn, AlertCircle, ArrowLeft } from 'lucide-react'
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onBack }) {
   const [cedula, setCedula] = useState('')
   const [phoneLast4, setPhoneLast4] = useState('')
   const [loading, setLoading] = useState(false)
@@ -57,12 +57,16 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-600 to-pink-500 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+        {/* Back button */}
+        {onBack && (
+          <button onClick={onBack} className="absolute top-4 left-4 p-1.5 text-gray-400 hover:text-gray-600 transition-colors">
+            <ArrowLeft size={20} />
+          </button>
+        )}
         {/* Logo */}
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <span className="text-3xl">🩰</span>
-          </div>
+          <img src="/logo.png" alt="Studio Dancers" className="w-20 h-20 mx-auto mb-3 object-contain" />
           <h1 className="text-xl font-bold text-gray-800">Portal de Pagos</h1>
           <p className="text-sm text-gray-500 mt-1">Ingrese sus datos para continuar</p>
         </div>
