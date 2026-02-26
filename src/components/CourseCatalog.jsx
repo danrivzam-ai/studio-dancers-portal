@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut } from 'lucide-react'
+import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut, MessageCircle } from 'lucide-react'
+
+const STUDIO_WHATSAPP = '593963741884'
 
 const CATEGORY_LABELS = {
   regular: 'Clases Regulares',
@@ -225,9 +227,18 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 </div>
               )}
 
+              <a
+                href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent(`Hola! Me interesa el curso: ${selectedCourse.name}. Quisiera más información para inscribirme.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <MessageCircle size={20} />
+                Deseo inscribirme
+              </a>
               <button
                 onClick={() => setSelectedCourse(null)}
-                className="w-full py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors"
+                className="w-full py-2.5 text-gray-500 text-sm font-medium hover:text-gray-700 transition-colors"
               >
                 Cerrar
               </button>
