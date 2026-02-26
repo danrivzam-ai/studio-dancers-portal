@@ -43,7 +43,13 @@ export default function Login({ onLogin }) {
       })
     } catch (err) {
       console.error('Login error:', err)
-      setError('Error de conexión. Intente de nuevo.')
+      if (err?.message?.includes('Could not find the function') || err?.message?.includes('rpc_client_login')) {
+        setError('El servicio no está configurado. Contacte al administrador.')
+      } else if (err?.message?.includes('FetchError') || err?.code === 'NETWORK_ERROR' || !navigator.onLine) {
+        setError('Error de conexión. Verifique su internet e intente de nuevo.')
+      } else {
+        setError(`Error: ${err?.message || 'Intente de nuevo.'}`)
+      }
     } finally {
       setLoading(false)
     }
