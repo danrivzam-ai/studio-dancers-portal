@@ -5,7 +5,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
     <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-600 to-pink-500 flex flex-col items-center justify-center p-6">
       <div className="text-center max-w-sm">
         {/* Logo */}
-        <img src="/logo-landing.png" alt="Studio Dancers" className="w-64 mx-auto mb-6 object-contain drop-shadow-lg" />
+        <img src="/logo-landing.png" alt="Studio Dancers" className="w-52 mx-auto mb-6 object-contain drop-shadow-lg" />
         <p className="text-white/70 text-sm mb-10">Escuela de Ballet en Guayaquil</p>
 
         {/* Buttons */}
