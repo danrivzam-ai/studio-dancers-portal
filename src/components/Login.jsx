@@ -24,6 +24,12 @@ export default function Login({ onLogin }) {
 
     setLoading(true)
     try {
+      // Verificar que Supabase esté configurado
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        setError('El portal no está configurado correctamente. Contacte al administrador. (ENV)')
+        return
+      }
+
       const { data, error: rpcError } = await supabase.rpc('rpc_client_login', {
         p_cedula: cedula.trim(),
         p_phone_last4: phoneLast4.trim()
@@ -43,13 +49,7 @@ export default function Login({ onLogin }) {
       })
     } catch (err) {
       console.error('Login error:', err)
-      if (err?.message?.includes('Could not find the function') || err?.message?.includes('rpc_client_login')) {
-        setError('El servicio no está configurado. Contacte al administrador.')
-      } else if (err?.message?.includes('FetchError') || err?.code === 'NETWORK_ERROR' || !navigator.onLine) {
-        setError('Error de conexión. Verifique su internet e intente de nuevo.')
-      } else {
-        setError(`Error: ${err?.message || 'Intente de nuevo.'}`)
-      }
+      setError(`Error: ${err?.message || err?.code || 'Intente de nuevo.'}`)
     } finally {
       setLoading(false)
     }
