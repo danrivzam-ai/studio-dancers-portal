@@ -1,14 +1,28 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut, MessageCircle, ChevronRight, Sparkles, Calendar, Star } from 'lucide-react'
 
 const STUDIO_WHATSAPP = '593963741884'
 
-const CATEGORY_LABELS = {
-  regular: 'Clases Regulares',
-  intensivo: 'Intensivos',
-  camp: 'Programas Especiales',
-  especial: 'Programas Especiales'
+const CATEGORY_CONFIG = {
+  regular: {
+    label: 'Clases Regulares',
+    description: 'Ballet semanal para todas las edades',
+    emoji: '🩰',
+    gradient: 'from-purple-500 to-purple-700'
+  },
+  intensivo: {
+    label: 'Sábados Intensivos',
+    description: 'Sesiones intensivas de fin de semana',
+    emoji: '⭐',
+    gradient: 'from-pink-500 to-rose-600'
+  },
+  especial: {
+    label: 'Programas Especiales',
+    description: 'Camps, talleres y eventos',
+    emoji: '🎭',
+    gradient: 'from-amber-500 to-orange-600'
+  }
 }
 
 const PRICE_TYPE_LABELS = {
@@ -21,6 +35,7 @@ const PRICE_TYPE_LABELS = {
 export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedCourse, setSelectedCourse] = useState(null)
 
   useEffect(() => {
@@ -34,7 +49,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
 
   // Group courses by category
   const grouped = courses.reduce((acc, course) => {
-    const cat = course.category === 'camp' ? 'especial' : course.category
+    const cat = (course.category === 'camp') ? 'especial' : (course.category || 'regular')
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(course)
     return acc
@@ -47,20 +62,139 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
     return `${min}-${max} años`
   }
 
+  // --- CATEGORY LIST VIEW ---
+  const renderCategoryList = () => (
+    <div className="max-w-md mx-auto p-4 space-y-3 pb-24">
+      {loading ? (
+        <div className="space-y-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="h-28 bg-white rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <p className="text-lg font-medium">No hay cursos disponibles</p>
+          <p className="text-sm mt-1">Vuelve pronto para ver nuevas opciones</p>
+        </div>
+      ) : (
+        Object.entries(grouped).map(([category, catCourses]) => {
+          const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.regular
+          return (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className="w-full text-left"
+            >
+              <div className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-5 text-white shadow-md hover:shadow-lg transition-shadow relative overflow-hidden`}>
+                {/* Background decoration */}
+                <span className="absolute -right-3 -bottom-3 text-7xl opacity-20">{config.emoji}</span>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-lg">{config.label}</h3>
+                      <p className="text-white/70 text-xs mt-0.5">{config.description}</p>
+                    </div>
+                    <ChevronRight size={22} className="text-white/60" />
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full text-xs font-medium">
+                      {catCourses.length} {catCourses.length === 1 ? 'curso' : 'cursos'}
+                    </span>
+                    {catCourses.some(c => c.image_url) && (
+                      <div className="flex -space-x-2">
+                        {catCourses.filter(c => c.image_url).slice(0, 3).map((c, i) => (
+                          <img key={i} src={c.image_url} alt="" className="w-6 h-6 rounded-full border-2 border-white/30 object-cover" />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </button>
+          )
+        })
+      )}
+    </div>
+  )
+
+  // --- COURSES IN CATEGORY VIEW ---
+  const renderCategoryCourses = () => {
+    const catCourses = grouped[selectedCategory] || []
+    const config = CATEGORY_CONFIG[selectedCategory] || CATEGORY_CONFIG.regular
+
+    return (
+      <div className="max-w-md mx-auto p-4 space-y-3 pb-24">
+        {/* Category header */}
+        <div className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-4 text-white mb-1`}>
+          <span className="text-3xl">{config.emoji}</span>
+          <h2 className="font-bold text-xl mt-1">{config.label}</h2>
+          <p className="text-white/70 text-xs">{catCourses.length} {catCourses.length === 1 ? 'curso disponible' : 'cursos disponibles'}</p>
+        </div>
+
+        {/* Course cards */}
+        {catCourses.map(course => (
+          <button
+            key={course.id}
+            onClick={() => setSelectedCourse(course)}
+            className="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left hover:shadow-md transition-shadow"
+          >
+            <div className="flex">
+              {/* Thumbnail */}
+              {course.image_url ? (
+                <img src={course.image_url} alt={course.name} className="w-24 h-24 object-cover shrink-0" />
+              ) : (
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center shrink-0">
+                  <span className="text-2xl">🩰</span>
+                </div>
+              )}
+              {/* Info */}
+              <div className="p-3 flex flex-col justify-center min-w-0 flex-1">
+                <h3 className="font-bold text-gray-800 text-sm truncate">{course.name}</h3>
+                {course.schedule && (
+                  <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5">
+                    <Clock size={10} className="shrink-0" />
+                    <span className="truncate">{course.schedule}</span>
+                  </p>
+                )}
+                <div className="flex items-center justify-between mt-1.5">
+                  {formatAge(course.age_min, course.age_max) ? (
+                    <span className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">
+                      {formatAge(course.age_min, course.age_max)}
+                    </span>
+                  ) : <span />}
+                  <span className="font-bold text-purple-700 text-sm">
+                    ${parseFloat(course.price).toFixed(0)}{PRICE_TYPE_LABELS[course.price_type] || ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {onBack && (
-              <button onClick={onBack} className="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+            {(onBack || selectedCategory) && (
+              <button
+                onClick={() => selectedCategory ? setSelectedCategory(null) : onBack?.()}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+              >
                 <ArrowLeft size={20} />
               </button>
             )}
             <div>
-              <h1 className="font-bold text-lg">Nuestros Cursos</h1>
-              <p className="text-xs text-white/70">Descubre tu clase ideal</p>
+              <h1 className="font-bold text-lg">
+                {selectedCategory ? (CATEGORY_CONFIG[selectedCategory]?.label || 'Cursos') : 'Nuestros Cursos'}
+              </h1>
+              <p className="text-xs text-white/70">
+                {selectedCategory ? 'Toca un curso para más info' : 'Elige una categoría'}
+              </p>
             </div>
           </div>
           {isAuthenticated && onLogout && (
@@ -71,71 +205,8 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto p-4 space-y-5 pb-24">
-        {loading ? (
-          <div className="space-y-4">
-            {[1,2,3].map(i => (
-              <div key={i} className="bg-white rounded-xl p-4 animate-pulse">
-                <div className="h-32 bg-gray-200 rounded-lg mb-3" />
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-1/2" />
-              </div>
-            ))}
-          </div>
-        ) : courses.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <p className="text-lg font-medium">No hay cursos disponibles</p>
-            <p className="text-sm mt-1">Vuelve pronto para ver nuevas opciones</p>
-          </div>
-        ) : (
-          Object.entries(grouped).map(([category, catCourses]) => (
-            <div key={category}>
-              <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">
-                {CATEGORY_LABELS[category] || category}
-              </h2>
-              <div className="space-y-3">
-                {catCourses.map(course => (
-                  <button
-                    key={course.id}
-                    onClick={() => setSelectedCourse(course)}
-                    className="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left hover:shadow-md transition-shadow"
-                  >
-                    {/* Image */}
-                    {course.image_url ? (
-                      <img src={course.image_url} alt={course.name} className="w-full h-36 object-cover" />
-                    ) : (
-                      <div className="w-full h-24 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                        <span className="text-4xl">🩰</span>
-                      </div>
-                    )}
-                    <div className="p-3.5">
-                      <h3 className="font-bold text-gray-800 text-sm">{course.name}</h3>
-                      {course.schedule && (
-                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                          <Clock size={11} />
-                          {course.schedule}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-2">
-                          {formatAge(course.age_min, course.age_max) && (
-                            <span className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">
-                              {formatAge(course.age_min, course.age_max)}
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-bold text-purple-700 text-sm">
-                          ${parseFloat(course.price).toFixed(0)}{PRICE_TYPE_LABELS[course.price_type] || ''}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {/* Content */}
+      {selectedCategory ? renderCategoryCourses() : renderCategoryList()}
 
       {/* Course Detail Modal */}
       {selectedCourse && (
