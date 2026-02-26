@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut, MessageCircle, ChevronRight, Sparkles, Calendar, Star } from 'lucide-react'
 
@@ -8,19 +8,19 @@ const CATEGORY_CONFIG = {
   regular: {
     label: 'Clases Regulares',
     description: 'Ballet semanal para todas las edades',
-    emoji: '🩰',
+    emoji: '\u{1FA70}',
     gradient: 'from-purple-500 to-purple-700'
   },
   intensivo: {
-    label: 'Sábados Intensivos',
+    label: 'Sabados Intensivos',
     description: 'Sesiones intensivas de fin de semana',
-    emoji: '⭐',
+    emoji: '\u2B50',
     gradient: 'from-pink-500 to-rose-600'
   },
   especial: {
     label: 'Programas Especiales',
     description: 'Camps, talleres y eventos',
-    emoji: '🎭',
+    emoji: '\u{1F3AD}',
     gradient: 'from-amber-500 to-orange-600'
   }
 }
@@ -40,11 +40,55 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const { data, error } = await supabase.rpc('rpc_public_courses')
-      if (!error && data) setCourses(data)
+      try {
+        const { data, error } = await supabase.rpc('rpc_public_courses')
+        if (!error && data) setCourses(data)
+      } catch (e) {
+        console.warn('Error fetching courses:', e)
+      }
       setLoading(false)
     }
     fetchCourses()
+  }, [])
+
+  // --- HISTORY API for internal navigation (category / course detail) ---
+  useEffect(() => {
+    const handlePopState = (e) => {
+      const state = e.state
+
+      // If we have a course detail open, close it first
+      if (selectedCourse) {
+        setSelectedCourse(null)
+        return
+      }
+      // If we're in a category, go back to category list
+      if (selectedCategory) {
+        setSelectedCategory(null)
+        return
+      }
+      // Otherwise, let the parent handle it (App.jsx popstate will fire)
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [selectedCategory, selectedCourse])
+
+  const openCategory = useCallback((category) => {
+    history.pushState({ catalog: 'category', category }, '')
+    setSelectedCategory(category)
+  }, [])
+
+  const openCourse = useCallback((course) => {
+    history.pushState({ catalog: 'course', courseId: course.id }, '')
+    setSelectedCourse(course)
+  }, [])
+
+  const goBackFromCategory = useCallback(() => {
+    history.back()
+  }, [])
+
+  const closeCourse = useCallback(() => {
+    history.back()
   }, [])
 
   // Group courses by category
@@ -58,8 +102,8 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
   const formatAge = (min, max) => {
     if (!min && !max) return null
     if (min === 3 && max === 99) return null
-    if (max >= 99) return `Desde ${min} años`
-    return `${min}-${max} años`
+    if (max >= 99) return `Desde ${min} anos`
+    return `${min}-${max} anos`
   }
 
   // --- CATEGORY LIST VIEW ---
@@ -82,7 +126,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
           return (
             <button
               key={category}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => openCategory(category)}
               className="w-full text-left"
             >
               <div className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-5 text-white shadow-md hover:shadow-lg transition-shadow relative overflow-hidden`}>
@@ -135,7 +179,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
         {catCourses.map(course => (
           <button
             key={course.id}
-            onClick={() => setSelectedCourse(course)}
+            onClick={() => openCourse(course)}
             className="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left hover:shadow-md transition-shadow"
           >
             <div className="flex">
@@ -144,7 +188,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 <img src={course.image_url} alt={course.name} className="w-24 h-24 object-cover shrink-0" />
               ) : (
                 <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center shrink-0">
-                  <span className="text-2xl">🩰</span>
+                  <span className="text-2xl">{'\u{1FA70}'}</span>
                 </div>
               )}
               {/* Info */}
@@ -182,7 +226,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
           <div className="flex items-center gap-3">
             {(onBack || selectedCategory) && (
               <button
-                onClick={() => selectedCategory ? setSelectedCategory(null) : onBack?.()}
+                onClick={() => selectedCategory ? goBackFromCategory() : onBack?.()}
                 className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
               >
                 <ArrowLeft size={20} />
@@ -193,7 +237,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 {selectedCategory ? (CATEGORY_CONFIG[selectedCategory]?.label || 'Cursos') : 'Nuestros Cursos'}
               </h1>
               <p className="text-xs text-white/70">
-                {selectedCategory ? 'Toca un curso para más info' : 'Elige una categoría'}
+                {selectedCategory ? 'Toca un curso para mas info' : 'Elige una categoria'}
               </p>
             </div>
           </div>
@@ -210,7 +254,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
 
       {/* Course Detail Modal */}
       {selectedCourse && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={() => setSelectedCourse(null)}>
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={closeCourse}>
           <div
             className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
@@ -220,7 +264,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
               <div className="relative">
                 <img src={selectedCourse.image_url} alt={selectedCourse.name} className="w-full h-48 object-cover" />
                 <button
-                  onClick={() => setSelectedCourse(null)}
+                  onClick={closeCourse}
                   className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full"
                 >
                   <X size={18} />
@@ -228,9 +272,9 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
               </div>
             ) : (
               <div className="relative w-full h-32 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center">
-                <span className="text-5xl">🩰</span>
+                <span className="text-5xl">{'\u{1FA70}'}</span>
                 <button
-                  onClick={() => setSelectedCourse(null)}
+                  onClick={closeCourse}
                   className="absolute top-3 right-3 p-2 bg-black/20 text-white rounded-full"
                 >
                   <X size={18} />
@@ -299,7 +343,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
               )}
 
               <a
-                href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent(`Hola! Me interesa el curso: ${selectedCourse.name}. Quisiera más información para inscribirme.`)}`}
+                href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent(`Hola! Me interesa el curso: ${selectedCourse.name}. Quisiera mas informacion para inscribirme.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
@@ -308,7 +352,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 Deseo inscribirme
               </a>
               <button
-                onClick={() => setSelectedCourse(null)}
+                onClick={closeCourse}
                 className="w-full py-2.5 text-gray-500 text-sm font-medium hover:text-gray-700 transition-colors"
               >
                 Cerrar
