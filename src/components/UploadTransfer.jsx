@@ -202,7 +202,6 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
                 <input
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleImageChange}
                   className="hidden"
                 />

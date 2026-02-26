@@ -9,7 +9,6 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
   const [requests, setRequests] = useState({})
   const [showUpload, setShowUpload] = useState(null) // student id or null
   const [showHistory, setShowHistory] = useState(null)
-  const [copied, setCopied] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
   // Fetch bank info
@@ -38,12 +37,12 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
     fetchRequests()
   }, [students, cedula, phoneLast4, refreshKey])
 
-  const copyAccount = () => {
-    if (bankInfo?.bank_account_number) {
-      navigator.clipboard.writeText(bankInfo.bank_account_number)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
+  const [copiedField, setCopiedField] = useState(null)
+
+  const copyToClipboard = (text, field) => {
+    navigator.clipboard.writeText(text)
+    setCopiedField(field)
+    setTimeout(() => setCopiedField(null), 2000)
   }
 
   const getStatusBadge = (status) => {
@@ -82,37 +81,36 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
         {/* Bank Info Card */}
         {bankInfo?.bank_account_number && (
           <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <CreditCard size={16} className="text-purple-600" />
               Datos para Transferencia
             </h2>
-            <div className="space-y-1.5 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Banco:</span>
-                <span className="font-medium text-gray-800">{bankInfo.bank_name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Tipo:</span>
-                <span className="font-medium text-gray-800">{bankInfo.bank_account_type}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Cuenta:</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-gray-800">{bankInfo.bank_account_number}</span>
-                  <button
-                    onClick={copyAccount}
-                    className="p-1 hover:bg-purple-50 rounded transition-colors"
-                    title="Copiar número de cuenta"
-                  >
-                    {copied ? <CheckCircle size={14} className="text-green-500" /> : <Copy size={14} className="text-purple-500" />}
-                  </button>
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Titular:</span>
-                <span className="font-medium text-gray-800">{bankInfo.bank_account_holder}</span>
-              </div>
+            <div className="space-y-2 text-sm">
+              {[
+                { label: 'Banco', value: bankInfo.bank_name, key: 'banco' },
+                { label: 'Cuenta', value: bankInfo.bank_account_number, key: 'cuenta', mono: true },
+                { label: 'Tipo', value: bankInfo.bank_account_type, key: 'tipo' },
+                { label: 'Titular', value: bankInfo.bank_account_holder, key: 'titular' },
+                { label: 'Cédula', value: '0915553630', key: 'cedula', mono: true },
+              ].map(({ label, value, key, mono }) => (
+                <button
+                  key={key}
+                  onClick={() => copyToClipboard(value, key)}
+                  className="w-full flex items-center justify-between bg-gray-50 hover:bg-purple-50 rounded-lg px-3 py-2 transition-colors text-left"
+                >
+                  <span className="text-gray-500 text-xs">{label}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`font-medium text-gray-800 ${mono ? 'font-mono' : ''}`}>{value}</span>
+                    {copiedField === key ? (
+                      <CheckCircle size={13} className="text-green-500 shrink-0" />
+                    ) : (
+                      <Copy size={13} className="text-gray-300 shrink-0" />
+                    )}
+                  </div>
+                </button>
+              ))}
             </div>
+            <p className="text-[10px] text-gray-400 mt-2 text-center">Toque cualquier campo para copiar</p>
           </div>
         )}
 
