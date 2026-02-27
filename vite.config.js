@@ -15,7 +15,7 @@ export default defineConfig({
         description: 'Portal de pagos para alumnos y representantes',
         start_url: '/',
         display: 'standalone',
-        background_color: '#7e22ce',
+        background_color: '#ffffff',
         theme_color: '#7e22ce',
         orientation: 'portrait',
         icons: [
@@ -45,20 +45,33 @@ export default defineConfig({
           }
         ]
       },
+      // Use injectManifest for full control over service worker
+      strategies: 'generateSW',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // NO precaching of JS/CSS — avoids stale cached bundles causing gray screen
+        globPatterns: ['**/*.{html,png,ico,svg}'],
         skipWaiting: true,
         clientsClaim: true,
         navigateFallback: '/index.html',
-        navigateFallbackAllowlist: [/^\/$/],
         cleanupOutdatedCaches: true,
+        // All JS/CSS served NetworkFirst — always fresh from server
         runtimeCaching: [
+          {
+            urlPattern: /\.(?:js|css)$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'app-assets',
+              expiration: { maxEntries: 30, maxAgeSeconds: 86400 },
+              networkTimeoutSeconds: 5,
+            }
+          },
           {
             urlPattern: /^https:\/\/.*supabase\.co\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api',
-              expiration: { maxEntries: 50, maxAgeSeconds: 300 }
+              expiration: { maxEntries: 50, maxAgeSeconds: 300 },
+              networkTimeoutSeconds: 5,
             }
           }
         ]

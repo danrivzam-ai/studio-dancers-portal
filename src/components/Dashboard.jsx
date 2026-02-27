@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
@@ -128,6 +128,33 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
             <p className="text-[10px] text-gray-400 mt-2 text-center">Toque cualquier campo para copiar</p>
           </div>
         )}
+
+        {/* PayPhone Online Payment */}
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-sm border border-green-200 overflow-hidden">
+          <div className="p-4">
+            <h2 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
+              <Shield size={16} className="text-green-600" />
+              Pago con Tarjeta
+            </h2>
+            <p className="text-xs text-gray-500 mb-3">
+              Pago 100% seguro via Produbanco y PayPhone. Datos encriptados (PCI DSS 4.0). Sin guardar info de tu tarjeta.
+            </p>
+            <a
+              href="https://ppls.me/8IycwXygt2iTUEYuTLiyQ"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-xl font-semibold text-sm transition-colors"
+            >
+              <CreditCard size={18} />
+              Pagar con Tarjeta
+              <ExternalLink size={14} className="opacity-70" />
+            </a>
+          </div>
+          <div className="bg-green-100/50 px-4 py-2 flex items-center justify-center gap-2">
+            <Shield size={11} className="text-green-700" />
+            <span className="text-[10px] text-green-700 font-medium">Transaccion segura · PCI DSS 4.0 · No almacena datos</span>
+          </div>
+        </div>
 
         {/* Student Cards */}
         {students.map(student => {

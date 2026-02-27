@@ -24,47 +24,6 @@ function getSession() {
   }
 }
 
-// Aggressive service worker cleanup
-function cleanServiceWorkers() {
-  if (!('serviceWorker' in navigator)) return
-
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => {
-      // Force update
-      reg.update()
-      // If waiting worker exists, tell it to activate immediately
-      if (reg.waiting) {
-        reg.waiting.postMessage({ type: 'SKIP_WAITING' })
-      }
-    })
-  })
-
-  // Listen for new service worker and reload when it takes over
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    // Only reload if user isn't in the middle of something
-    if (!sessionStorage.getItem('portal_session')) {
-      window.location.reload()
-    }
-  })
-}
-
-// Clear all caches if version changed
-async function clearStaleCache() {
-  if (!('caches' in window)) return
-  try {
-    const APP_VERSION = '2.1'
-    const storedVersion = localStorage.getItem('app_version')
-    if (storedVersion !== APP_VERSION) {
-      const cacheNames = await caches.keys()
-      await Promise.all(cacheNames.map(name => caches.delete(name)))
-      localStorage.setItem('app_version', APP_VERSION)
-      console.log('Caches cleared for new version')
-    }
-  } catch (e) {
-    console.warn('Cache clear failed:', e)
-  }
-}
-
 export default function App() {
   const [session, setSession] = useState(getSession)
   const [publicView, setPublicView] = useState('home')
@@ -72,32 +31,43 @@ export default function App() {
   const [error, setError] = useState(null)
   const isHandlingPopState = useRef(false)
 
-  // --- SERVICE WORKER + CACHE CLEANUP ---
+  // --- SERVICE WORKER: force update on load ---
   useEffect(() => {
-    cleanServiceWorkers()
-    clearStaleCache()
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => {
+          reg.update()
+          if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' })
+        })
+      })
+    }
   }, [])
 
-  // --- GLOBAL ERROR HANDLER ---
+  // --- GLOBAL ERROR HANDLER (only for truly fatal errors) ---
   useEffect(() => {
-    const handler = (e) => {
-      console.error('Unhandled error:', e.error || e.reason || e)
-      // Don't show error for ResizeObserver or benign errors
-      const msg = String(e.error?.message || e.reason?.message || '')
-      if (msg.includes('ResizeObserver') || msg.includes('Script error')) return
+    const errorHandler = (e) => {
+      const msg = String(e.error?.message || e.message || '')
+      // Ignore benign/non-fatal errors
+      if (msg.includes('ResizeObserver') || msg.includes('Script error') ||
+          msg.includes('Loading chunk') || msg.includes('Failed to fetch') ||
+          msg.includes('NetworkError') || msg.includes('Load failed')) return
+      console.error('[Portal] Fatal error:', msg)
       setError('Ocurrio un error. Toque para recargar.')
     }
-    window.addEventListener('error', handler)
-    window.addEventListener('unhandledrejection', handler)
+    const rejectionHandler = (e) => {
+      // Don't show error screen for rejected promises (API calls, etc)
+      console.warn('[Portal] Unhandled rejection:', e.reason)
+    }
+    window.addEventListener('error', errorHandler)
+    window.addEventListener('unhandledrejection', rejectionHandler)
     return () => {
-      window.removeEventListener('error', handler)
-      window.removeEventListener('unhandledrejection', handler)
+      window.removeEventListener('error', errorHandler)
+      window.removeEventListener('unhandledrejection', rejectionHandler)
     }
   }, [])
 
   // --- HISTORY API: Android back button support ---
   useEffect(() => {
-    // Set initial history state
     const initialState = session
       ? { type: 'auth', tab: 'payments' }
       : { type: 'public', view: 'home' }
@@ -108,7 +78,6 @@ export default function App() {
       const state = e.state
 
       if (!state) {
-        // Fell off the history stack — go to home
         if (session) {
           setAuthTab('payments')
         } else {
@@ -130,7 +99,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [session])
 
-  // --- NAVIGATION HELPERS (push to history) ---
+  // --- NAVIGATION HELPERS ---
   const navigatePublic = useCallback((view) => {
     if (isHandlingPopState.current) return
     history.pushState({ type: 'public', view }, '')
@@ -151,7 +120,6 @@ export default function App() {
       sessionStorage.setItem('portal_session', JSON.stringify(data))
       setSession(data)
       setAuthTab('payments')
-      // Reset history for authenticated state
       history.replaceState({ type: 'auth', tab: 'payments' }, '')
     } catch (err) {
       console.error('Login save error:', err)
@@ -164,27 +132,35 @@ export default function App() {
     setPublicView('home')
     setAuthTab('payments')
     setError(null)
-    // Reset history for public state
     history.replaceState({ type: 'public', view: 'home' }, '')
   }
 
-  // --- ERROR SCREEN ---
+  // --- ERROR SCREEN with cache cleanup ---
   if (error) {
+    const handleReload = () => {
+      if ('caches' in window) {
+        caches.keys().then(names => Promise.all(names.map(n => caches.delete(n))))
+          .finally(() => window.location.reload())
+      } else {
+        window.location.reload()
+      }
+    }
     return (
-      <div
-        className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6 text-center"
-        onClick={() => window.location.reload()}
-      >
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6 text-center">
         <p className="text-5xl mb-4">😕</p>
-        <p className="text-gray-700 font-medium">{error}</p>
-        <button className="mt-4 px-6 py-2.5 bg-purple-600 text-white rounded-xl font-medium">
-          Recargar
+        <p className="text-gray-700 font-semibold">Ocurrio un error</p>
+        <p className="text-gray-500 text-sm mt-1">Toque el boton para limpiar cache y reiniciar</p>
+        <button
+          onClick={handleReload}
+          className="mt-5 px-8 py-3 bg-purple-600 text-white rounded-xl font-semibold text-base"
+        >
+          Limpiar y Recargar
         </button>
       </div>
     )
   }
 
-  // --- PUBLIC VIEWS (not logged in) ---
+  // --- PUBLIC VIEWS ---
   if (!session) {
     if (publicView === 'catalog') {
       return <CourseCatalog onBack={() => navigatePublic('home')} />
