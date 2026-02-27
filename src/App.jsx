@@ -24,10 +24,27 @@ function getSession() {
   }
 }
 
+// Restore public view from history.state on refresh
+function getInitialPublicView() {
+  try {
+    const state = history.state
+    if (state?.type === 'public' && state.view) return state.view
+  } catch { /* ignore */ }
+  return 'home'
+}
+
+function getInitialAuthTab() {
+  try {
+    const state = history.state
+    if (state?.type === 'auth' && state.tab) return state.tab
+  } catch { /* ignore */ }
+  return 'payments'
+}
+
 export default function App() {
   const [session, setSession] = useState(getSession)
-  const [publicView, setPublicView] = useState('home')
-  const [authTab, setAuthTab] = useState('payments')
+  const [publicView, setPublicView] = useState(getInitialPublicView)
+  const [authTab, setAuthTab] = useState(getInitialAuthTab)
   const [error, setError] = useState(null)
   const isHandlingPopState = useRef(false)
 
@@ -50,12 +67,12 @@ export default function App() {
       // Ignore benign/non-fatal errors
       if (msg.includes('ResizeObserver') || msg.includes('Script error') ||
           msg.includes('Loading chunk') || msg.includes('Failed to fetch') ||
-          msg.includes('NetworkError') || msg.includes('Load failed')) return
+          msg.includes('NetworkError') || msg.includes('Load failed') ||
+          msg.includes('rpc_public_courses')) return
       console.error('[Portal] Fatal error:', msg)
       setError('Ocurrió un error. Toque para recargar.')
     }
     const rejectionHandler = (e) => {
-      // Don't show error screen for rejected promises (API calls, etc)
       console.warn('[Portal] Unhandled rejection:', e.reason)
     }
     window.addEventListener('error', errorHandler)
@@ -68,10 +85,14 @@ export default function App() {
 
   // --- HISTORY API: Android back button support ---
   useEffect(() => {
-    const initialState = session
-      ? { type: 'auth', tab: 'payments' }
-      : { type: 'public', view: 'home' }
-    history.replaceState(initialState, '')
+    // Only replaceState if current state doesn't match
+    const currentState = history.state
+    if (!currentState || !currentState.type) {
+      const initialState = session
+        ? { type: 'auth', tab: authTab }
+        : { type: 'public', view: publicView }
+      history.replaceState(initialState, '')
+    }
 
     const handlePopState = (e) => {
       isHandlingPopState.current = true
@@ -97,7 +118,7 @@ export default function App() {
 
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
-  }, [session])
+  }, [session, authTab, publicView])
 
   // --- NAVIGATION HELPERS ---
   const navigatePublic = useCallback((view) => {
@@ -149,7 +170,7 @@ export default function App() {
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6 text-center">
         <p className="text-5xl mb-4">😕</p>
         <p className="text-gray-700 font-semibold">Ocurrió un error</p>
-        <p className="text-gray-500 text-sm mt-1">Toque el boton para limpiar cache y reiniciar</p>
+        <p className="text-gray-500 text-sm mt-1">Toque el botón para limpiar caché y reiniciar</p>
         <button
           onClick={handleReload}
           className="mt-5 px-8 py-3 bg-purple-600 text-white rounded-xl font-semibold text-base"
@@ -185,6 +206,11 @@ export default function App() {
           cedula={session.cedula}
           phoneLast4={session.phoneLast4}
           onLogout={handleLogout}
+          onSessionUpdate={(newStudents) => {
+            const updated = { ...session, students: newStudents }
+            sessionStorage.setItem('portal_session', JSON.stringify(updated))
+            setSession(updated)
+          }}
         />
       )}
       {authTab === 'tips' && (

@@ -116,7 +116,9 @@ function PayphoneReturnBanner({ onConfirm, onDismiss }) {
 }
 
 // ═══════ MAIN DASHBOARD ═══════
-export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
+export default function Dashboard({ students: initialStudents, cedula, phoneLast4, onLogout, onSessionUpdate }) {
+  const [liveStudents, setLiveStudents] = useState(initialStudents)
+  const students = liveStudents
   const [bankInfo, setBankInfo] = useState(null)
   const [requests, setRequests] = useState({})
   const [showUpload, setShowUpload] = useState(null)
@@ -142,6 +144,28 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
     }
     fetchBank()
   }, [])
+
+  // Auto-refresh student data (payment status, balance, classes, etc.)
+  // Runs on mount + every 30s + after any payment action
+  useEffect(() => {
+    const refreshStudents = async () => {
+      try {
+        const { data, error } = await supabase.rpc('rpc_client_login', {
+          p_cedula: cedula,
+          p_phone_last4: phoneLast4
+        })
+        if (!error && data && data.length > 0) {
+          setLiveStudents(data)
+          onSessionUpdate?.(data)
+        }
+      } catch { /* silent */ }
+    }
+    // Refresh immediately (get latest status)
+    refreshStudents()
+    // Then every 30 seconds
+    const interval = setInterval(refreshStudents, 30000)
+    return () => clearInterval(interval)
+  }, [cedula, phoneLast4, refreshKey])
 
   // Fetch transfer requests + end loading
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut, MessageCircle, ChevronRight, Sparkles, Calendar, Star } from 'lucide-react'
+import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut, MessageCircle, ChevronRight, Calendar, Star, RefreshCw } from 'lucide-react'
 
 const STUDIO_WHATSAPP = '593963741884'
 
@@ -32,41 +32,73 @@ const PRICE_TYPE_LABELS = {
   programa: ''
 }
 
+// ═══════ DANCE LOADER ═══════
+function CourseLoader() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16">
+      <div className="relative mb-6">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center"
+          style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}>
+          <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="12" r="6" fill="#7e22ce"/>
+            <path d="M32 18 C32 18 28 24 26 30 C24 36 20 42 16 46" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 18 C32 18 34 26 34 32 C34 38 32 44 32 50" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 24 C32 24 40 20 46 18" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 24 C32 24 22 22 18 24" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 50 C32 50 28 54 24 56" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 50 C32 50 36 54 40 52" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <div className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-purple-400 border-r-pink-300"
+          style={{ animation: 'pirouette 1.2s linear infinite' }} />
+      </div>
+      <p className="text-purple-700 font-medium text-sm">Cargando cursos</p>
+      <div className="flex items-center gap-1.5 mt-1">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="w-1.5 h-1.5 rounded-full bg-purple-400"
+            style={{ animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedCourse, setSelectedCourse] = useState(null)
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const { data, error } = await supabase.rpc('rpc_public_courses')
-        if (!error && data) setCourses(data)
-      } catch (e) {
-        console.warn('Error fetching courses:', e)
-      }
-      setLoading(false)
+  const fetchCourses = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+    try {
+      const { data, error } = await supabase.rpc('rpc_public_courses')
+      if (error) throw error
+      setCourses(data || [])
+    } catch (e) {
+      console.warn('Error fetching courses:', e)
+      setLoadError(true)
     }
-    fetchCourses()
+    setLoading(false)
   }, [])
 
-  // --- HISTORY API for internal navigation (category / course detail) ---
   useEffect(() => {
-    const handlePopState = (e) => {
-      const state = e.state
+    fetchCourses()
+  }, [fetchCourses])
 
-      // If we have a course detail open, close it first
+  // --- HISTORY API for internal navigation ---
+  useEffect(() => {
+    const handlePopState = () => {
       if (selectedCourse) {
         setSelectedCourse(null)
         return
       }
-      // If we're in a category, go back to category list
       if (selectedCategory) {
         setSelectedCategory(null)
         return
       }
-      // Otherwise, let the parent handle it (App.jsx popstate will fire)
     }
 
     window.addEventListener('popstate', handlePopState)
@@ -108,29 +140,39 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
 
   // --- CATEGORY LIST VIEW ---
   const renderCategoryList = () => (
-    <div className="max-w-md mx-auto p-4 space-y-3 pb-24">
+    <div className="max-w-md mx-auto p-4 space-y-3 pb-24 animate-fadeIn">
       {loading ? (
-        <div className="space-y-3">
-          {[1,2,3].map(i => (
-            <div key={i} className="h-28 bg-white rounded-2xl animate-pulse" />
-          ))}
+        <CourseLoader />
+      ) : loadError ? (
+        <div className="text-center py-12">
+          <p className="text-4xl mb-3">📚</p>
+          <p className="text-gray-600 font-medium">No se pudieron cargar los cursos</p>
+          <p className="text-gray-400 text-sm mt-1">Verifica tu conexión a internet</p>
+          <button
+            onClick={fetchCourses}
+            className="mt-4 px-6 py-2.5 bg-purple-600 text-white rounded-xl font-medium text-sm flex items-center gap-2 mx-auto hover:bg-purple-700 transition-colors"
+          >
+            <RefreshCw size={16} />
+            Reintentar
+          </button>
         </div>
       ) : courses.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
+          <p className="text-4xl mb-3">{'\u{1FA70}'}</p>
           <p className="text-lg font-medium">No hay cursos disponibles</p>
           <p className="text-sm mt-1">Vuelve pronto para ver nuevas opciones</p>
         </div>
       ) : (
-        Object.entries(grouped).map(([category, catCourses]) => {
+        Object.entries(grouped).map(([category, catCourses], idx) => {
           const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.regular
           return (
             <button
               key={category}
               onClick={() => openCategory(category)}
               className="w-full text-left"
+              style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.1}s both` }}
             >
               <div className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-5 text-white shadow-md hover:shadow-lg transition-shadow relative overflow-hidden`}>
-                {/* Background decoration */}
                 <span className="absolute -right-3 -bottom-3 text-7xl opacity-20">{config.emoji}</span>
                 <div className="relative z-10">
                   <div className="flex items-center justify-between">
@@ -167,23 +209,21 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
     const config = CATEGORY_CONFIG[selectedCategory] || CATEGORY_CONFIG.regular
 
     return (
-      <div className="max-w-md mx-auto p-4 space-y-3 pb-24">
-        {/* Category header */}
+      <div className="max-w-md mx-auto p-4 space-y-3 pb-24 animate-fadeIn">
         <div className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-4 text-white mb-1`}>
           <span className="text-3xl">{config.emoji}</span>
           <h2 className="font-bold text-xl mt-1">{config.label}</h2>
           <p className="text-white/70 text-xs">{catCourses.length} {catCourses.length === 1 ? 'curso disponible' : 'cursos disponibles'}</p>
         </div>
 
-        {/* Course cards */}
-        {catCourses.map(course => (
+        {catCourses.map((course, idx) => (
           <button
             key={course.id}
             onClick={() => openCourse(course)}
             className="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left hover:shadow-md transition-shadow"
+            style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.08}s both` }}
           >
             <div className="flex">
-              {/* Thumbnail */}
               {course.image_url ? (
                 <img src={course.image_url} alt={course.name} className="w-24 h-24 object-cover shrink-0" />
               ) : (
@@ -191,7 +231,6 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                   <span className="text-2xl">{'\u{1FA70}'}</span>
                 </div>
               )}
-              {/* Info */}
               <div className="p-3 flex flex-col justify-center min-w-0 flex-1">
                 <h3 className="font-bold text-gray-800 text-sm truncate">{course.name}</h3>
                 {course.schedule && (
@@ -256,7 +295,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
       {selectedCourse && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={closeCourse}>
           <div
-            className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
+            className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl animate-slideUp"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
