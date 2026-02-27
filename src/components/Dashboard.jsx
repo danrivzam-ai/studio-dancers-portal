@@ -333,9 +333,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const studentRequests = requests[student.id] || []
           const pendingReqs = studentRequests.filter(r => r.status === 'pending')
           const cycleMode = isCycleBased(student)
-          const hasClassInfo = cycleMode && student.classes_per_cycle > 0
           const classesUsed = student.classes_used || 0
           const classesTotal = student.classes_per_cycle || 0
+          const hasClassInfo = classesTotal > 0
           const progressPct = hasClassInfo ? Math.min((classesUsed / classesTotal) * 100, 100) : 0
           const activeMethod = expandedPayment[student.id]
 
@@ -387,6 +387,14 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   </div>
                 </div>
 
+                {/* Last payment info */}
+                {student.last_payment_date && (
+                  <div className="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+                    <span className="text-[10px] text-green-600 uppercase font-medium tracking-wider">Último pago</span>
+                    <span className="text-xs font-semibold text-green-700">{formatDate(student.last_payment_date)}</span>
+                  </div>
+                )}
+
                 {/* Balance Alert */}
                 {student.balance > 0 && (
                   <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-3 flex items-center gap-2.5">
@@ -406,7 +414,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-xs font-medium text-purple-800 flex items-center gap-1.5">
                         <BookOpen size={13} className="text-purple-600" />
-                        Clases del ciclo
+                        {cycleMode ? 'Clases del ciclo' : 'Clases del mes'}
                       </p>
                       <span className="text-xs font-bold text-purple-700">
                         {classesUsed} / {classesTotal}
@@ -422,7 +430,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                     </div>
                     {progressPct >= 90 && (
                       <p className="text-[10px] text-amber-700 mt-1.5 font-medium">
-                        {progressPct >= 100 ? 'Ciclo completado — Hora de renovar' : 'Quedan pocas clases'}
+                        {progressPct >= 100
+                          ? (cycleMode ? 'Ciclo completado — Hora de renovar' : 'Mes completado — Hora de renovar')
+                          : 'Quedan pocas clases'}
                       </p>
                     )}
                   </div>
