@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { BANKS } from '../lib/banks'
-import { X, Upload, CheckCircle, Camera } from 'lucide-react'
+import { X, Upload, CheckCircle, Camera, Hash } from 'lucide-react'
 
 export default function UploadTransfer({ studentId, studentName, cedula, phoneLast4, onClose }) {
   const [amount, setAmount] = useState('')
   const [bankName, setBankName] = useState('')
+  const [receiptNumber, setReceiptNumber] = useState('')
   const [image, setImage] = useState(null)
   const [preview, setPreview] = useState(null)
   const [notes, setNotes] = useState('')
@@ -91,7 +92,8 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
         p_amount: parseFloat(amount),
         p_bank_name: bankName,
         p_receipt_image_url: receiptUrl,
-        p_notes: notes || null
+        p_notes: notes || null,
+        p_receipt_number: receiptNumber.trim() || null
       })
 
       if (rpcError) throw rpcError
@@ -177,6 +179,24 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
                 <option key={b.id} value={b.name}>{b.name}</option>
               ))}
             </select>
+          </div>
+
+          {/* Receipt Number */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              N° Comprobante
+            </label>
+            <div className="relative">
+              <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={receiptNumber}
+                onChange={(e) => setReceiptNumber(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                placeholder="Ej: 123456789"
+              />
+            </div>
+            <p className="text-[10px] text-gray-400 mt-0.5">Número de transacción del comprobante bancario</p>
           </div>
 
           {/* Image Upload */}
