@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
@@ -114,6 +114,8 @@ function PayphoneReturnBanner({ onConfirm, onDismiss }) {
     </div>
   )
 }
+
+const STUDIO_WHATSAPP = '593963741884'
 
 // ═══════ MAIN DASHBOARD ═══════
 export default function Dashboard({ students: initialStudents, cedula, phoneLast4, onLogout, onSessionUpdate }) {
@@ -314,7 +316,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div>
             <h1 className="font-bold text-lg">{bankInfo?.school_name || 'Studio Dancers'}</h1>
-            <p className="text-xs text-white/70">Portal de Pagos</p>
+            <p className="text-xs text-white/70">
+              {students.length === 1 ? students[0].name : `${students.length} alumno${students.length > 1 ? 's' : ''} registrado${students.length > 1 ? 's' : ''}`}
+            </p>
           </div>
           <button
             onClick={onLogout}
@@ -687,10 +691,21 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           )
         })}
 
-        {/* Footer */}
-        <p className="text-center text-xs text-gray-400 pt-2 pb-6">
-          Si tiene dudas, contacte al estudio.
-        </p>
+        {/* Contact + Footer */}
+        <div className="pt-2 pb-6 space-y-3">
+          <a
+            href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent('¡Hola! Tengo una consulta sobre mi cuenta en Studio Dancers.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 py-2.5 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium hover:bg-green-100 active:bg-green-150 transition-colors"
+          >
+            <MessageCircle size={16} />
+            ¿Dudas? Escríbenos por WhatsApp
+          </a>
+          <p className="text-center text-[10px] text-gray-300">
+            Los datos se actualizan automáticamente
+          </p>
+        </div>
       </div>
 
       {/* Upload Modal */}
