@@ -1,4 +1,4 @@
-import { BookOpen, LogIn, MapPin, Phone, Clock, Star, Heart, Users, Sparkles, ChevronDown, MessageCircle } from 'lucide-react'
+import { BookOpen, LogIn, MapPin, Phone, Clock, Award, TrendingUp, UserCheck, Sparkles, ChevronDown, MessageCircle, Users } from 'lucide-react'
 
 // SVG icons for social media
 const InstagramIcon = () => (
@@ -30,21 +30,21 @@ const BalletDecoration = () => (
 
 const FEATURES = [
   {
-    icon: Star,
-    title: 'Técnica Profesional',
-    desc: 'Método basado en la escuela rusa de ballet clásico',
+    icon: Award,
+    title: 'Excelencia y Técnica',
+    desc: 'Dominarás la disciplina del método clásico, garantizando una base sólida.',
     color: 'from-purple-500 to-purple-600'
   },
   {
-    icon: Users,
-    title: 'Todas las Edades',
-    desc: 'Clases para niños desde 3 años y adultos principiantes',
+    icon: TrendingUp,
+    title: 'Evolución sin límites',
+    desc: 'Desde la iniciación a los 3 años hasta adultos. Un programa que crece contigo.',
     color: 'from-pink-500 to-rose-500'
   },
   {
-    icon: Heart,
-    title: 'Ambiente Acogedor',
-    desc: 'Grupos reducidos con atención personalizada',
+    icon: UserCheck,
+    title: 'Acompañamiento Personalizado',
+    desc: 'Avanza a tu propio ritmo en grupos reducidos y en un espacio seguro.',
     color: 'from-amber-500 to-orange-500'
   }
 ]
@@ -145,7 +145,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
             <p className="text-purple-600 text-xs font-semibold uppercase tracking-widest mb-1">¿Por qué elegirnos?</p>
-            <h2 className="text-2xl font-bold text-gray-900">La mejor formación en ballet</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Formación de excelencia para verdaderos resultados escénicos.</h2>
           </div>
 
           <div className="space-y-3">
