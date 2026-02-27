@@ -1,25 +1,138 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, ChevronDown, ChevronUp, Banknote, AlertCircle } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
+// ═══════ SKELETON LOADING COMPONENT ═══════
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+      {/* Header skeleton */}
+      <div className="bg-gradient-to-r from-purple-600 to-purple-500 px-4 py-3.5">
+        <div className="flex items-center justify-between">
+          <div className="flex-1 mr-3">
+            <div className="h-4 w-32 bg-white/20 rounded-md" />
+            <div className="h-3 w-24 bg-white/10 rounded-md mt-1.5" />
+          </div>
+          <div className="h-5 w-16 bg-white/20 rounded-full" />
+        </div>
+      </div>
+      <div className="p-4 space-y-3">
+        {/* Financial skeleton */}
+        <div className="grid grid-cols-2 gap-2.5">
+          <div className="bg-purple-50 rounded-xl p-3 flex flex-col items-center">
+            <div className="skeleton h-2.5 w-16 mb-2" />
+            <div className="skeleton h-6 w-20" />
+          </div>
+          <div className="bg-gray-50 rounded-xl p-3 flex flex-col items-center">
+            <div className="skeleton h-2.5 w-20 mb-2" />
+            <div className="skeleton h-4 w-24 mt-1" />
+          </div>
+        </div>
+        {/* Payment buttons skeleton */}
+        <div className="pt-1">
+          <div className="skeleton h-2.5 w-24 mb-2" />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="skeleton h-20 w-full rounded-xl" />
+            <div className="skeleton h-20 w-full rounded-xl" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ═══════ DANCE LOADING SCREEN ═══════
+function DanceLoader() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex flex-col items-center justify-center p-6">
+      {/* Ballet dancer silhouette animation */}
+      <div className="relative mb-8">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center"
+          style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}>
+          <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Ballet dancer silhouette */}
+            <circle cx="32" cy="12" r="6" fill="#7e22ce"/>
+            <path d="M32 18 C32 18 28 24 26 30 C24 36 20 42 16 46" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 18 C32 18 34 26 34 32 C34 38 32 44 32 50" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 24 C32 24 40 20 46 18" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 24 C32 24 22 22 18 24" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 50 C32 50 28 54 24 56" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M32 50 C32 50 36 54 40 52" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+        </div>
+        {/* Rotating ring */}
+        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-transparent border-t-purple-400 border-r-pink-300"
+          style={{ animation: 'pirouette 1.2s linear infinite' }} />
+      </div>
+
+      <p className="text-purple-800 font-semibold text-base mb-1">Cargando tu portal</p>
+      <div className="flex items-center gap-1.5">
+        {[0, 1, 2].map(i => (
+          <div
+            key={i}
+            className="w-1.5 h-1.5 rounded-full bg-purple-400"
+            style={{ animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ═══════ PAYPHONE RETURN BANNER ═══════
+function PayphoneReturnBanner({ onConfirm, onDismiss }) {
+  return (
+    <div className="animate-slideInTop bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 shadow-lg">
+      <div className="max-w-md mx-auto">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+            <CreditCard size={20} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm">¿Completaste tu pago?</p>
+            <p className="text-[11px] text-white/80">Notifica al estudio para que lo verifiquen</p>
+          </div>
+        </div>
+        <div className="flex gap-2 mt-2.5">
+          <button
+            onClick={onDismiss}
+            className="flex-1 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+          >
+            No aún
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-2 bg-white hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-1.5"
+          >
+            <Bell size={14} />
+            Sí, notificar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ═══════ MAIN DASHBOARD ═══════
 export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
   const [bankInfo, setBankInfo] = useState(null)
   const [requests, setRequests] = useState({})
   const [showUpload, setShowUpload] = useState(null)
   const [showHistory, setShowHistory] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
-  // Per-student expanded payment method: { [studentId]: 'transfer' | 'card' | null }
+  const [loading, setLoading] = useState(true)
   const [expandedPayment, setExpandedPayment] = useState({})
-  // PayPhone confirmation per student
   const [ppConfirm, setPpConfirm] = useState({})
   const [ppLoading, setPpLoading] = useState({})
   const [ppSuccess, setPpSuccess] = useState({})
   const [ppError, setPpError] = useState({})
   const [ppAmount, setPpAmount] = useState({})
-
   const [copiedField, setCopiedField] = useState(null)
+  // PayPhone return detection
+  const [showReturnBanner, setShowReturnBanner] = useState(false)
+  const payphoneOpenedRef = useRef(false)
 
   // Fetch bank info
   useEffect(() => {
@@ -30,7 +143,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
     fetchBank()
   }, [])
 
-  // Fetch transfer requests for each student
+  // Fetch transfer requests + end loading
   useEffect(() => {
     const fetchRequests = async () => {
       const allReqs = {}
@@ -43,9 +156,52 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
         allReqs[s.id] = data || []
       }
       setRequests(allReqs)
+      setLoading(false)
     }
     fetchRequests()
   }, [students, cedula, phoneLast4, refreshKey])
+
+  // ─── PayPhone return detection ───
+  // When user taps "Pagar con Tarjeta" link, we flag it.
+  // When user comes back (visibility change), we show the banner.
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && payphoneOpenedRef.current) {
+        payphoneOpenedRef.current = false
+        // Small delay to let the app stabilize
+        setTimeout(() => setShowReturnBanner(true), 600)
+      }
+    }
+
+    // Also check sessionStorage in case the app was killed/reloaded
+    const ppFlag = sessionStorage.getItem('pp_payment_started')
+    if (ppFlag) {
+      sessionStorage.removeItem('pp_payment_started')
+      setTimeout(() => setShowReturnBanner(true), 800)
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
+
+  const handlePayphoneLinkClick = () => {
+    payphoneOpenedRef.current = true
+    sessionStorage.setItem('pp_payment_started', '1')
+  }
+
+  const handleReturnConfirm = () => {
+    setShowReturnBanner(false)
+    // Auto-expand card payment for first student and show confirm form
+    const firstStudent = students[0]
+    if (firstStudent) {
+      setExpandedPayment(prev => ({ ...prev, [firstStudent.id]: 'card' }))
+      setPpConfirm(prev => ({ ...prev, [firstStudent.id]: true }))
+      // Scroll to student card
+      setTimeout(() => {
+        document.getElementById(`student-${firstStudent.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+    }
+  }
 
   const copyToClipboard = (text, field) => {
     navigator.clipboard.writeText(text)
@@ -54,10 +210,10 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
   }
 
   const getStatusBadge = (status) => {
-    if (status === 'paid') return { label: 'Al día', color: 'bg-green-100 text-green-700', dot: 'bg-green-500' }
-    if (status === 'partial') return { label: 'Abono parcial', color: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-500' }
-    if (status === 'pending') return { label: 'Pendiente', color: 'bg-red-100 text-red-700', dot: 'bg-red-500' }
-    return { label: status || 'N/A', color: 'bg-gray-100 text-gray-600', dot: 'bg-gray-400' }
+    if (status === 'paid') return { label: 'Al día', color: 'bg-green-100 text-green-700' }
+    if (status === 'partial') return { label: 'Abono parcial', color: 'bg-yellow-100 text-yellow-700' }
+    if (status === 'pending') return { label: 'Pendiente', color: 'bg-red-100 text-red-700' }
+    return { label: status || 'N/A', color: 'bg-gray-100 text-gray-600' }
   }
 
   const formatDate = (dateStr) => {
@@ -78,7 +234,6 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
     }))
   }
 
-  // PayPhone confirm handler (per-student)
   const handlePayphoneConfirm = async (studentId) => {
     const amount = ppAmount[studentId]
     setPpError(prev => ({ ...prev, [studentId]: '' }))
@@ -115,8 +270,21 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
     }
   }
 
+  // ═══════ LOADING STATE ═══════
+  if (loading) {
+    return <DanceLoader />
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 animate-fadeIn">
+      {/* PayPhone Return Banner */}
+      {showReturnBanner && (
+        <PayphoneReturnBanner
+          onConfirm={handleReturnConfirm}
+          onDismiss={() => setShowReturnBanner(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
@@ -135,8 +303,8 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Student Cards - Each card is a complete experience */}
-        {students.map(student => {
+        {/* Student Cards */}
+        {students.map((student, idx) => {
           const badge = getStatusBadge(student.payment_status)
           const studentRequests = requests[student.id] || []
           const pendingReqs = studentRequests.filter(r => r.status === 'pending')
@@ -148,7 +316,12 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
           const activeMethod = expandedPayment[student.id]
 
           return (
-            <div key={student.id} className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+            <div
+              key={student.id}
+              id={`student-${student.id}`}
+              className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
+              style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.1}s both` }}
+            >
               {/* ───── Student Identity + Status ───── */}
               <div className="bg-gradient-to-r from-purple-600 to-purple-500 px-4 py-3.5">
                 <div className="flex items-center justify-between">
@@ -203,7 +376,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                   </div>
                 )}
 
-                {/* Classes Progress (cycle/package courses) */}
+                {/* Classes Progress */}
                 {hasClassInfo && (
                   <div className="bg-purple-50 rounded-xl p-3">
                     <div className="flex items-center justify-between mb-1.5">
@@ -231,7 +404,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                   </div>
                 )}
 
-                {/* Pending requests alert */}
+                {/* Pending requests */}
                 {pendingReqs.length > 0 && (
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-2.5 flex items-center gap-2">
                     <Clock size={14} className="text-blue-500 shrink-0" />
@@ -245,7 +418,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                 <div className="pt-1">
                   <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wider mb-2">Realizar pago</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {/* Transfer Option */}
+                    {/* Transfer */}
                     <button
                       onClick={() => togglePaymentMethod(student.id, 'transfer')}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
@@ -264,7 +437,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                       </span>
                     </button>
 
-                    {/* Card Option */}
+                    {/* Card */}
                     <button
                       onClick={() => togglePaymentMethod(student.id, 'card')}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
@@ -287,7 +460,6 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                   {/* ── Transfer Expanded ── */}
                   {activeMethod === 'transfer' && (
                     <div className="mt-3 bg-purple-50 rounded-xl border border-purple-200 overflow-hidden animate-slideDown">
-                      {/* Bank Details */}
                       {bankInfo?.bank_account_number && (
                         <div className="p-3 space-y-1">
                           <p className="text-[10px] text-purple-600 uppercase font-semibold tracking-wider mb-1.5">Datos bancarios</p>
@@ -325,8 +497,6 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                           <p className="text-[9px] text-purple-400 text-center mt-1">Toque para copiar</p>
                         </div>
                       )}
-
-                      {/* Upload Receipt Button */}
                       <button
                         onClick={() => setShowUpload(student.id)}
                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-semibold text-sm transition-colors"
@@ -352,6 +522,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                           href="https://ppls.me/8IycwXygt2iTUEYuTLiyQ"
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={handlePayphoneLinkClick}
                           className="w-full flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-xl font-semibold text-sm transition-colors"
                         >
                           <CreditCard size={16} />
@@ -359,23 +530,24 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                           <ExternalLink size={13} className="opacity-70" />
                         </a>
 
-                        {/* Confirmation */}
+                        {/* PayPhone Confirmation */}
                         {!ppConfirm[student.id] ? (
                           <button
                             onClick={() => setPpConfirm(prev => ({ ...prev, [student.id]: true }))}
-                            className="w-full mt-2 py-2 text-green-700 text-xs font-medium hover:bg-green-100 rounded-lg transition-colors"
+                            className="w-full mt-2.5 py-2.5 text-green-700 text-xs font-semibold bg-green-100 hover:bg-green-200 rounded-xl transition-colors flex items-center justify-center gap-1.5"
                           >
-                            Ya pagué con tarjeta — Notificar al estudio
+                            <Bell size={13} />
+                            Ya pagué — Notificar al estudio
                           </button>
                         ) : ppSuccess[student.id] ? (
-                          <div className="mt-2 bg-green-100 border border-green-300 rounded-xl p-3 text-center">
+                          <div className="mt-2.5 bg-green-100 border border-green-300 rounded-xl p-3 text-center">
                             <CheckCircle size={22} className="text-green-600 mx-auto mb-1" />
                             <p className="text-sm font-semibold text-green-800">Pago registrado</p>
                             <p className="text-[11px] text-green-600">El estudio verificará su pago</p>
                           </div>
                         ) : (
-                          <div className="mt-2 bg-white border border-green-200 rounded-xl p-3 space-y-2">
-                            <p className="text-xs font-medium text-gray-700">Confirmar pago:</p>
+                          <div className="mt-2.5 bg-white border border-green-200 rounded-xl p-3 space-y-2 animate-slideDown">
+                            <p className="text-xs font-medium text-gray-700">Confirmar pago con tarjeta:</p>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">$</span>
                               <input
@@ -407,7 +579,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                                 className="flex-1 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
                               >
                                 {ppLoading[student.id] ? (
-                                  <span className="animate-pulse">Enviando...</span>
+                                  <span style={{ animation: 'gentlePulse 1s ease-in-out infinite' }}>Enviando...</span>
                                 ) : (
                                   <>
                                     <CheckCircle size={14} />
