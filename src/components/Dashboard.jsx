@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
@@ -241,7 +241,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   }
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A'
+    if (!dateStr) return 'Por definir'
     const d = new Date(dateStr + 'T12:00:00')
     return d.toLocaleDateString('es-EC', { day: '2-digit', month: 'short', year: 'numeric' })
   }
@@ -330,8 +330,10 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
         {/* Student Cards */}
         {students.map((student, idx) => {
           const badge = getStatusBadge(student.payment_status)
-          const studentRequests = requests[student.id] || []
-          const pendingReqs = studentRequests.filter(r => r.status === 'pending')
+          const allStudentRequests = requests[student.id] || []
+          // Only show pending and approved requests to client (hide rejected)
+          const studentRequests = allStudentRequests.filter(r => r.status !== 'rejected')
+          const pendingReqs = allStudentRequests.filter(r => r.status === 'pending')
           const cycleMode = isCycleBased(student)
           const hasClassInfo = cycleMode && student.classes_per_cycle > 0
           const classesUsed = student.classes_used || 0
@@ -381,7 +383,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                         'Próximo pago'
                       )}
                     </p>
-                    <p className="text-sm font-bold text-gray-800 mt-1">
+                    <p className={`text-sm font-bold mt-1 ${student.next_payment_date ? 'text-gray-800' : 'text-gray-400'}`}>
                       {formatDate(student.next_payment_date)}
                     </p>
                   </div>
@@ -631,28 +633,20 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                       <div key={req.id} className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-3 py-2">
                         <div className="min-w-0">
                           <span className="font-medium text-gray-700">${parseFloat(req.amount).toFixed(2)}</span>
-                          <span className="text-gray-400 ml-2">{req.bank_name}</span>
+                          <span className="text-gray-400 ml-1.5 text-[10px]">{req.bank_name}</span>
                         </div>
-                        {req.status === 'pending' && (
-                          <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-600 rounded text-[10px] shrink-0 ml-2">Pendiente</span>
-                        )}
-                        {req.status === 'approved' && (
-                          <span className="px-1.5 py-0.5 bg-green-100 text-green-600 rounded text-[10px] flex items-center gap-0.5 shrink-0 ml-2">
-                            <CheckCircle size={10} />Aprobada
-                          </span>
-                        )}
-                        {req.status === 'rejected' && (
-                          <div className="flex flex-col items-end shrink-0 ml-2">
-                            <span className="px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[10px] flex items-center gap-0.5">
-                              <XCircle size={10} />Rechazada
+                        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                          {req.status === 'pending' && (
+                            <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-600 rounded text-[10px] flex items-center gap-0.5">
+                              <Clock size={9} />En revisión
                             </span>
-                            {req.rejection_reason && (
-                              <p className="text-[10px] text-red-500 mt-0.5 text-right max-w-[180px]">
-                                {req.rejection_reason}
-                              </p>
-                            )}
-                          </div>
-                        )}
+                          )}
+                          {req.status === 'approved' && (
+                            <span className="px-1.5 py-0.5 bg-green-100 text-green-600 rounded text-[10px] flex items-center gap-0.5">
+                              <CheckCircle size={10} />Aprobada
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
