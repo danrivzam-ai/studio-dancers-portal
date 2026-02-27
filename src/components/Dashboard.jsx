@@ -10,6 +10,12 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
   const [showUpload, setShowUpload] = useState(null)
   const [showHistory, setShowHistory] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [showPayphoneConfirm, setShowPayphoneConfirm] = useState(false)
+  const [ppStudentId, setPpStudentId] = useState('')
+  const [ppAmount, setPpAmount] = useState('')
+  const [ppLoading, setPpLoading] = useState(false)
+  const [ppSuccess, setPpSuccess] = useState(false)
+  const [ppError, setPpError] = useState('')
 
   // Fetch bank info
   useEffect(() => {
@@ -37,6 +43,13 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
     fetchRequests()
   }, [students, cedula, phoneLast4, refreshKey])
 
+  // Auto-select student for PayPhone if only one
+  useEffect(() => {
+    if (showPayphoneConfirm && students.length === 1 && !ppStudentId) {
+      setPpStudentId(students[0].id)
+    }
+  }, [showPayphoneConfirm, students, ppStudentId])
+
   const [copiedField, setCopiedField] = useState(null)
 
   const copyToClipboard = (text, field) => {
@@ -62,6 +75,46 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
   const isCycleBased = (student) => {
     const pt = student.price_type
     return pt === 'paquete' || pt === 'programa' || pt === 'clase'
+  }
+
+  // PayPhone confirmation handler
+  const handlePayphoneConfirm = async () => {
+    setPpError('')
+    if (!ppStudentId) {
+      setPpError('Seleccione la alumna')
+      return
+    }
+    if (!ppAmount || parseFloat(ppAmount) <= 0) {
+      setPpError('Ingrese el monto pagado')
+      return
+    }
+
+    setPpLoading(true)
+    try {
+      const { error: rpcError } = await supabase.rpc('rpc_client_submit_transfer', {
+        p_cedula: cedula,
+        p_phone_last4: phoneLast4,
+        p_student_id: ppStudentId,
+        p_amount: parseFloat(ppAmount),
+        p_bank_name: 'PayPhone (Tarjeta)',
+        p_receipt_image_url: null,
+        p_notes: 'Pago con tarjeta via PayPhone'
+      })
+      if (rpcError) throw rpcError
+      setPpSuccess(true)
+      setRefreshKey(k => k + 1)
+      setTimeout(() => {
+        setPpSuccess(false)
+        setShowPayphoneConfirm(false)
+        setPpStudentId('')
+        setPpAmount('')
+      }, 3000)
+    } catch (err) {
+      console.error('PayPhone confirm error:', err)
+      setPpError('Error al registrar. Intente de nuevo.')
+    } finally {
+      setPpLoading(false)
+    }
   }
 
   return (
@@ -149,6 +202,85 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
               Pagar con Tarjeta
               <ExternalLink size={14} className="opacity-70" />
             </a>
+
+            {/* Confirmation flow */}
+            {!showPayphoneConfirm ? (
+              <button
+                onClick={() => setShowPayphoneConfirm(true)}
+                className="w-full mt-2 py-2.5 text-green-700 text-xs font-medium hover:bg-green-100 rounded-lg transition-colors"
+              >
+                Ya pague con tarjeta — Notificar al estudio
+              </button>
+            ) : ppSuccess ? (
+              <div className="mt-3 bg-green-100 border border-green-300 rounded-xl p-3 text-center">
+                <CheckCircle size={24} className="text-green-600 mx-auto mb-1" />
+                <p className="text-sm font-semibold text-green-800">Pago registrado</p>
+                <p className="text-[11px] text-green-600">El estudio verificara su pago</p>
+              </div>
+            ) : (
+              <div className="mt-3 bg-white border border-green-200 rounded-xl p-3 space-y-2.5">
+                <p className="text-xs font-medium text-gray-700">Confirmar pago con tarjeta:</p>
+
+                {/* Student selector */}
+                {students.length > 1 ? (
+                  <select
+                    value={ppStudentId}
+                    onChange={(e) => setPpStudentId(e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">Seleccionar alumna...</option>
+                    {students.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                ) : students[0] ? (
+                  <p className="text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
+                    {students[0].name}
+                  </p>
+                ) : null}
+
+                {/* Amount */}
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={ppAmount}
+                    onChange={(e) => setPpAmount(e.target.value)}
+                    className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Monto pagado"
+                  />
+                </div>
+
+                {ppError && (
+                  <p className="text-red-600 text-xs bg-red-50 rounded-lg p-2">{ppError}</p>
+                )}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setShowPayphoneConfirm(false); setPpError('') }}
+                    className="flex-1 py-2.5 text-gray-500 text-sm font-medium bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handlePayphoneConfirm}
+                    disabled={ppLoading}
+                    className="flex-1 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
+                  >
+                    {ppLoading ? (
+                      <span className="animate-pulse">Enviando...</span>
+                    ) : (
+                      <>
+                        <CheckCircle size={15} />
+                        Confirmar
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="bg-green-100/50 px-4 py-2 flex items-center justify-center gap-2">
             <Shield size={11} className="text-green-700" />
