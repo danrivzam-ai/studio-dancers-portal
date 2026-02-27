@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
@@ -330,10 +330,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
         {/* Student Cards */}
         {students.map((student, idx) => {
           const badge = getStatusBadge(student.payment_status)
-          const allStudentRequests = requests[student.id] || []
-          // Only show pending and approved requests to client (hide rejected)
-          const studentRequests = allStudentRequests.filter(r => r.status !== 'rejected')
-          const pendingReqs = allStudentRequests.filter(r => r.status === 'pending')
+          const studentRequests = requests[student.id] || []
+          const pendingReqs = studentRequests.filter(r => r.status === 'pending')
           const cycleMode = isCycleBased(student)
           const hasClassInfo = cycleMode && student.classes_per_cycle > 0
           const classesUsed = student.classes_used || 0
@@ -628,14 +626,14 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                 {/* ───── Recent Requests ───── */}
                 {studentRequests.length > 0 && (
                   <div className="space-y-1.5 pt-1">
-                    <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wider">Últimas solicitudes</p>
-                    {studentRequests.slice(0, 3).map(req => (
+                    <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wider">Estado de solicitudes</p>
+                    {studentRequests.slice(0, 5).map(req => (
                       <div key={req.id} className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-3 py-2">
                         <div className="min-w-0">
                           <span className="font-medium text-gray-700">${parseFloat(req.amount).toFixed(2)}</span>
                           <span className="text-gray-400 ml-1.5 text-[10px]">{req.bank_name}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        <div className="flex flex-col items-end gap-0.5 shrink-0 ml-2">
                           {req.status === 'pending' && (
                             <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-600 rounded text-[10px] flex items-center gap-0.5">
                               <Clock size={9} />En revisión
@@ -645,6 +643,18 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                             <span className="px-1.5 py-0.5 bg-green-100 text-green-600 rounded text-[10px] flex items-center gap-0.5">
                               <CheckCircle size={10} />Aprobada
                             </span>
+                          )}
+                          {req.status === 'rejected' && (
+                            <>
+                              <span className="px-1.5 py-0.5 bg-red-100 text-red-500 rounded text-[10px] flex items-center gap-0.5">
+                                <XCircle size={9} />Rechazada
+                              </span>
+                              {req.rejection_reason && (
+                                <p className="text-[9px] text-red-400 text-right max-w-[160px] leading-tight">
+                                  {req.rejection_reason}
+                                </p>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
