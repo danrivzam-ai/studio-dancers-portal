@@ -209,13 +209,13 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                 onClick={() => setShowPayphoneConfirm(true)}
                 className="w-full mt-2 py-2.5 text-green-700 text-xs font-medium hover:bg-green-100 rounded-lg transition-colors"
               >
-                Ya pague con tarjeta — Notificar al estudio
+                Ya pagué con tarjeta — Notificar al estudio
               </button>
             ) : ppSuccess ? (
               <div className="mt-3 bg-green-100 border border-green-300 rounded-xl p-3 text-center">
                 <CheckCircle size={24} className="text-green-600 mx-auto mb-1" />
                 <p className="text-sm font-semibold text-green-800">Pago registrado</p>
-                <p className="text-[11px] text-green-600">El estudio verificara su pago</p>
+                <p className="text-[11px] text-green-600">El estudio verificará su pago</p>
               </div>
             ) : (
               <div className="mt-3 bg-white border border-green-200 rounded-xl p-3 space-y-2.5">
@@ -284,7 +284,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
           </div>
           <div className="bg-green-100/50 px-4 py-2 flex items-center justify-center gap-2">
             <Shield size={11} className="text-green-700" />
-            <span className="text-[10px] text-green-700 font-medium">Transaccion segura · PCI DSS 4.0 · No almacena datos</span>
+            <span className="text-[10px] text-green-700 font-medium">Transacción segura · PCI DSS 4.0 · No almacena datos</span>
           </div>
         </div>
 
@@ -344,7 +344,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div className="bg-gray-50 rounded-lg p-2.5 text-center">
                     <p className="text-[10px] text-gray-500 uppercase">
-                      {cycleMode ? 'Inversion' : 'Mensualidad'}
+                      {cycleMode ? 'Inversión' : 'Mensualidad'}
                     </p>
                     <p className="text-lg font-bold text-gray-800">
                       ${parseFloat(student.monthly_fee || 0).toFixed(2)}
@@ -355,10 +355,10 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                       {cycleMode ? (
                         <>
                           <RefreshCw size={9} />
-                          Renovacion
+                          Renovación
                         </>
                       ) : (
-                        'Proximo pago'
+                        'Próximo pago'
                       )}
                     </p>
                     <p className="text-sm font-semibold text-gray-800">
@@ -378,7 +378,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                   <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
                     <p className="text-xs text-blue-700 flex items-center gap-1">
                       <Clock size={12} />
-                      {pendingReqs.length} transferencia{pendingReqs.length > 1 ? 's' : ''} pendiente{pendingReqs.length > 1 ? 's' : ''} de verificacion
+                      {pendingReqs.length} transferencia{pendingReqs.length > 1 ? 's' : ''} pendiente{pendingReqs.length > 1 ? 's' : ''} de verificación
                     </p>
                   </div>
                 )}
@@ -386,7 +386,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                 {/* Recent requests */}
                 {studentRequests.length > 0 && (
                   <div className="mt-3 space-y-1.5">
-                    <p className="text-[10px] text-gray-400 uppercase font-medium">Ultimas solicitudes</p>
+                    <p className="text-[10px] text-gray-400 uppercase font-medium">Últimas solicitudes</p>
                     {studentRequests.slice(0, 3).map(req => (
                       <div key={req.id} className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-3 py-2">
                         <div className="min-w-0">
@@ -420,7 +420,7 @@ export default function Dashboard({ students, cedula, phoneLast4, onLogout }) {
                   className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-purple-700 hover:bg-purple-50 transition-colors"
                 >
                   <Upload size={16} />
-                  Ya transferi
+                  Ya transferí
                 </button>
                 <button
                   onClick={() => setShowHistory(student.id)}

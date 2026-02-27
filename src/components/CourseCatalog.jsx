@@ -12,7 +12,7 @@ const CATEGORY_CONFIG = {
     gradient: 'from-purple-500 to-purple-700'
   },
   intensivo: {
-    label: 'Sabados Intensivos',
+    label: 'Sábados Intensivos',
     description: 'Sesiones intensivas de fin de semana',
     emoji: '\u2B50',
     gradient: 'from-pink-500 to-rose-600'
@@ -102,8 +102,8 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
   const formatAge = (min, max) => {
     if (!min && !max) return null
     if (min === 3 && max === 99) return null
-    if (max >= 99) return `Desde ${min} anos`
-    return `${min}-${max} anos`
+    if (max >= 99) return `Desde ${min} años`
+    return `${min}-${max} años`
   }
 
   // --- CATEGORY LIST VIEW ---
@@ -237,7 +237,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 {selectedCategory ? (CATEGORY_CONFIG[selectedCategory]?.label || 'Cursos') : 'Nuestros Cursos'}
               </h1>
               <p className="text-xs text-white/70">
-                {selectedCategory ? 'Toca un curso para mas info' : 'Elige una categoria'}
+                {selectedCategory ? 'Toca un curso para más info' : 'Elige una categoría'}
               </p>
             </div>
           </div>
@@ -343,7 +343,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
               )}
 
               <a
-                href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent(`Hola! Me interesa el curso: ${selectedCourse.name}. Quisiera mas informacion para inscribirme.`)}`}
+                href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent(`¡Hola! Me interesa el curso: ${selectedCourse.name}. Quisiera más información para inscribirme.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"

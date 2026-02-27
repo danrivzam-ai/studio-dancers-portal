@@ -67,7 +67,7 @@ try {
   root.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:24px;text-align:center;font-family:system-ui,sans-serif;background:#f3f4f6">
       <p style="font-size:48px;margin-bottom:16px">😕</p>
-      <p style="color:#374151;font-weight:600;font-size:16px">Ocurrio un error al cargar</p>
+      <p style="color:#374151;font-weight:600;font-size:16px">Ocurrió un error al cargar</p>
       <p style="color:#9ca3af;font-size:13px;margin-top:8px">Toque el boton para limpiar cache y reiniciar</p>
       <button onclick="
         if('caches' in window){caches.keys().then(function(n){return Promise.all(n.map(function(c){return caches.delete(c)}))}).then(function(){location.reload()}).catch(function(){location.reload()})}

@@ -52,7 +52,7 @@ export default function App() {
           msg.includes('Loading chunk') || msg.includes('Failed to fetch') ||
           msg.includes('NetworkError') || msg.includes('Load failed')) return
       console.error('[Portal] Fatal error:', msg)
-      setError('Ocurrio un error. Toque para recargar.')
+      setError('Ocurrió un error. Toque para recargar.')
     }
     const rejectionHandler = (e) => {
       // Don't show error screen for rejected promises (API calls, etc)
@@ -148,7 +148,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6 text-center">
         <p className="text-5xl mb-4">😕</p>
-        <p className="text-gray-700 font-semibold">Ocurrio un error</p>
+        <p className="text-gray-700 font-semibold">Ocurrió un error</p>
         <p className="text-gray-500 text-sm mt-1">Toque el boton para limpiar cache y reiniciar</p>
         <button
           onClick={handleReload}
