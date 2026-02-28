@@ -267,7 +267,7 @@ const PARTNERS = [
 ]
 
 
-export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
+export default function LandingPage({ onGoToCatalog, onGoToLogin, onGoToAdmin }) {
   const scrollToContent = () => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -649,6 +649,15 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
           <p className="text-white/30 text-[10px]">
             © {new Date().getFullYear()} Studio Dancers. Todos los derechos reservados.
           </p>
+
+          {/* Acceso admin — oculto, solo para administradores */}
+          <button
+            onClick={onGoToAdmin}
+            className="mt-4 text-white/10 hover:text-white/25 text-[9px] transition-colors select-none"
+            aria-hidden="true"
+          >
+            ·
+          </button>
         </div>
       </div>
     </div>

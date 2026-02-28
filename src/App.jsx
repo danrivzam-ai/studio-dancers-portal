@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard'
 import CourseCatalog from './components/CourseCatalog'
 import BalletTips from './components/BalletTips'
 import BottomNav from './components/BottomNav'
+import AdminPanel from './components/AdminPanel'
 import './index.css'
 
 // Safe sessionStorage read
@@ -211,10 +212,14 @@ export default function App() {
     if (publicView === 'login') {
       return <Login onLogin={handleLogin} onBack={() => navigatePublic('home')} />
     }
+    if (publicView === 'admin') {
+      return <AdminPanel onBack={() => navigatePublic('home')} />
+    }
     return (
       <LandingPage
         onGoToCatalog={(category, courseName) => navigatePublic('catalog', category || null, courseName || null)}
         onGoToLogin={() => navigatePublic('login')}
+        onGoToAdmin={() => navigatePublic('admin')}
       />
     )
   }
