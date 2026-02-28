@@ -353,21 +353,21 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           p_phone_last4: phoneLast4
         })
         if (!error && data && data.length > 0) {
-          // Fetch class_days + classes_per_cycle + price_type for each unique course
-          // price_type from courses table is the source of truth (RPC may not return it)
+          // Fetch class_days + classes_per_cycle + price_type via SECURITY DEFINER RPC
+          // (direct table query with anon key is blocked by RLS → always returns empty)
           const courseIds = [...new Set(data.map(s => s.course_id).filter(Boolean))]
-          const { data: coursesData } = courseIds.length
-            ? await supabase.from('courses').select('id, class_days, classes_per_cycle, price_type').in('id', courseIds)
-            : { data: [] }
-          const courseMap = {}
-          ;(coursesData || []).forEach(c => { courseMap[c.id] = c })
+          let courseMap = {}
+          if (courseIds.length) {
+            const { data: coursesData } = await supabase.rpc('rpc_get_course_info', { p_course_ids: courseIds })
+            ;(coursesData || []).forEach(c => { courseMap[c.id] = c })
+          }
 
           // Enrich each student: classes_used + classes_per_cycle + class_days + price_type
           const enriched = data.map(s => {
             const course = courseMap[s.course_id]
-            const classDays = course?.class_days || []
+            // Fallback chain: RPC result → what login already returned → empty
+            const classDays = course?.class_days || s.class_days || []
             const classesPer = course?.classes_per_cycle ?? s.classes_per_cycle ?? 0
-            // price_type: prefer courses table (reliable), fall back to RPC result
             const priceType = course?.price_type || s.price_type || null
             const classes_used = (s.classes_used != null && s.classes_used > 0)
               ? s.classes_used
