@@ -52,9 +52,16 @@ export default function App() {
   useEffect(() => {
     const splash = document.getElementById('splash')
     if (!splash) return
-    splash.style.opacity = '0'
-    const t = setTimeout(() => { splash.remove() }, 380)
-    return () => clearTimeout(t)
+    // Delay start of fade so first React paint is committed before fading
+    let removeTimer
+    const fadeTimer = setTimeout(() => {
+      splash.style.opacity = '0'
+      removeTimer = setTimeout(() => { splash.remove() }, 420)
+    }, 80)
+    return () => {
+      clearTimeout(fadeTimer)
+      clearTimeout(removeTimer)
+    }
   }, [])
 
   // --- SERVICE WORKER: force update on load ---
