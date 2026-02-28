@@ -83,14 +83,16 @@ function DanceLoader() {
 
 // ═══════ CLASES ESTIMADAS: cuenta días de clase desde el último pago ═══════
 // class_days usa ISO weekday: 1=Lun 2=Mar 3=Mié 4=Jue 5=Vie 6=Sáb 7=Dom
+// "hoy" se calcula en timezone Guayaquil (UTC-5, sin DST) para consistencia con el calendario
 function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
   if (!lastPaymentDate || !classDays || !classDays.length) return 0
   const start = new Date(lastPaymentDate + 'T00:00:00')
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  // Use Guayaquil TZ so the count matches what the calendar shows
+  const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+  todayGYE.setHours(0, 0, 0, 0)
   let count = 0
   const d = new Date(start)
-  while (d <= today) {
+  while (d <= todayGYE) {
     const isoDay = d.getDay() === 0 ? 7 : d.getDay()
     if (classDays.includes(isoDay)) count++
     d.setDate(d.getDate() + 1)
@@ -713,7 +715,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   <div className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
                     <span className="text-[10px] text-purple-600 uppercase font-medium tracking-wider flex items-center gap-1.5">
                       <BookOpen size={10} className="shrink-0" />
-                      {scheduleLabel ? `${scheduleLabel} · Clase` : (cycleMode ? 'Clases del ciclo' : 'Clases del mes')}
+                      {scheduleLabel ? `${scheduleLabel} · Clase` : 'Clases del mes'}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
