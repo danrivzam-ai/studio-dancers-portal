@@ -64,15 +64,27 @@ export default function CalendarTab({ students: initial, onLogout }) {
     if (initial.some(s => !normalizeClassDays(s.class_days).length)) enrich()
   }, [])
 
-  const student  = students[selIdx] || students[0]
+  const student   = students[selIdx] || students[0]
   const classDays = normalizeClassDays(student?.class_days)
-  const today    = nowGYE()
+  const today     = nowGYE()
+
+  // Active payment window: [last_payment_date, next_payment_date)
+  // Classes outside this window are shown as inactive (not highlighted)
+  const cycleStart = student?.last_payment_date
+    ? new Date(student.last_payment_date + 'T00:00:00') : null
+  const cycleEnd   = student?.next_payment_date
+    ? new Date(student.next_payment_date + 'T00:00:00') : null
 
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
   const offset      = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7
 
   const isClass = day => {
-    const iso = new Date(viewYear, viewMonth, day).getDay()
+    if (!classDays.length) return false
+    const date = new Date(viewYear, viewMonth, day)
+    // Only mark within the paid cycle
+    if (cycleStart && date < cycleStart) return false
+    if (cycleEnd   && date >= cycleEnd)  return false
+    const iso = date.getDay()
     return classDays.includes(iso === 0 ? 7 : iso)
   }
   const isToday = day =>
