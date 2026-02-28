@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
 // ── Social media icons ──
 const InstagramIcon = () => (
@@ -274,6 +276,36 @@ const PARTNERS = [
   },
 ]
 
+// ── Tile de galería: carga foto real desde Storage, gradiente como fallback ──
+// Bucket público: 'gallery' · archivos: 1.jpg, 2.jpg, ..., 6.jpg
+function GalleryTile({ index, placeholder, animDelay }) {
+  const [imgError, setImgError] = useState(false)
+  const { data } = supabase.storage.from('gallery').getPublicUrl(`${index}.jpg`)
+  const url = data?.publicUrl
+
+  return (
+    <a
+      href="https://www.instagram.com/studiodancers.ec/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-xl overflow-hidden hover:opacity-90 active:scale-[0.97] transition-all block"
+      style={{ aspectRatio: '4/5', animation: `fadeIn 0.3s ease-out ${animDelay}s both` }}
+    >
+      {!imgError && url
+        ? <img
+            src={url}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        : <div className={`w-full h-full bg-gradient-to-br ${placeholder.bg} flex items-center justify-center`}>
+            <placeholder.Icon size={26} />
+          </div>
+      }
+    </a>
+  )
+}
+
 export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
   const scrollToContent = () => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
@@ -451,21 +483,14 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
           </div>
 
           <div className="grid grid-cols-3 gap-1.5 mb-5">
-            {INSTAGRAM_TILES.map((tile, idx) => {
-              const Icon = tile.Icon
-              return (
-                <a
-                  key={idx}
-                  href="https://www.instagram.com/studiodancers.ec/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`aspect-square rounded-xl bg-gradient-to-br ${tile.bg} flex items-center justify-center hover:opacity-90 active:opacity-80 transition-opacity`}
-                  style={{ animation: `fadeIn 0.3s ease-out ${idx * 0.05}s both` }}
-                >
-                  <Icon size={30} />
-                </a>
-              )
-            })}
+            {INSTAGRAM_TILES.map((tile, idx) => (
+              <GalleryTile
+                key={idx}
+                index={idx + 1}
+                placeholder={tile}
+                animDelay={idx * 0.05}
+              />
+            ))}
           </div>
 
           <a
