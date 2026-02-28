@@ -5,7 +5,6 @@ import Dashboard from './components/Dashboard'
 import CourseCatalog from './components/CourseCatalog'
 import BalletTips from './components/BalletTips'
 import BottomNav from './components/BottomNav'
-import AdminPanel from './components/AdminPanel'
 import './index.css'
 
 // Build timestamp injected at compile-time (changes every build → new SW hash → browser updates)
@@ -54,10 +53,8 @@ function getSession() {
 }
 
 // Restore public view from history.state on refresh
-// Also detects ?admin URL param so the management system can link directly
 function getInitialPublicView() {
   try {
-    if (window.location.search.includes('admin')) return 'admin'
     const state = history.state
     if (state?.type === 'public' && state.view) return state.view
   } catch { /* ignore */ }
@@ -249,9 +246,6 @@ export default function App() {
     }
     if (publicView === 'login') {
       return <Login onLogin={handleLogin} onBack={() => navigatePublic('home')} />
-    }
-    if (publicView === 'admin') {
-      return <AdminPanel onBack={() => navigatePublic('home')} />
     }
     return (
       <LandingPage

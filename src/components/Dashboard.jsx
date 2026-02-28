@@ -87,7 +87,6 @@ function DanceLoader() {
 function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
   if (!lastPaymentDate || !classDays || !classDays.length) return 0
   const start = new Date(lastPaymentDate + 'T00:00:00')
-  // Use Guayaquil TZ so the count matches what the calendar shows
   const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
   todayGYE.setHours(0, 0, 0, 0)
   let count = 0
@@ -98,6 +97,23 @@ function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
     d.setDate(d.getDate() + 1)
   }
   return totalPerCycle ? Math.min(count, totalPerCycle) : count
+}
+
+// Counts how many class days fall within 1 month from lastPaymentDate
+// Used as fallback total when classes_per_cycle is not set in the DB
+function computeMonthlyTotal(lastPaymentDate, classDays) {
+  if (!lastPaymentDate || !classDays?.length) return 0
+  const start = new Date(lastPaymentDate + 'T00:00:00')
+  const end = new Date(start)
+  end.setMonth(end.getMonth() + 1)
+  let count = 0
+  const d = new Date(start)
+  while (d < end) {
+    const isoDay = d.getDay() === 0 ? 7 : d.getDay()
+    if (classDays.includes(isoDay)) count++
+    d.setDate(d.getDate() + 1)
+  }
+  return count
 }
 
 // ═══════ CLASS CALENDAR MODAL ═══════
@@ -619,10 +635,13 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const pendingReqs = studentRequests.filter(r => r.status === 'pending')
           const cycleMode = isCycleBased(student)
           const classesUsed = student.classes_used || 0
-          const classesTotal = student.classes_per_cycle || 0
-          // Counter only for monthly ('mes') courses with a real schedule
-          // pago único / programa / paquete / clase → no cycle counter shown
-          const hasClassInfo = student.price_type === 'mes' && classesTotal > 0 && (student.class_days?.length > 0)
+          // If classes_per_cycle is not stored, compute it from the monthly calendar
+          const classesTotal = student.classes_per_cycle > 0
+            ? student.classes_per_cycle
+            : computeMonthlyTotal(student.last_payment_date, student.class_days)
+          // Show counter/calendar for monthly courses that have a schedule defined
+          // (no dependency on classes_per_cycle being set in DB)
+          const hasClassInfo = student.price_type === 'mes' && (student.class_days?.length > 0)
           const activeMethod = expandedPayment[student.id]
           // Parse schedule suffix from course_name (e.g. "Ballet Adultas | L - M" → "L - M")
           const scheduleLabel = (() => {
