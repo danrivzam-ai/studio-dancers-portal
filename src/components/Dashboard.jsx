@@ -191,6 +191,13 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           p_phone_last4: phoneLast4
         })
         if (!error && data && data.length > 0) {
+          // DEBUG — abre DevTools (F12) → Console para ver los valores reales
+          console.log('[DEBUG clases]', data.map(s => ({
+            alumna: s.name,
+            classes_used: s.classes_used,
+            classes_per_cycle: s.classes_per_cycle,
+            course: s.course_name,
+          })))
           setLiveStudents(data)
           onSessionUpdate?.(data)
         }

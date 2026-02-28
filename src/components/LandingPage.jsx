@@ -74,6 +74,60 @@ const IconGroupDance = ({ size = 20, color = 'white' }) => (
   </svg>
 )
 
+// ── Iconos estilizados para Partner Directorio ──
+const IconClothing = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    {/* Bodice with neckline */}
+    <path d="M9.5 2C8.5 3.2 7 4.2 5.5 4.8L8 9H16L18.5 4.8C17 4.2 15.5 3.2 14.5 2C13.5 3 12.8 3.6 12 3.6C11.2 3.6 10.5 3 9.5 2Z"/>
+    {/* Waist sash */}
+    <rect x="7.5" y="9" width="9" height="1.8" rx="0.9"/>
+    {/* Flared skirt */}
+    <path d="M7.5 10.8L4 21.5H20L16.5 10.8H7.5Z" opacity="0.82"/>
+    {/* Skirt pleat lines */}
+    <ellipse cx="10" cy="16" rx="0.5" ry="3" opacity="0.35"/>
+    <ellipse cx="14" cy="16" rx="0.5" ry="3" opacity="0.35"/>
+  </svg>
+)
+
+const IconPhysio = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    {/* Rounded plus/cross — medical */}
+    <rect x="10" y="2" width="4" height="20" rx="2"/>
+    <rect x="2" y="10" width="20" height="4" rx="2"/>
+    {/* Center highlight */}
+    <circle cx="12" cy="12" r="2.2" opacity="0.25"/>
+  </svg>
+)
+
+const IconBalletShoe = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    {/* Main shoe body */}
+    <path d="M3 14C3 14 3 18.5 9.5 18.5H19C21 18.5 21.5 17 20 15.5L15.5 13.5C15.5 13.5 15 8.5 10 8.5C6.5 8.5 3 11 3 14Z"/>
+    {/* Toe box */}
+    <ellipse cx="4.5" cy="15.8" rx="2.2" ry="1.8" opacity="0.6"/>
+    {/* Ankle ribbon — pair of angled ellipses */}
+    <ellipse cx="11.5" cy="6.8" rx="0.9" ry="3.2" transform="rotate(22 11.5 6.8)"/>
+    <ellipse cx="13.5" cy="6" rx="0.9" ry="2.2" transform="rotate(-18 13.5 6)"/>
+  </svg>
+)
+
+const IconNutrition = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    {/* Apple body */}
+    <path d="M6 11.5C6 11.5 5 16 5 18.5C5 20.8 7 22 9.5 22H14.5C17 22 19 20.8 19 18.5C19 16 18 11.5 18 11.5C16.5 9.5 14.5 9 12 9C9.5 9 7.5 9.5 6 11.5Z"/>
+    {/* Left bump */}
+    <ellipse cx="9" cy="10" rx="2.5" ry="2.3"/>
+    {/* Right bump */}
+    <ellipse cx="15" cy="10" rx="2.5" ry="2.3"/>
+    {/* Stem */}
+    <ellipse cx="12.5" cy="6.2" rx="0.9" ry="3" transform="rotate(12 12.5 6.2)"/>
+    {/* Leaf */}
+    <ellipse cx="15.2" cy="4.8" rx="3.2" ry="1.5" transform="rotate(-32 15.2 4.8)"/>
+    {/* Shine */}
+    <ellipse cx="8.5" cy="14" rx="1.2" ry="1.8" opacity="0.28"/>
+  </svg>
+)
+
 const STUDIO_WHATSAPP = '593963741884'
 
 // Ballet silhouette decorativa
@@ -185,7 +239,7 @@ const PARTNERS = [
     name: 'TiendaDanza EC',
     category: 'Indumentaria de danza',
     description: 'Todo lo que tu bailarina necesita: uniformes, mallas y accesorios de alta calidad para ballet y danza contemporánea.',
-    emoji: '👗',
+    Icon: IconClothing, iconBg: 'rgba(255,255,255,0.22)',
     whatsapp: '593XXXXXXXXX',
     instagram: 'tiendadanza.ec',
   },
@@ -195,7 +249,7 @@ const PARTNERS = [
     name: 'FisioBalance',
     category: 'Fisioterapia deportiva',
     description: 'Prevención y recuperación de lesiones para bailarinas. Atención personalizada.',
-    emoji: '🩺',
+    Icon: IconPhysio, iconBg: '#0d9488',
     whatsapp: '593XXXXXXXXX',
     instagram: null,
   },
@@ -205,7 +259,7 @@ const PARTNERS = [
     name: 'CalzaDance',
     category: 'Calzado especializado',
     description: 'Zapatillas de punta, medias puntas y calzado de danza de las mejores marcas internacionales.',
-    emoji: '🩰',
+    Icon: IconBalletShoe, iconBg: '#be185d',
     whatsapp: '593XXXXXXXXX',
     instagram: 'calzadance.ec',
   },
@@ -214,7 +268,7 @@ const PARTNERS = [
     tier: 'bronce',
     name: 'NutriMove',
     category: 'Nutrición deportiva',
-    emoji: '🥗',
+    Icon: IconNutrition, iconBg: '#16a34a',
     whatsapp: '593XXXXXXXXX',
     instagram: null,
   },
@@ -479,8 +533,11 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
                 >
                   <div className="px-4 py-2.5 flex items-center justify-between"
                     style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)' }}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{p.emoji}</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ background: p.iconBg }}>
+                        <p.Icon size={19} />
+                      </div>
                       <div>
                         <p className="font-bold text-white text-sm leading-tight">{p.name}</p>
                         <p className="text-[10px] text-white/80">{p.category}</p>
@@ -517,7 +574,10 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
                     >
                       <div className="px-3 py-2 bg-white/10 flex items-center justify-between">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-base shrink-0">{p.emoji}</span>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background: p.iconBg }}>
+                            <p.Icon size={14} />
+                          </div>
                           <p className="font-bold text-white text-xs truncate">{p.name}</p>
                         </div>
                         <span className="text-[9px] text-white/50 font-semibold shrink-0 ml-1">✦ Plata</span>
@@ -544,7 +604,10 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
                       style={{ animation: `fadeIn 0.4s ease-out ${(i + 0.4) * 0.1}s both` }}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-base">{p.emoji}</span>
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                          style={{ background: p.iconBg }}>
+                          <p.Icon size={15} />
+                        </div>
                         <div>
                           <p className="text-xs font-semibold text-white/90">{p.name}</p>
                           <p className="text-[10px] text-white/50">{p.category}</p>
