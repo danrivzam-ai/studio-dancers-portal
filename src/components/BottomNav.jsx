@@ -1,9 +1,10 @@
-import { CreditCard, Lightbulb, BookOpen } from 'lucide-react'
+import { CreditCard, Lightbulb, BookOpen, CalendarDays } from 'lucide-react'
 
 const TABS = [
-  { id: 'payments', label: 'Pagos', icon: CreditCard },
-  { id: 'tips', label: 'Tips', icon: Lightbulb },
-  { id: 'courses', label: 'Cursos', icon: BookOpen }
+  { id: 'payments',  label: 'Pagos',      icon: CreditCard },
+  { id: 'calendar',  label: 'Calendario', icon: CalendarDays },
+  { id: 'tips',      label: 'Tips',       icon: Lightbulb },
+  { id: 'courses',   label: 'Cursos',     icon: BookOpen },
 ]
 
 export default function BottomNav({ activeTab, onChangeTab }) {

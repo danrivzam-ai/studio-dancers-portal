@@ -4,6 +4,7 @@ import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import CourseCatalog from './components/CourseCatalog'
 import BalletTips from './components/BalletTips'
+import CalendarTab from './components/CalendarTab'
 import BottomNav from './components/BottomNav'
 import './index.css'
 
@@ -269,6 +270,12 @@ export default function App() {
             sessionStorage.setItem('portal_session', JSON.stringify(updated))
             setSession(updated)
           }}
+        />
+      )}
+      {authTab === 'calendar' && (
+        <CalendarTab
+          students={session.students}
+          onLogout={handleLogout}
         />
       )}
       {authTab === 'tips' && (
