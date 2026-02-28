@@ -26,8 +26,10 @@ function getSession() {
 }
 
 // Restore public view from history.state on refresh
+// Also detects ?admin URL param so the management system can link directly
 function getInitialPublicView() {
   try {
+    if (window.location.search.includes('admin')) return 'admin'
     const state = history.state
     if (state?.type === 'public' && state.view) return state.view
   } catch { /* ignore */ }
@@ -219,7 +221,6 @@ export default function App() {
       <LandingPage
         onGoToCatalog={(category, courseName) => navigatePublic('catalog', category || null, courseName || null)}
         onGoToLogin={() => navigatePublic('login')}
-        onGoToAdmin={() => navigatePublic('admin')}
       />
     )
   }
