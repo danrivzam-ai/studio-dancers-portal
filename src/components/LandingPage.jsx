@@ -167,7 +167,7 @@ const FEATURES = [
 const QUICK_COURSES = [
   {
     name: 'Dance Camp 2026',
-    age: '7-17 años',
+    age: '3-17 años',
     schedule: 'Vacaciones',
     Icon: IconGroupDance,
     bgStyle: { background: 'rgba(255,207,224,0.65)' },
