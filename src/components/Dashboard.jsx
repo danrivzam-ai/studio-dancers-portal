@@ -81,6 +81,23 @@ function DanceLoader() {
   )
 }
 
+// ═══════ CLASES ESTIMADAS: cuenta días de clase desde el último pago ═══════
+// class_days usa ISO weekday: 1=Lun 2=Mar 3=Mié 4=Jue 5=Vie 6=Sáb 7=Dom
+function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
+  if (!lastPaymentDate || !classDays || !classDays.length) return 0
+  const start = new Date(lastPaymentDate + 'T00:00:00')
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  let count = 0
+  const d = new Date(start)
+  while (d <= today) {
+    const isoDay = d.getDay() === 0 ? 7 : d.getDay()
+    if (classDays.includes(isoDay)) count++
+    d.setDate(d.getDate() + 1)
+  }
+  return totalPerCycle ? Math.min(count, totalPerCycle) : count
+}
+
 // ═══════ PAYPHONE RETURN BANNER ═══════
 function PayphoneReturnBanner({ onConfirm, onDismiss }) {
   return (
@@ -191,15 +208,23 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           p_phone_last4: phoneLast4
         })
         if (!error && data && data.length > 0) {
-          // DEBUG — abre DevTools (F12) → Console para ver los valores reales
-          console.log('[DEBUG clases]', data.map(s => ({
-            alumna: s.name,
-            classes_used: s.classes_used,
-            classes_per_cycle: s.classes_per_cycle,
-            course: s.course_name,
-          })))
-          setLiveStudents(data)
-          onSessionUpdate?.(data)
+          // Fetch class_days for each unique course to compute estimated attendance
+          const courseIds = [...new Set(data.map(s => s.course_id).filter(Boolean))]
+          const { data: coursesData } = courseIds.length
+            ? await supabase.from('courses').select('id, class_days').in('id', courseIds)
+            : { data: [] }
+          const courseMap = {}
+          ;(coursesData || []).forEach(c => { courseMap[c.id] = c })
+
+          // Enrich each student with computed classes_used if DB value is absent
+          const enriched = data.map(s => {
+            if (s.classes_used != null && s.classes_used > 0) return s
+            const classDays = courseMap[s.course_id]?.class_days || []
+            const computed = computeEstimatedClasses(s.last_payment_date, classDays, s.classes_per_cycle)
+            return { ...s, classes_used: computed }
+          })
+          setLiveStudents(enriched)
+          onSessionUpdate?.(enriched)
         }
       } catch { /* silent */ }
     }
