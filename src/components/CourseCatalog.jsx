@@ -202,9 +202,9 @@ function MaestroModal({ onClose }) {
         {/* ── Foto ── */}
         <div className="relative">
           <img
-            src="/Freddy.png"
+            src="/maestro-galo.png"
             alt="Maestro Freddy Rivadeneira"
-            className="w-full h-64 object-cover object-top"
+            className="w-full h-52 object-cover object-center"
             onError={e => {
               e.currentTarget.style.display = 'none'
               e.currentTarget.nextElementSibling.style.display = 'flex'
@@ -212,31 +212,38 @@ function MaestroModal({ onClose }) {
           />
           {/* Fallback si no carga la foto */}
           <div
-            className="w-full h-64 items-center justify-center hidden"
+            className="w-full h-52 items-center justify-center hidden"
             style={{ background: 'linear-gradient(135deg, #551735 0%, #3d0f25 100%)' }}
           >
             <span className="text-white text-8xl font-extralight opacity-40 tracking-widest">FR</span>
           </div>
+
+          {/* Botón cerrar */}
           <button
             onClick={onClose}
             className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full"
           >
             <X size={18} />
           </button>
-          {/* Fade de foto a blanco */}
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent" />
-        </div>
 
-        <div className="px-5 pb-6 -mt-3 space-y-5">
+          {/* Gradiente oscuro en la base de la foto para legibilidad del badge */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
 
-          {/* ── Badge + Título ── */}
-          <div>
+          {/* Badge SOBRE la foto */}
+          <div className="absolute bottom-4 left-4">
             <span
-              className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-2"
-              style={{ background: '#551735', color: 'white' }}
+              className="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
+              style={{ background: 'white', color: '#551735' }}
             >
               Director Artístico · Fundador
             </span>
+          </div>
+        </div>
+
+        <div className="px-5 pb-6 pt-4 space-y-5">
+
+          {/* ── Título ── */}
+          <div>
             <h2 className="text-xl font-bold text-gray-900 leading-tight">
               Masterclasses con el Maestro Freddy Rivadeneira
             </h2>
