@@ -84,10 +84,37 @@ function DanceLoader() {
 // ═══════ CLASES ESTIMADAS: cuenta días de clase desde el último pago ═══════
 // class_days usa ISO weekday: 1=Lun 2=Mar 3=Mié 4=Jue 5=Vie 6=Sáb 7=Dom
 // "hoy" se calcula en timezone Guayaquil (UTC-5, sin DST) para consistencia con el calendario
-// Normalize class_days to numbers — DB may store them as strings in jsonb (e.g. ["1","3"])
+
+// Normalize class_days — handles: array of numbers, array of strings, JSON string "[2,4]", null
+// Admin stores 0=Dom,1=Lun,...,6=Sáb; portal uses ISO 1=Lun,...,7=Dom — remap 0→7
 function normalizeClassDays(days) {
+  if (!days && days !== 0) return []
+  if (typeof days === 'string') {
+    try { days = JSON.parse(days) } catch { return [] }
+  }
   if (!Array.isArray(days)) return []
-  return days.map(d => Number(d)).filter(d => d >= 1 && d <= 7)
+  return days
+    .map(d => { const n = Number(d); return n === 0 ? 7 : n }) // remap Sunday 0→7
+    .filter(d => d >= 1 && d <= 7)
+}
+
+// Parse class days from schedule text as last resort
+// e.g. "Martes y Jueves 7:00" → [2, 4]
+const SCHEDULE_DAY_MAP = {
+  lun:1, lunes:1, mar:2, martes:2,
+  'mié':3, mie:3, 'miércoles':3, miercoles:3,
+  jue:4, jueves:4, vie:5, viernes:5,
+  'sáb':6, sab:6, 'sábado':6, sabado:6, dom:7, domingo:7
+}
+function parseScheduleToDays(schedule) {
+  if (!schedule) return []
+  const words = schedule.toLowerCase().replace(/[^a-záéíóúüñ]/g, ' ').split(/\s+/)
+  const days = []
+  for (const w of words) {
+    const d = SCHEDULE_DAY_MAP[w]
+    if (d && !days.includes(d)) days.push(d)
+  }
+  return days.sort((a, b) => a - b)
 }
 
 function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
@@ -397,10 +424,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             courseMap[c.id] = { ...courseMap[c.id], ...c }
           })
 
-          // Enrich each student — normalize class_days to numbers to handle jsonb strings
+          // Enrich each student — normalize class_days, fall back to parsing schedule text
           const enriched = data.map(s => {
             const course = courseMap[s.course_id]
-            const classDays = normalizeClassDays(course?.class_days || s.class_days)
+            let classDays = normalizeClassDays(course?.class_days ?? s.class_days)
+            // Last resort: parse the human-readable schedule text (e.g. "Martes y Jueves 7:00")
+            if (!classDays.length) classDays = parseScheduleToDays(course?.schedule || s.schedule)
             const classesPer = course?.classes_per_cycle ?? s.classes_per_cycle ?? 0
             const priceType = course?.price_type || s.price_type || null
             const classes_used = (s.classes_used != null && s.classes_used > 0)
