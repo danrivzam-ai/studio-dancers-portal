@@ -16,8 +16,8 @@ const FacebookIcon = () => (
 // ── Siluetas ballet minimalistas — solo formas rellenas, sin trazos ──
 
 // Arabesque: torso inclinado, pierna extendida atrás, brazos
-const IconArabesque = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="white">
+const IconArabesque = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <circle cx="11" cy="3" r="2"/>
     <ellipse cx="10.25" cy="8" rx="1.4" ry="3.2" transform="rotate(15 10.25 8)"/>
     <ellipse cx="9.25" cy="16" rx="1.2" ry="4.5"/>
@@ -28,8 +28,8 @@ const IconArabesque = ({ size = 20 }) => (
 )
 
 // Grand Jeté: salto con piernas en split
-const IconGrandJete = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="white">
+const IconGrandJete = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <circle cx="12" cy="2.5" r="2"/>
     <ellipse cx="11.5" cy="7.5" rx="1.4" ry="3.2" transform="rotate(-5 11.5 7.5)"/>
     <ellipse cx="7" cy="14.5" rx="1.2" ry="4.5" transform="rotate(36 7 14.5)"/>
@@ -40,8 +40,8 @@ const IconGrandJete = ({ size = 20 }) => (
 )
 
 // Pas de deux: dos bailarinas tomadas de la mano
-const IconDancerDuo = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="white">
+const IconDancerDuo = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <circle cx="7.5" cy="3.5" r="1.8"/>
     <ellipse cx="7.5" cy="8.5" rx="1.3" ry="2.8"/>
     <ellipse cx="6.5" cy="15" rx="1.1" ry="4"/>
@@ -57,8 +57,8 @@ const IconDancerDuo = ({ size = 20 }) => (
 )
 
 // Grupo celebrando: dos bailarinas con brazos alzados
-const IconGroupDance = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="white">
+const IconGroupDance = ({ size = 20, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <circle cx="7.5" cy="3" r="1.8"/>
     <ellipse cx="7.5" cy="7.5" rx="1.3" ry="2.8"/>
     <ellipse cx="6.5" cy="14" rx="1.1" ry="4"/>
@@ -116,30 +116,32 @@ const QUICK_COURSES = [
     age: '7-17 años',
     schedule: 'Vacaciones',
     Icon: IconGroupDance,
-    gradient: 'from-[#551735] to-[#3d0f25]',
     bgStyle: { background: 'rgba(255,207,224,0.65)' },
     borderColor: '#f5b8d0',
     category: 'especial',
+    iconBg: '#ffcfe0',
+    iconColor: '#6b1a3a',
   },
   {
     name: 'Ballet Adultas Principiantes',
     age: 'Desde 18 años',
     schedule: 'Mar y Jue',
     Icon: IconArabesque,
-    gradient: 'from-[#551735] to-[#3d0f25]',
     bgStyle: { background: 'rgba(175,238,238,0.65)' },
     borderColor: '#7dd4d4',
     category: 'regular',
+    iconBg: '#afeeee',
+    iconColor: '#0d4444',
   },
   {
     name: 'Intensivos Sábados',
     age: '7+ años',
     schedule: 'Sábados',
     Icon: IconGrandJete,
-    gradient: 'from-purple-500 to-purple-600',
     bgStyle: {},
     borderColor: '#c4b5fd',
     category: 'intensivo',
+    courseName: 'Dance CREW',
   },
 ]
 
@@ -157,9 +159,9 @@ const TESTIMONIALS = [
     stars: 5,
   },
   {
-    author: 'Sofía R.',
-    text: 'El Dance Camp fue increíble para mi hija. Llegó cada día con una sonrisa enorme y muchas ganas de seguir bailando.',
-    date: '3 meses atrás',
+    author: 'Valentina O.',
+    text: 'Llevo 6 meses en Studio Dancers y no cambiaría estas clases por nada. La evolución de mi hija se nota semana a semana.',
+    date: '2 semanas atrás',
     stars: 5,
   },
 ]
@@ -313,18 +315,19 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
               return (
                 <button
                   key={idx}
-                  onClick={() => onGoToCatalog(course.category)}
+                  onClick={() => onGoToCatalog(course.category, course.courseName || null)}
                   className="w-full flex items-center gap-3.5 border rounded-xl p-3.5 text-left hover:shadow-md active:scale-[0.98] transition-all"
                   style={{
-                    ...course.bgStyle,
                     borderColor: course.borderColor,
-                    background: course.bgStyle.background || undefined,
-                    backgroundColor: !course.bgStyle.background ? '#f5f3ff' : undefined,
+                    background: course.bgStyle?.background || '#f5f3ff',
                     animation: `fadeIn 0.3s ease-out ${idx * 0.08}s both`
                   }}
                 >
-                  <div className={`w-11 h-11 bg-gradient-to-br ${course.gradient} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}>
-                    <Icon size={20} />
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+                    style={{ background: course.iconBg || 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
+                  >
+                    <Icon size={20} color={course.iconColor || 'white'} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-gray-800 text-sm">{course.name}</h3>
@@ -425,138 +428,139 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
       </div>
 
       {/* ═══════ PARTNER DIRECTORIO ═══════ */}
-      {PARTNERS.length > 0 && (
-        <div className="bg-white px-5 py-12 border-t border-gray-100">
-          <div className="max-w-md mx-auto">
+      <div style={{ background: 'linear-gradient(160deg, #3d0f25 0%, #551735 50%, #2d1b6b 100%)' }} className="px-5 py-12">
+        <div className="max-w-md mx-auto">
 
-            {/* Heading */}
-            <div className="text-center mb-7">
-              <p className="text-amber-600 text-xs font-semibold uppercase tracking-widest mb-1">Red de Confianza</p>
-              <h2 className="text-xl font-bold text-gray-900">Productos y servicios recomendados</h2>
-              <p className="text-sm text-gray-400 mt-1">Aliados seleccionados por Studio Dancers</p>
+          {/* ── Pitch persuasivo para marcas ── */}
+          <div className="mb-8">
+            <p className="text-amber-400 text-xs font-semibold uppercase tracking-widest mb-3 text-center">Alianzas Comerciales</p>
+            <h2 className="text-2xl font-bold text-white leading-tight text-center mb-5">
+              ¿Tu marca vive la danza?<br />Únete a nuestro ecosistema.
+            </h2>
+
+            <div className="space-y-3 mb-6">
+              {[
+                '🎯 Conecta tu tienda directamente con cientos de bailarinas y familias en Guayaquil que usan nuestra app a diario.',
+                '🛍️ Posiciona tus productos (leotardos, zapatillas, accesorios) en el momento exacto de la decisión de compra.',
+                '📌 Obtén un espacio exclusivo con contacto directo a tu WhatsApp o catálogo digital.',
+              ].map((text, i) => (
+                <div key={i} className="flex items-start gap-3 bg-white/10 rounded-xl px-3.5 py-3">
+                  <p className="text-sm text-white/90 leading-relaxed">{text}</p>
+                </div>
+              ))}
             </div>
 
-            {/* ── ORO — featured full-width ── */}
-            {PARTNERS.filter(p => p.tier === 'oro').map((p, i) => (
-              <div
-                key={p.id}
-                className="mb-4 rounded-2xl overflow-hidden shadow-md border border-amber-200"
-                style={{ animation: `fadeIn 0.4s ease-out ${i * 0.1}s both` }}
-              >
-                {/* Gold header strip */}
-                <div className="px-4 py-2.5 flex items-center justify-between"
-                  style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{p.emoji}</span>
-                    <div>
-                      <p className="font-bold text-white text-sm leading-tight">{p.name}</p>
-                      <p className="text-[10px] text-white/80">{p.category}</p>
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 bg-white/25 text-white text-[10px] font-bold rounded-full">⭐ Oro</span>
-                </div>
-                {/* Body */}
-                <div className="bg-amber-50 px-4 py-3">
-                  <p className="text-xs text-gray-600 leading-relaxed mb-3">{p.description}</p>
-                  <div className="flex gap-2">
-                    <a
-                      href={`https://wa.me/${p.whatsapp}?text=${encodeURIComponent(`¡Hola ${p.name}! Los vi en Studio Dancers y me interesa información.`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-green-600 text-white rounded-xl text-xs font-semibold hover:bg-green-700 transition-colors"
-                    >
-                      <MessageCircle size={13} />WhatsApp
-                    </a>
-                    {p.instagram && (
-                      <a
-                        href={`https://www.instagram.com/${p.instagram}/`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-white rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity"
-                        style={{ background: 'linear-gradient(90deg, #833ab4, #fd1d1d)' }}
-                      >
-                        <InstagramIcon />Instagram
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* ── PLATA — 2-column grid ── */}
-            {PARTNERS.filter(p => p.tier === 'plata').length > 0 && (
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {PARTNERS.filter(p => p.tier === 'plata').map((p, i) => (
-                  <div
-                    key={p.id}
-                    className="rounded-2xl border-2 border-gray-200 bg-white overflow-hidden shadow-sm"
-                    style={{ animation: `fadeIn 0.4s ease-out ${(i + 0.2) * 0.15}s both` }}
-                  >
-                    {/* Silver header */}
-                    <div className="px-3 py-2 bg-gray-100 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-base shrink-0">{p.emoji}</span>
-                        <p className="font-bold text-gray-800 text-xs truncate">{p.name}</p>
-                      </div>
-                      <span className="text-[9px] text-gray-500 font-semibold shrink-0 ml-1">✦ Plata</span>
-                    </div>
-                    {/* Body */}
-                    <div className="px-3 py-2.5">
-                      <p className="text-[10px] text-gray-400 mb-1 font-medium">{p.category}</p>
-                      <p className="text-[11px] text-gray-600 leading-relaxed mb-2.5">{p.description}</p>
-                      <a
-                        href={`https://wa.me/${p.whatsapp}?text=${encodeURIComponent(`¡Hola ${p.name}! Los vi en Studio Dancers y me interesa información.`)}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1 py-2 bg-green-50 border border-green-200 text-green-700 rounded-lg text-[11px] font-semibold hover:bg-green-100 transition-colors"
-                      >
-                        <MessageCircle size={11} />WhatsApp
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* ── BRONCE — compact pills ── */}
-            {PARTNERS.filter(p => p.tier === 'bronce').length > 0 && (
-              <div className="space-y-2 mb-4">
-                {PARTNERS.filter(p => p.tier === 'bronce').map((p, i) => (
-                  <div
-                    key={p.id}
-                    className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5"
-                    style={{ animation: `fadeIn 0.4s ease-out ${(i + 0.4) * 0.1}s both` }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">{p.emoji}</span>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-700">{p.name}</p>
-                        <p className="text-[10px] text-gray-400">{p.category}</p>
-                      </div>
-                    </div>
-                    <a
-                      href={`https://wa.me/${p.whatsapp}?text=${encodeURIComponent(`¡Hola ${p.name}! Los vi en Studio Dancers.`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-2.5 py-1.5 bg-green-100 text-green-700 rounded-lg text-[11px] font-semibold hover:bg-green-200 transition-colors shrink-0"
-                    >
-                      <MessageCircle size={11} />WA
-                    </a>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* CTA para nuevos partners */}
-            <p className="text-center text-[11px] text-gray-400 mt-3">
-              ¿Tienes un negocio relacionado con la danza?{' '}
-              <a
-                href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent('¡Hola! Me gustaría información para ser partner de Studio Dancers.')}`}
-                target="_blank" rel="noopener noreferrer"
-                className="text-purple-500 font-semibold hover:text-purple-700 transition-colors"
-              >
-                Únete a nuestra red →
-              </a>
-            </p>
+            <a
+              href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent('¡Hola! Quiero ser Aliado Comercial de Studio Dancers. Me gustaría información sobre los planes de partners.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-sm text-white shadow-lg transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)' }}
+            >
+              📲 Quiero ser Aliado Comercial
+            </a>
           </div>
+
+          {/* ── Ejemplos visuales (botones estáticos, solo muestra) ── */}
+          {PARTNERS.length > 0 && (
+            <>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="flex-1 h-px bg-white/20" />
+                <p className="text-[11px] text-white/50 font-medium whitespace-nowrap">Así se verán tus anuncios</p>
+                <div className="flex-1 h-px bg-white/20" />
+              </div>
+
+              {/* ORO — full-width (static) */}
+              {PARTNERS.filter(p => p.tier === 'oro').map((p, i) => (
+                <div
+                  key={p.id}
+                  className="mb-4 rounded-2xl overflow-hidden shadow-md border border-amber-300/30"
+                  style={{ animation: `fadeIn 0.4s ease-out ${i * 0.1}s both` }}
+                >
+                  <div className="px-4 py-2.5 flex items-center justify-between"
+                    style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)' }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{p.emoji}</span>
+                      <div>
+                        <p className="font-bold text-white text-sm leading-tight">{p.name}</p>
+                        <p className="text-[10px] text-white/80">{p.category}</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 bg-white/25 text-white text-[10px] font-bold rounded-full">⭐ Oro</span>
+                  </div>
+                  <div className="bg-amber-50 px-4 py-3">
+                    <p className="text-xs text-gray-600 leading-relaxed mb-3">{p.description}</p>
+                    <div className="flex gap-2">
+                      {/* Static — solo visual, no clickeable */}
+                      <div className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-green-600 text-white rounded-xl text-xs font-semibold opacity-70 cursor-default select-none">
+                        <MessageCircle size={13} />WhatsApp
+                      </div>
+                      {p.instagram && (
+                        <div className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-white rounded-xl text-xs font-semibold opacity-70 cursor-default select-none"
+                          style={{ background: 'linear-gradient(90deg, #833ab4, #fd1d1d)' }}>
+                          <InstagramIcon />Instagram
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* PLATA — 2-col (static) */}
+              {PARTNERS.filter(p => p.tier === 'plata').length > 0 && (
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  {PARTNERS.filter(p => p.tier === 'plata').map((p, i) => (
+                    <div
+                      key={p.id}
+                      className="rounded-2xl border-2 border-white/20 bg-white/10 overflow-hidden shadow-sm"
+                      style={{ animation: `fadeIn 0.4s ease-out ${(i + 0.2) * 0.15}s both` }}
+                    >
+                      <div className="px-3 py-2 bg-white/10 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-base shrink-0">{p.emoji}</span>
+                          <p className="font-bold text-white text-xs truncate">{p.name}</p>
+                        </div>
+                        <span className="text-[9px] text-white/50 font-semibold shrink-0 ml-1">✦ Plata</span>
+                      </div>
+                      <div className="px-3 py-2.5">
+                        <p className="text-[10px] text-white/50 mb-1 font-medium">{p.category}</p>
+                        <p className="text-[11px] text-white/80 leading-relaxed mb-2.5">{p.description}</p>
+                        <div className="flex items-center justify-center gap-1 py-2 bg-green-900/40 border border-green-500/30 text-green-300 rounded-lg text-[11px] font-semibold opacity-70 cursor-default select-none">
+                          <MessageCircle size={11} />WhatsApp
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* BRONCE — pills (static) */}
+              {PARTNERS.filter(p => p.tier === 'bronce').length > 0 && (
+                <div className="space-y-2">
+                  {PARTNERS.filter(p => p.tier === 'bronce').map((p, i) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between bg-white/10 border border-white/15 rounded-xl px-3.5 py-2.5"
+                      style={{ animation: `fadeIn 0.4s ease-out ${(i + 0.4) * 0.1}s both` }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{p.emoji}</span>
+                        <div>
+                          <p className="text-xs font-semibold text-white/90">{p.name}</p>
+                          <p className="text-[10px] text-white/50">{p.category}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 px-2.5 py-1.5 bg-green-900/40 border border-green-500/30 text-green-300 rounded-lg text-[11px] font-semibold opacity-70 cursor-default select-none shrink-0">
+                        <MessageCircle size={11} />WA
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ═══════ CONTACTO Y UBICACIÓN ═══════ */}
       <div className="bg-white px-5 py-10 border-t border-gray-100">

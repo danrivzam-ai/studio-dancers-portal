@@ -45,6 +45,7 @@ export default function App() {
   const [session, setSession] = useState(getSession)
   const [publicView, setPublicView] = useState(getInitialPublicView)
   const [catalogCategory, setCatalogCategory] = useState(null)
+  const [catalogCourseName, setCatalogCourseName] = useState(null)
   const [authTab, setAuthTab] = useState(getInitialAuthTab)
   const [error, setError] = useState(null)
   const isHandlingPopState = useRef(false)
@@ -130,6 +131,7 @@ export default function App() {
       } else if (state.type === 'public') {
         setPublicView(state.view || 'home')
         setCatalogCategory(state.category || null)
+        setCatalogCourseName(state.courseName || null)
       }
       isHandlingPopState.current = false
     }
@@ -139,11 +141,12 @@ export default function App() {
   }, [session, authTab, publicView])
 
   // --- NAVIGATION HELPERS ---
-  const navigatePublic = useCallback((view, category = null) => {
+  const navigatePublic = useCallback((view, category = null, courseName = null) => {
     if (isHandlingPopState.current) return
-    history.pushState({ type: 'public', view, category }, '')
+    history.pushState({ type: 'public', view, category, courseName }, '')
     setPublicView(view)
     setCatalogCategory(category)
+    setCatalogCourseName(courseName)
   }, [])
 
   const navigateTab = useCallback((tab) => {
@@ -203,14 +206,14 @@ export default function App() {
   // --- PUBLIC VIEWS ---
   if (!session) {
     if (publicView === 'catalog') {
-      return <CourseCatalog onBack={() => navigatePublic('home')} initialCategory={catalogCategory} />
+      return <CourseCatalog onBack={() => navigatePublic('home')} initialCategory={catalogCategory} initialCourseName={catalogCourseName} />
     }
     if (publicView === 'login') {
       return <Login onLogin={handleLogin} onBack={() => navigatePublic('home')} />
     }
     return (
       <LandingPage
-        onGoToCatalog={(category) => navigatePublic('catalog', category || null)}
+        onGoToCatalog={(category, courseName) => navigatePublic('catalog', category || null, courseName || null)}
         onGoToLogin={() => navigatePublic('login')}
       />
     )

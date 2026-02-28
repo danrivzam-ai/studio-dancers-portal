@@ -421,7 +421,7 @@ function CategoryCard({ config, count, onClick, delay = 0 }) {
 // MAIN COMPONENT
 // ══════════════════════════════════════════════
 
-export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initialCategory }) {
+export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initialCategory, initialCourseName }) {
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
@@ -444,6 +444,18 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
   }, [])
 
   useEffect(() => { fetchCourses() }, [fetchCourses])
+
+  // Auto-open a specific course by name (e.g. from LandingPage deep-link)
+  useEffect(() => {
+    if (!initialCourseName || courses.length === 0 || selectedCourse) return
+    const needle = initialCourseName.toLowerCase()
+    const match = courses.find(c => (c.name || '').toLowerCase().includes(needle))
+    if (match) {
+      const cat = match.category === 'camp' ? 'especial' : (match.category || 'regular')
+      setSelectedCategory(cat)
+      setSelectedCourse(match)
+    }
+  }, [courses, initialCourseName])
 
   useEffect(() => {
     const handlePopState = () => {
