@@ -84,8 +84,15 @@ function DanceLoader() {
 // ═══════ CLASES ESTIMADAS: cuenta días de clase desde el último pago ═══════
 // class_days usa ISO weekday: 1=Lun 2=Mar 3=Mié 4=Jue 5=Vie 6=Sáb 7=Dom
 // "hoy" se calcula en timezone Guayaquil (UTC-5, sin DST) para consistencia con el calendario
+// Normalize class_days to numbers — DB may store them as strings in jsonb (e.g. ["1","3"])
+function normalizeClassDays(days) {
+  if (!Array.isArray(days)) return []
+  return days.map(d => Number(d)).filter(d => d >= 1 && d <= 7)
+}
+
 function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
-  if (!lastPaymentDate || !classDays || !classDays.length) return 0
+  const days = normalizeClassDays(classDays)
+  if (!lastPaymentDate || !days.length) return 0
   const start = new Date(lastPaymentDate + 'T00:00:00')
   const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
   todayGYE.setHours(0, 0, 0, 0)
@@ -93,7 +100,7 @@ function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
   const d = new Date(start)
   while (d <= todayGYE) {
     const isoDay = d.getDay() === 0 ? 7 : d.getDay()
-    if (classDays.includes(isoDay)) count++
+    if (days.includes(isoDay)) count++
     d.setDate(d.getDate() + 1)
   }
   return totalPerCycle ? Math.min(count, totalPerCycle) : count
@@ -102,7 +109,8 @@ function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
 // Counts how many class days fall within 1 month from lastPaymentDate
 // Used as fallback total when classes_per_cycle is not set in the DB
 function computeMonthlyTotal(lastPaymentDate, classDays) {
-  if (!lastPaymentDate || !classDays?.length) return 0
+  const days = normalizeClassDays(classDays)
+  if (!lastPaymentDate || !days.length) return 0
   const start = new Date(lastPaymentDate + 'T00:00:00')
   const end = new Date(start)
   end.setMonth(end.getMonth() + 1)
@@ -110,7 +118,7 @@ function computeMonthlyTotal(lastPaymentDate, classDays) {
   const d = new Date(start)
   while (d < end) {
     const isoDay = d.getDay() === 0 ? 7 : d.getDay()
-    if (classDays.includes(isoDay)) count++
+    if (days.includes(isoDay)) count++
     d.setDate(d.getDate() + 1)
   }
   return count
@@ -119,7 +127,7 @@ function computeMonthlyTotal(lastPaymentDate, classDays) {
 // ═══════ CLASS CALENDAR MODAL ═══════
 // Shows current month with class days highlighted — timezone: America/Guayaquil (UTC-5)
 function ClassCalendar({ student, onClose }) {
-  const classDays = student.class_days || [] // ISO: 1=Lun ... 7=Dom
+  const classDays = normalizeClassDays(student.class_days) // ISO: 1=Lun ... 7=Dom
 
   // Current date in Guayaquil timezone
   const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
@@ -369,20 +377,30 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           p_phone_last4: phoneLast4
         })
         if (!error && data && data.length > 0) {
-          // Fetch class_days + classes_per_cycle + price_type via SECURITY DEFINER RPC
-          // (direct table query with anon key is blocked by RLS → always returns empty)
+          // Fetch course schedule data — try two sources in parallel for maximum reliability:
+          // 1. rpc_get_course_info (SECURITY DEFINER, has class_days + price_type)
+          // 2. rpc_public_courses  (already used by CourseCatalog, guaranteed to work)
           const courseIds = [...new Set(data.map(s => s.course_id).filter(Boolean))]
-          let courseMap = {}
-          if (courseIds.length) {
-            const { data: coursesData } = await supabase.rpc('rpc_get_course_info', { p_course_ids: courseIds })
-            ;(coursesData || []).forEach(c => { courseMap[c.id] = c })
-          }
+          const [infoRes, pubRes] = await Promise.all([
+            courseIds.length
+              ? supabase.rpc('rpc_get_course_info', { p_course_ids: courseIds })
+              : Promise.resolve({ data: [] }),
+            supabase.rpc('rpc_public_courses')
+          ])
 
-          // Enrich each student: classes_used + classes_per_cycle + class_days + price_type
+          // Merge: public courses first (price_type), overlay with course_info (class_days)
+          const courseMap = {}
+          ;(pubRes.data || []).forEach(c => {
+            if (courseIds.includes(c.id)) courseMap[c.id] = c
+          })
+          ;(infoRes.data || []).forEach(c => {
+            courseMap[c.id] = { ...courseMap[c.id], ...c }
+          })
+
+          // Enrich each student — normalize class_days to numbers to handle jsonb strings
           const enriched = data.map(s => {
             const course = courseMap[s.course_id]
-            // Fallback chain: RPC result → what login already returned → empty
-            const classDays = course?.class_days || s.class_days || []
+            const classDays = normalizeClassDays(course?.class_days || s.class_days)
             const classesPer = course?.classes_per_cycle ?? s.classes_per_cycle ?? 0
             const priceType = course?.price_type || s.price_type || null
             const classes_used = (s.classes_used != null && s.classes_used > 0)
@@ -639,9 +657,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const classesTotal = student.classes_per_cycle > 0
             ? student.classes_per_cycle
             : computeMonthlyTotal(student.last_payment_date, student.class_days)
-          // Show counter/calendar for monthly courses that have a schedule defined
-          // (no dependency on classes_per_cycle being set in DB)
-          const hasClassInfo = student.price_type === 'mes' && (student.class_days?.length > 0)
+          // Show counter/calendar for any course that has a schedule (class_days) defined
+          const hasClassInfo = student.class_days?.length > 0
           const activeMethod = expandedPayment[student.id]
           // Parse schedule suffix from course_name (e.g. "Ballet Adultas | L - M" → "L - M")
           const scheduleLabel = (() => {
