@@ -929,8 +929,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   </div>
                 )}
 
-                {/* Fidelidad badge */}
-                <LoyaltyCard consecutiveMonths={student.consecutive_months || 0} />
+                {/* Fidelidad badge — solo para alumnas con mensualidad recurrente */}
+                {!cycleMode && <LoyaltyCard consecutiveMonths={student.consecutive_months || 0} />}
 
                 {/* Balance Alert */}
                 {student.balance > 0 && (
@@ -945,8 +945,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   </div>
                 )}
 
-                {/* Classes Info + Calendar button */}
-                {hasClassInfo && (
+                {/* Classes Info — solo para alumnas con mensualidad recurrente */}
+                {hasClassInfo && !cycleMode && (
                   <div className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
                     <span className="text-[10px] text-purple-600 uppercase font-medium tracking-wider flex items-center gap-1.5">
                       <BookOpen size={10} className="shrink-0" />
