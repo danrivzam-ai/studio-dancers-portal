@@ -487,6 +487,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [refreshKey, setRefreshKey] = useState(0)
   const [loading, setLoading] = useState(true)
   const [expandedPayment, setExpandedPayment] = useState({})
+  const [selectedBankIdx, setSelectedBankIdx] = useState({})
   const [ppConfirm, setPpConfirm] = useState({})
   const [ppLoading, setPpLoading] = useState({})
   const [ppSuccess, setPpSuccess] = useState({})
@@ -1012,43 +1013,71 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   {/* ── Transfer Expanded ── */}
                   {activeMethod === 'transfer' && (
                     <div className="mt-3 bg-purple-50 rounded-xl border border-purple-200 overflow-hidden animate-slideDown">
-                      {bankInfo?.bank_account_number && (
-                        <div className="p-3 space-y-1">
-                          <p className="text-[10px] text-purple-600 uppercase font-semibold tracking-wider mb-1.5">Datos bancarios</p>
-                          {[
-                            { label: 'Banco', value: bankInfo.bank_name, key: `banco-${student.id}` },
-                            { label: 'Nro. Cuenta', value: bankInfo.bank_account_number, key: `cuenta-${student.id}`, mono: true },
-                            { label: 'Tipo', value: bankInfo.bank_account_type, key: `tipo-${student.id}` },
-                            { label: 'Titular', value: bankInfo.bank_account_holder, key: `titular-${student.id}` },
-                            { label: 'Cédula', value: '0915553630', key: `ced-${student.id}`, mono: true },
-                          ].map(({ label, value, key, mono }) => (
-                            <button
-                              key={key}
-                              onClick={() => copyToClipboard(value, key)}
-                              className="w-full bg-white hover:bg-purple-100 active:bg-purple-200 rounded-lg px-3 py-2 transition-colors text-left"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="min-w-0 flex-1 mr-2">
-                                  <p className="text-[9px] text-gray-400 uppercase tracking-wider">{label}</p>
-                                  <p className={`text-xs font-medium text-gray-800 mt-0.5 break-words ${mono ? 'font-mono tracking-wide' : ''}`}>
-                                    {value}
-                                  </p>
-                                </div>
-                                <div className="shrink-0">
-                                  {copiedField === key ? (
-                                    <span className="flex items-center gap-0.5 text-green-600 text-[9px] font-medium">
-                                      <CheckCircle size={12} />
-                                    </span>
-                                  ) : (
-                                    <Copy size={12} className="text-gray-300" />
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                          <p className="text-[9px] text-purple-400 text-center mt-1">Toque para copiar</p>
-                        </div>
-                      )}
+                      {bankInfo?.bank_account_number && (() => {
+                        const allBanks = [
+                          { short: bankInfo.bank_name, name: bankInfo.bank_name, account: bankInfo.bank_account_number, type: bankInfo.bank_account_type, holder: bankInfo.bank_account_holder },
+                          { short: 'Produbanco', name: 'Produbanco', account: '20007543342', type: 'Cuenta de Ahorros', holder: bankInfo.bank_account_holder },
+                          { short: 'Pacífico', name: 'Banco del Pacífico', account: '1040219097', type: 'Cuenta de Ahorros', holder: bankInfo.bank_account_holder },
+                        ]
+                        const bIdx = selectedBankIdx[student.id] ?? 0
+                        const bank = allBanks[bIdx]
+                        return (
+                          <div className="p-3 space-y-2">
+                            <p className="text-[10px] text-purple-600 uppercase font-semibold tracking-wider">Datos bancarios</p>
+                            {/* Bank selector chips */}
+                            <div className="flex gap-1.5">
+                              {allBanks.map((b, i) => (
+                                <button
+                                  key={i}
+                                  onClick={() => setSelectedBankIdx(prev => ({ ...prev, [student.id]: i }))}
+                                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-semibold transition-colors truncate px-1 ${
+                                    bIdx === i
+                                      ? 'bg-purple-600 text-white'
+                                      : 'bg-white text-purple-600 border border-purple-200 hover:bg-purple-100 active:bg-purple-200'
+                                  }`}
+                                >
+                                  {b.short}
+                                </button>
+                              ))}
+                            </div>
+                            {/* Selected bank details */}
+                            <div className="space-y-1">
+                              {[
+                                { label: 'Banco', value: bank.name, key: `banco-${student.id}-${bIdx}` },
+                                { label: 'Nro. Cuenta', value: bank.account, key: `cuenta-${student.id}-${bIdx}`, mono: true },
+                                { label: 'Tipo', value: bank.type, key: `tipo-${student.id}-${bIdx}` },
+                                { label: 'Titular', value: bank.holder, key: `titular-${student.id}-${bIdx}` },
+                                { label: 'Cédula', value: '0915553630', key: `ced-${student.id}-${bIdx}`, mono: true },
+                              ].map(({ label, value, key, mono }) => (
+                                <button
+                                  key={key}
+                                  onClick={() => copyToClipboard(value, key)}
+                                  className="w-full bg-white hover:bg-purple-100 active:bg-purple-200 rounded-lg px-3 py-2 transition-colors text-left"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="min-w-0 flex-1 mr-2">
+                                      <p className="text-[9px] text-gray-400 uppercase tracking-wider">{label}</p>
+                                      <p className={`text-xs font-medium text-gray-800 mt-0.5 break-words ${mono ? 'font-mono tracking-wide' : ''}`}>
+                                        {value}
+                                      </p>
+                                    </div>
+                                    <div className="shrink-0">
+                                      {copiedField === key ? (
+                                        <span className="flex items-center gap-0.5 text-green-600 text-[9px] font-medium">
+                                          <CheckCircle size={12} />
+                                        </span>
+                                      ) : (
+                                        <Copy size={12} className="text-gray-300" />
+                                      )}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
+                              <p className="text-[9px] text-purple-400 text-center mt-1">Toque para copiar</p>
+                            </div>
+                          </div>
+                        )
+                      })()}
                       <button
                         onClick={() => openUpload(student.id)}
                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-semibold text-sm transition-colors"
