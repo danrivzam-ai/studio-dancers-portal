@@ -1,16 +1,128 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
 // ═══════ FIDELIDAD ═══════
 function getLoyaltyTier(consecutiveMonths) {
   const months = parseInt(consecutiveMonths) || 0
-  if (months >= 12) return { tier: 'oro',    label: 'Oro',    emoji: '🥇', discount: 15, next: null,     nextMonths: null,        months }
-  if (months >= 6)  return { tier: 'plata',  label: 'Plata',  emoji: '🥈', discount: 10, next: 'Oro',   nextMonths: 12 - months, months }
-  if (months >= 3)  return { tier: 'bronce', label: 'Bronce', emoji: '🥉', discount: 5,  next: 'Plata', nextMonths: 6 - months,  months }
-  return               { tier: null,     label: null,     emoji: null,  discount: 0,  next: 'Bronce', nextMonths: 3 - months, months }
+  if (months >= 12) return { tier: 'oro',    label: 'Oro',    discount: 15, next: null,     nextMonths: null,        months }
+  if (months >= 6)  return { tier: 'plata',  label: 'Plata',  discount: 10, next: 'Oro',   nextMonths: 12 - months, months }
+  if (months >= 3)  return { tier: 'bronce', label: 'Bronce', discount: 5,  next: 'Plata', nextMonths: 6 - months,  months }
+  return               { tier: null,     label: null,     discount: 0,  next: 'Bronce', nextMonths: 3 - months, months }
+}
+
+function LoyaltyCard({ consecutiveMonths }) {
+  const loyalty = getLoyaltyTier(consecutiveMonths)
+  const months = loyalty.months
+
+  const cfg = (() => {
+    if (loyalty.tier === 'oro') return {
+      progressMax: 12, progressVal: 12,
+      bg: 'linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%)',
+      border: '#fcd34d', barFrom: '#f59e0b', barTo: '#d97706',
+      label: '#92400e', sub: '#b45309',
+      pillBg: '#fef3c7', pillText: '#92400e', pillBorder: '#fcd34d',
+      title: 'ORO · 15% de descuento',
+      subtitle: '¡Nivel máximo alcanzado! Gracias por tu fidelidad',
+      icon: 'trophy',
+    }
+    if (loyalty.tier === 'plata') return {
+      progressMax: 12, progressVal: months,
+      bg: 'linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%)',
+      border: '#cbd5e1', barFrom: '#94a3b8', barTo: '#64748b',
+      label: '#334155', sub: '#64748b',
+      pillBg: '#f1f5f9', pillText: '#334155', pillBorder: '#cbd5e1',
+      title: 'PLATA · 10% de descuento',
+      subtitle: `${loyalty.nextMonths} ${loyalty.nextMonths === 1 ? 'mes' : 'meses'} más para Oro · 15%`,
+      icon: 'award',
+    }
+    if (loyalty.tier === 'bronce') return {
+      progressMax: 6, progressVal: months,
+      bg: 'linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%)',
+      border: '#fdba74', barFrom: '#f97316', barTo: '#ea580c',
+      label: '#9a3412', sub: '#c2410c',
+      pillBg: '#ffedd5', pillText: '#9a3412', pillBorder: '#fdba74',
+      title: 'BRONCE · 5% de descuento',
+      subtitle: `${loyalty.nextMonths} ${loyalty.nextMonths === 1 ? 'mes' : 'meses'} más para Plata · 10%`,
+      icon: 'award',
+    }
+    if (months > 0) return {
+      progressMax: 3, progressVal: months,
+      bg: 'linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%)',
+      border: '#d8b4fe', barFrom: '#a855f7', barTo: '#7c3aed',
+      label: '#6b21a8', sub: '#7c3aed',
+      pillBg: '#f3e8ff', pillText: '#6b21a8', pillBorder: '#d8b4fe',
+      title: `Racha activa · ${months} ${months === 1 ? 'mes' : 'meses'}`,
+      subtitle: `Solo ${loyalty.nextMonths} más para tu descuento Bronce · 5%`,
+      icon: 'zap',
+    }
+    return {
+      progressMax: 3, progressVal: 0,
+      bg: 'linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%)',
+      border: '#e9d5ff', barFrom: '#c4b5fd', barTo: '#a78bfa',
+      label: '#5b21b6', sub: '#7c3aed',
+      pillBg: '#f5f3ff', pillText: '#5b21b6', pillBorder: '#e9d5ff',
+      title: 'Beneficios por fidelidad',
+      subtitle: 'Paga 3 meses seguidos y obtén 5% de descuento',
+      icon: 'trending',
+    }
+  })()
+
+  const pct = Math.min(100, cfg.progressMax > 0 ? (cfg.progressVal / cfg.progressMax) * 100 : 0)
+
+  const Icon = () => {
+    if (cfg.icon === 'trophy')   return <Trophy    size={13} color={cfg.label} strokeWidth={2} />
+    if (cfg.icon === 'award')    return <Award     size={13} color={cfg.label} strokeWidth={2} />
+    if (cfg.icon === 'zap')      return <Zap       size={13} color={cfg.label} strokeWidth={2.5} />
+    return                              <TrendingUp size={13} color={cfg.label} strokeWidth={2} />
+  }
+
+  return (
+    <div className="rounded-xl p-3" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+      {/* Top row: icon + title + pill */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
+          <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full flex-shrink-0"
+            style={{ background: cfg.pillBg, border: `1px solid ${cfg.pillBorder}` }}>
+            <Icon />
+          </div>
+          <span className="text-[11px] font-bold tracking-wide" style={{ color: cfg.label }}>
+            {cfg.title}
+          </span>
+        </div>
+        {months > 0 && (
+          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ml-1"
+            style={{ background: cfg.pillBg, color: cfg.pillText, border: `1px solid ${cfg.pillBorder}` }}>
+            {months} {months === 1 ? 'mes' : 'meses'}
+          </span>
+        )}
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 rounded-full mb-2 overflow-hidden" style={{ background: 'rgba(0,0,0,0.07)' }}>
+        <div
+          className="h-full rounded-full transition-all duration-700"
+          style={{
+            width: `${pct}%`,
+            background: `linear-gradient(90deg, ${cfg.barFrom}, ${cfg.barTo})`,
+            minWidth: pct > 0 ? '8px' : '0',
+          }}
+        />
+      </div>
+
+      {/* Bottom: subtitle + counter */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[10px] leading-tight" style={{ color: cfg.sub }}>
+          {cfg.subtitle}
+        </span>
+        <span className="text-[9px] font-semibold tabular-nums flex-shrink-0" style={{ color: cfg.sub }}>
+          {cfg.progressVal}/{cfg.progressMax}
+        </span>
+      </div>
+    </div>
+  )
 }
 
 // ═══════ SKELETON LOADING COMPONENT ═══════
@@ -818,34 +930,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                 )}
 
                 {/* Fidelidad badge */}
-                {student.consecutive_months > 0 && (() => {
-                  const loyalty = getLoyaltyTier(student.consecutive_months)
-                  const bgColor = loyalty.tier === 'oro' ? 'rgba(255,251,235,0.9)' : loyalty.tier === 'plata' ? 'rgba(248,250,252,0.9)' : 'rgba(255,247,237,0.9)'
-                  const borderColor = loyalty.tier === 'oro' ? '#fcd34d' : loyalty.tier === 'plata' ? '#cbd5e1' : '#fdba74'
-                  const textColor = loyalty.tier === 'oro' ? '#92400e' : loyalty.tier === 'plata' ? '#334155' : '#9a3412'
-                  const subColor = loyalty.tier === 'oro' ? '#b45309' : loyalty.tier === 'plata' ? '#475569' : '#c2410c'
-                  return (
-                    <div className="rounded-xl px-3 py-2 flex items-center justify-between" style={{ background: bgColor, border: `1px solid ${borderColor}` }}>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{loyalty.emoji || '⭐'}</span>
-                        <div>
-                          <p className="text-xs font-bold" style={{ color: textColor }}>
-                            {loyalty.tier ? `Fidelidad ${loyalty.label}` : 'Acumulando fidelidad'}
-                          </p>
-                          <p className="text-[10px]" style={{ color: subColor }}>
-                            {loyalty.months} {loyalty.months === 1 ? 'mes' : 'meses'} consecutivo{loyalty.months !== 1 ? 's' : ''}
-                            {loyalty.tier ? ` · ${loyalty.discount}% descuento` : ''}
-                          </p>
-                        </div>
-                      </div>
-                      {loyalty.next && (
-                        <p className="text-[10px] text-gray-400 text-right">
-                          {loyalty.nextMonths} {loyalty.nextMonths === 1 ? 'mes' : 'meses'}<br/>para {loyalty.next}
-                        </p>
-                      )}
-                    </div>
-                  )
-                })()}
+                <LoyaltyCard consecutiveMonths={student.consecutive_months || 0} />
 
                 {/* Balance Alert */}
                 {student.balance > 0 && (
