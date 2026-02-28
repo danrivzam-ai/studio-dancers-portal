@@ -97,16 +97,24 @@ export default function App() {
     }
   }, [])
 
-  // --- SERVICE WORKER: force update on load ---
+  // --- SERVICE WORKER: force update + auto-reload when new SW takes control ---
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(reg => {
-          reg.update()
-          if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' })
-        })
+    if (!('serviceWorker' in navigator)) return
+
+    // When a new SW activates and claims this client → reload to get fresh content
+    const onControllerChange = () => window.location.reload()
+    navigator.serviceWorker.addEventListener('controllerchange', onControllerChange)
+
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(reg => {
+        reg.update()
+        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' })
+        // Poll for updates every 60s (keeps long-lived tabs fresh)
+        setInterval(() => reg.update(), 60000)
       })
-    }
+    })
+
+    return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange)
   }, [])
 
   // --- GLOBAL ERROR HANDLER (only for truly fatal errors) ---
