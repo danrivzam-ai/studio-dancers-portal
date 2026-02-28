@@ -13,61 +13,65 @@ const FacebookIcon = () => (
   </svg>
 )
 
-// ── Ballet dancer SVG line-art icons ──
-// Arabesque: dancer leaning forward, one leg extended behind
-const IconDancerPointe = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="3.5" r="1.5"/>
-    {/* Torso leaning forward */}
-    <path d="M11 5 C11 7 10.5 8.5 10 10"/>
-    {/* Front arm reaching forward */}
-    <path d="M10.5 7.5 L6 9"/>
-    {/* Back arm raised */}
-    <path d="M10.5 7.5 L15.5 5.5"/>
-    {/* Support leg straight down */}
-    <path d="M10 10 L9.5 15 L9.5 20"/>
-    {/* Arabesque leg extended back and up */}
-    <path d="M10 10 L18 8"/>
+// ── Ballet dancer SVG icons — filled body + weighted strokes ──
+// Each icon uses: filled circle head, filled tapered torso, thick leg strokes
+
+// Arabesque: elegant side pose, one leg extended back
+const IconArabesque = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="11" cy="3" r="2" fill="white"/>
+    <path d="M12 5 L9.5 5 L8.5 11 L11 11 Z" fill="white"/>
+    <line x1="9.5" y1="11" x2="9" y2="21" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="10" y1="11" x2="21" y2="9" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="10.5" y1="7.5" x2="6" y2="9.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    <line x1="10.5" y1="7.5" x2="16" y2="6" stroke="white" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 )
 
-// Grand Jeté: split leap in the air
-const IconDancerLeap = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="3" r="1.5"/>
-    {/* Torso upright */}
-    <path d="M12 4.5 L12 10"/>
-    {/* Left arm up-back */}
-    <path d="M12 7.5 L7.5 5"/>
-    {/* Right arm up-forward */}
-    <path d="M12 7.5 L16.5 5"/>
-    {/* Left leg forward-down */}
-    <path d="M12 10 L5.5 16"/>
-    {/* Right leg back-down */}
-    <path d="M12 10 L18.5 16"/>
+// Grand Jeté: airborne split leap
+const IconGrandJete = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="2.5" r="2" fill="white"/>
+    <path d="M13 4.5 L11 4.5 L10.5 10 L13.5 10 Z" fill="white"/>
+    <line x1="11" y1="10" x2="4.5" y2="17.5" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="13" y1="10" x2="19.5" y2="17.5" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="11.5" y1="7" x2="7" y2="4.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    <line x1="12.5" y1="7" x2="17" y2="4.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 )
 
-// Duo: two dancers side by side, arms reaching toward each other
+// Pas de Deux: two dancers, hands joined
 const IconDancerDuo = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    {/* Left dancer */}
-    <circle cx="7.5" cy="4" r="1.5"/>
-    <path d="M7.5 5.5 L7.5 12"/>
-    <path d="M7.5 8 L4.5 6.5"/>
-    <path d="M7.5 8 L11 9.5"/>
-    <path d="M7.5 12 L6 17"/>
-    <path d="M7.5 12 L9 17"/>
-    {/* Right dancer */}
-    <circle cx="16.5" cy="4" r="1.5"/>
-    <path d="M16.5 5.5 L16.5 12"/>
-    <path d="M16.5 8 L13 9.5"/>
-    <path d="M16.5 8 L19.5 6.5"/>
-    <path d="M16.5 12 L15 17"/>
-    <path d="M16.5 12 L18 17"/>
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="7.5" cy="3.5" r="1.8" fill="white"/>
+    <path d="M8.5 5.3 L6.5 5.3 L6 11 L9 11 Z" fill="white"/>
+    <line x1="7" y1="11" x2="6.5" y2="20" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="8.5" y1="11" x2="8.5" y2="20" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="7.5" y1="8" x2="4.5" y2="6.5" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+    <line x1="8.5" y1="8" x2="15.5" y2="8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+    <circle cx="16.5" cy="3.5" r="1.8" fill="white"/>
+    <path d="M17.5 5.3 L15.5 5.3 L15 11 L18 11 Z" fill="white"/>
+    <line x1="16" y1="11" x2="15.5" y2="20" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="17.5" y1="11" x2="17.5" y2="20" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="16.5" y1="8" x2="19.5" y2="6.5" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+  </svg>
+)
+
+// Group Dance: two dancers with arms raised in celebration
+const IconGroupDance = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="7.5" cy="3" r="1.8" fill="white"/>
+    <path d="M8.5 4.8 L6.5 4.8 L6 10 L9 10 Z" fill="white"/>
+    <line x1="7" y1="10" x2="6" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="8.5" y1="10" x2="9" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="7.5" y1="7" x2="3.5" y2="4.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    <line x1="8.5" y1="7" x2="12" y2="6.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="16.5" cy="3" r="1.8" fill="white"/>
+    <path d="M17.5 4.8 L15.5 4.8 L15 10 L18 10 Z" fill="white"/>
+    <line x1="16" y1="10" x2="15" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="17.5" y1="10" x2="18" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="15.5" y1="7" x2="12" y2="6.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    <line x1="17.5" y1="7" x2="20.5" y2="4.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 )
 
@@ -88,13 +92,13 @@ const BalletDecoration = () => (
 
 const FEATURES = [
   {
-    Icon: IconDancerPointe,
+    Icon: IconArabesque,
     title: 'Excelencia y Técnica',
     desc: 'Dominarás la disciplina del método clásico, garantizando una base sólida.',
     color: 'from-purple-500 to-purple-600'
   },
   {
-    Icon: IconDancerLeap,
+    Icon: IconGrandJete,
     title: 'Evolución sin límites',
     desc: 'Desde la iniciación a los 3 años hasta adultos. Un programa que crece contigo.',
     color: 'from-pink-500 to-rose-500'
@@ -112,7 +116,7 @@ const QUICK_COURSES = [
     name: 'Dance Camp 2026',
     age: '7-17 años',
     schedule: 'Vacaciones',
-    Icon: IconDancerDuo,
+    Icon: IconGroupDance,
     gradient: 'from-amber-500 to-orange-500',
     color: 'bg-amber-50 border-amber-200'
   },
@@ -120,7 +124,7 @@ const QUICK_COURSES = [
     name: 'Ballet Adultas Principiantes',
     age: 'Desde 18 años',
     schedule: 'Mar y Jue',
-    Icon: IconDancerPointe,
+    Icon: IconArabesque,
     gradient: 'from-pink-500 to-rose-500',
     color: 'bg-pink-50 border-pink-200'
   },
@@ -128,7 +132,7 @@ const QUICK_COURSES = [
     name: 'Intensivos Sábados',
     age: '7+ años',
     schedule: 'Sábados',
-    Icon: IconDancerLeap,
+    Icon: IconGrandJete,
     gradient: 'from-purple-500 to-purple-600',
     color: 'bg-purple-50 border-purple-200'
   },
