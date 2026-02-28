@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users } from 'lucide-react'
-import { supabase } from '../lib/supabase'
 
 // ── Social media icons ──
 const InstagramIcon = () => (
@@ -222,14 +220,6 @@ const TESTIMONIALS = [
   },
 ]
 
-const INSTAGRAM_TILES = [
-  { bg: 'from-purple-600 to-purple-800', Icon: IconGrandJete },
-  { bg: 'from-pink-500 to-rose-600', Icon: IconArabesque },
-  { bg: 'from-[#551735] to-[#3d0f25]', Icon: IconDancerDuo },
-  { bg: 'from-[#0d4444] to-teal-700', Icon: IconArabesque },
-  { bg: 'from-amber-500 to-orange-500', Icon: IconGroupDance },
-  { bg: 'from-purple-700 to-pink-600', Icon: IconGrandJete },
-]
 
 // ── Partner Directorio ──
 // TODO: Reemplaza los datos de placeholder con tus aliados reales.
@@ -276,35 +266,6 @@ const PARTNERS = [
   },
 ]
 
-// ── Tile de galería: carga foto real desde Storage, gradiente como fallback ──
-// Bucket público: 'gallery' · archivos: 1.jpg, 2.jpg, ..., 6.jpg
-function GalleryTile({ index, placeholder, animDelay }) {
-  const [imgError, setImgError] = useState(false)
-  const { data } = supabase.storage.from('gallery').getPublicUrl(`${index}.jpg`)
-  const url = data?.publicUrl
-
-  return (
-    <a
-      href="https://www.instagram.com/studiodancers.ec/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="rounded-xl overflow-hidden hover:opacity-90 active:scale-[0.97] transition-all block"
-      style={{ aspectRatio: '4/5', animation: `fadeIn 0.3s ease-out ${animDelay}s both` }}
-    >
-      {!imgError && url
-        ? <img
-            src={url}
-            alt=""
-            className="w-full h-full object-cover"
-            onError={() => setImgError(true)}
-          />
-        : <div className={`w-full h-full bg-gradient-to-br ${placeholder.bg} flex items-center justify-center`}>
-            <placeholder.Icon size={26} />
-          </div>
-      }
-    </a>
-  )
-}
 
 export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
   const scrollToContent = () => {
@@ -470,39 +431,6 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* ═══════ INSTAGRAM ═══════ */}
-      <div className="bg-gray-50 px-5 py-12 border-t border-gray-100">
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <p className="text-purple-600 text-xs font-semibold uppercase tracking-widest mb-1">Síguenos</p>
-            <h2 className="text-xl font-bold text-gray-900">@studiodancers.ec</h2>
-            <p className="text-sm text-gray-400 mt-1">Vive la magia detrás del escenario</p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-1.5 mb-5">
-            {INSTAGRAM_TILES.map((tile, idx) => (
-              <GalleryTile
-                key={idx}
-                index={idx + 1}
-                placeholder={tile}
-                animDelay={idx * 0.05}
-              />
-            ))}
-          </div>
-
-          <a
-            href="https://www.instagram.com/studiodancers.ec/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-semibold text-sm text-white hover:opacity-95 transition-opacity shadow-sm"
-            style={{ background: 'linear-gradient(90deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)' }}
-          >
-            <InstagramIcon />
-            Ver galería en Instagram
-          </a>
         </div>
       </div>
 
