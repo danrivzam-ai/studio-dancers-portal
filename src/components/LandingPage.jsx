@@ -158,8 +158,8 @@ const FEATURES = [
   },
   {
     Icon: IconDancerDuo,
-    title: 'Acompañamiento Personalizado',
-    desc: 'Avanza a tu propio ritmo en grupos reducidos y en un espacio seguro.',
+    title: 'Atención y Guía Especializada',
+    desc: 'Avanza con la confianza de una enseñanza técnica de alto nivel, donde nuestros maestros potencian tu expresión y corrigen cada movimiento para asegurar tu progreso constante en un entorno profesional.',
     color: 'from-amber-500 to-orange-500'
   }
 ]
@@ -285,7 +285,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
           <img
             src="/logo-landing.png"
             alt="Studio Dancers"
-            className="w-56 mx-auto mb-4 object-contain drop-shadow-xl"
+            className="w-44 mx-auto mb-4 object-contain drop-shadow-xl"
           />
           <p className="text-white/80 text-sm mb-1">Escuela de Ballet en Guayaquil</p>
           <p className="text-white/50 text-xs mb-8">Donde los sueños se bailan</p>

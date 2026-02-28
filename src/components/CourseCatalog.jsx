@@ -90,7 +90,7 @@ const CATEGORY_CONFIG = {
   },
   especial: {
     label: 'Dance Camp 2026',
-    description: 'Programa especial intensivo de danza',
+    description: 'Dance Camp 2026: Exploradoras de la Danza',
     Icon: IconGroupDance,
     bgColor: '#ffcfe0',
     textColor: '#6b1a3a',
