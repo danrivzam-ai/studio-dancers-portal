@@ -4,6 +4,15 @@ import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard,
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
+// ═══════ FIDELIDAD ═══════
+function getLoyaltyTier(consecutiveMonths) {
+  const months = parseInt(consecutiveMonths) || 0
+  if (months >= 12) return { tier: 'oro',    label: 'Oro',    emoji: '🥇', discount: 15, next: null,     nextMonths: null,        months }
+  if (months >= 6)  return { tier: 'plata',  label: 'Plata',  emoji: '🥈', discount: 10, next: 'Oro',   nextMonths: 12 - months, months }
+  if (months >= 3)  return { tier: 'bronce', label: 'Bronce', emoji: '🥉', discount: 5,  next: 'Plata', nextMonths: 6 - months,  months }
+  return               { tier: null,     label: null,     emoji: null,  discount: 0,  next: 'Bronce', nextMonths: 3 - months, months }
+}
+
 // ═══════ SKELETON LOADING COMPONENT ═══════
 function SkeletonCard() {
   return (
@@ -807,6 +816,36 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                     <span className="text-xs font-semibold text-green-700">{formatDate(student.last_payment_date)}</span>
                   </div>
                 )}
+
+                {/* Fidelidad badge */}
+                {student.consecutive_months > 0 && (() => {
+                  const loyalty = getLoyaltyTier(student.consecutive_months)
+                  const bgColor = loyalty.tier === 'oro' ? 'rgba(255,251,235,0.9)' : loyalty.tier === 'plata' ? 'rgba(248,250,252,0.9)' : 'rgba(255,247,237,0.9)'
+                  const borderColor = loyalty.tier === 'oro' ? '#fcd34d' : loyalty.tier === 'plata' ? '#cbd5e1' : '#fdba74'
+                  const textColor = loyalty.tier === 'oro' ? '#92400e' : loyalty.tier === 'plata' ? '#334155' : '#9a3412'
+                  const subColor = loyalty.tier === 'oro' ? '#b45309' : loyalty.tier === 'plata' ? '#475569' : '#c2410c'
+                  return (
+                    <div className="rounded-xl px-3 py-2 flex items-center justify-between" style={{ background: bgColor, border: `1px solid ${borderColor}` }}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{loyalty.emoji || '⭐'}</span>
+                        <div>
+                          <p className="text-xs font-bold" style={{ color: textColor }}>
+                            {loyalty.tier ? `Fidelidad ${loyalty.label}` : 'Acumulando fidelidad'}
+                          </p>
+                          <p className="text-[10px]" style={{ color: subColor }}>
+                            {loyalty.months} {loyalty.months === 1 ? 'mes' : 'meses'} consecutivo{loyalty.months !== 1 ? 's' : ''}
+                            {loyalty.tier ? ` · ${loyalty.discount}% descuento` : ''}
+                          </p>
+                        </div>
+                      </div>
+                      {loyalty.next && (
+                        <p className="text-[10px] text-gray-400 text-right">
+                          {loyalty.nextMonths} {loyalty.nextMonths === 1 ? 'mes' : 'meses'}<br/>para {loyalty.next}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })()}
 
                 {/* Balance Alert */}
                 {student.balance > 0 && (
