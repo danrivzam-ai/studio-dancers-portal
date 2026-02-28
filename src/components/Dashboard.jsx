@@ -575,7 +575,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const cycleMode = isCycleBased(student)
           const classesUsed = student.classes_used || 0
           const classesTotal = student.classes_per_cycle || 0
-          const hasClassInfo = classesTotal > 0
+          // Counter only for monthly ('mes') courses with a real schedule
+          // pago único / programa / paquete / clase → no cycle counter shown
+          const hasClassInfo = student.price_type === 'mes' && classesTotal > 0 && (student.class_days?.length > 0)
           const activeMethod = expandedPayment[student.id]
           // Parse schedule suffix from course_name (e.g. "Ballet Adultas | L - M" → "L - M")
           const scheduleLabel = (() => {
