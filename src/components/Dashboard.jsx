@@ -328,6 +328,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const avatarInputRefs = useRef({})                          // hidden file inputs per student
   // Calendar modal
   const [calendarStudent, setCalendarStudent] = useState(null)
+  // Track which modal is open — used by back-button handler to close modals natively
+  const modalHistoryRef = useRef(null)  // 'upload' | 'history' | 'calendar' | null
   // PayPhone return detection
   const [showReturnBanner, setShowReturnBanner] = useState(false)
   const payphoneOpenedRef = useRef(false)
@@ -429,6 +431,44 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
+
+  // ─── Modal back-button support ───
+  // Each modal pushes a history entry on open. Pressing the Android/iOS back
+  // button fires popstate → this handler closes the modal instead of navigating away.
+  // Tapping X inside a modal also calls history.back() → same handler closes it cleanly.
+  useEffect(() => {
+    const handleModalBack = () => {
+      const type = modalHistoryRef.current
+      if (!type) return
+      modalHistoryRef.current = null
+      if (type === 'upload')   { setShowUpload(null); setRefreshKey(k => k + 1) }
+      if (type === 'history')  { setShowHistory(null) }
+      if (type === 'calendar') { setCalendarStudent(null) }
+    }
+    window.addEventListener('popstate', handleModalBack)
+    return () => window.removeEventListener('popstate', handleModalBack)
+  }, [])
+
+  // Open helpers — push history so back button can close the modal
+  const openUpload = (sid) => {
+    modalHistoryRef.current = 'upload'
+    history.pushState({ modal: 'upload' }, '')
+    setShowUpload(sid)
+  }
+  const openHistoryModal = (sid) => {
+    modalHistoryRef.current = 'history'
+    history.pushState({ modal: 'history' }, '')
+    setShowHistory(sid)
+  }
+  const openCalendarModal = (student) => {
+    modalHistoryRef.current = 'calendar'
+    history.pushState({ modal: 'calendar' }, '')
+    setCalendarStudent(student)
+  }
+  // Close helpers — go back in history → popstate handler does the actual state cleanup
+  const closeUpload   = () => { history.back() }
+  const closeHistoryModal = () => { history.back() }
+  const closeCalendarModal = () => { history.back() }
 
   const handlePayphoneLinkClick = () => {
     payphoneOpenedRef.current = true
@@ -724,7 +764,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                       <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
                       {student.class_days?.length > 0 && (
                         <button
-                          onClick={() => setCalendarStudent(student)}
+                          onClick={() => openCalendarModal(student)}
                           className="p-1 bg-purple-200 hover:bg-purple-300 rounded-md transition-colors"
                           title="Ver calendario de clases"
                         >
@@ -829,7 +869,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                         </div>
                       )}
                       <button
-                        onClick={() => setShowUpload(student.id)}
+                        onClick={() => openUpload(student.id)}
                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-semibold text-sm transition-colors"
                       >
                         <Upload size={16} />
@@ -973,7 +1013,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
               {/* History Button */}
               <div className="border-t">
                 <button
-                  onClick={() => setShowHistory(student.id)}
+                  onClick={() => openHistoryModal(student.id)}
                   className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
                 >
                   <History size={15} />
@@ -1008,7 +1048,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           studentName={students.find(s => s.id === showUpload)?.name}
           cedula={cedula}
           phoneLast4={phoneLast4}
-          onClose={() => { setShowUpload(null); setRefreshKey(k => k + 1) }}
+          onClose={closeUpload}
         />
       )}
 
@@ -1019,7 +1059,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           studentName={students.find(s => s.id === showHistory)?.name}
           cedula={cedula}
           phoneLast4={phoneLast4}
-          onClose={() => setShowHistory(null)}
+          onClose={closeHistoryModal}
         />
       )}
 
@@ -1027,7 +1067,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
       {calendarStudent && (
         <ClassCalendar
           student={calendarStudent}
-          onClose={() => setCalendarStudent(null)}
+          onClose={closeCalendarModal}
         />
       )}
     </div>
