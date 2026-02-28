@@ -404,9 +404,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           p_phone_last4: phoneLast4
         })
         if (!error && data && data.length > 0) {
-          // Fetch course schedule data — try two sources in parallel for maximum reliability:
-          // 1. rpc_get_course_info (SECURITY DEFINER, has class_days + price_type)
-          // 2. rpc_public_courses  (already used by CourseCatalog, guaranteed to work)
+          // Load ALL public courses — index by id AND by base name for robust matching
+          // (rpc_client_login may not return course_id, so name match is essential fallback)
           const courseIds = [...new Set(data.map(s => s.course_id).filter(Boolean))]
           const [infoRes, pubRes] = await Promise.all([
             courseIds.length
@@ -415,20 +414,24 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             supabase.rpc('rpc_public_courses')
           ])
 
-          // Merge: public courses first (price_type), overlay with course_info (class_days)
-          const courseMap = {}
+          const courseById = {}
+          const courseByName = {}
           ;(pubRes.data || []).forEach(c => {
-            if (courseIds.includes(c.id)) courseMap[c.id] = c
+            if (c.id) courseById[c.id] = c
+            // Index by base name (strip "| schedule" suffix if any)
+            const base = (c.name || '').split('|')[0].trim().toLowerCase()
+            if (base) courseByName[base] = c
           })
+          // Overlay rpc_get_course_info (adds class_days if it exists)
           ;(infoRes.data || []).forEach(c => {
-            courseMap[c.id] = { ...courseMap[c.id], ...c }
+            if (c.id) courseById[c.id] = { ...courseById[c.id], ...c }
           })
 
-          // Enrich each student — normalize class_days, fall back to parsing schedule text
+          // Enrich each student — match course by id, then by name, then parse schedule text
           const enriched = data.map(s => {
-            const course = courseMap[s.course_id]
+            const sBase = (s.course_name || '').split('|')[0].trim().toLowerCase()
+            const course = courseById[s.course_id] || courseByName[sBase] || null
             let classDays = normalizeClassDays(course?.class_days ?? s.class_days)
-            // Last resort: parse the human-readable schedule text (e.g. "Martes y Jueves 7:00")
             if (!classDays.length) classDays = parseScheduleToDays(course?.schedule || s.schedule)
             const classesPer = course?.classes_per_cycle ?? s.classes_per_cycle ?? 0
             const priceType = course?.price_type || s.price_type || null
@@ -1101,7 +1104,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             ¿Dudas? Escríbenos por WhatsApp
           </a>
           <p className="text-center text-[10px] text-gray-300">
-            Los datos se actualizan automáticamente
+            Los datos se actualizan automáticamente · v{new Date('2026-02-28').toLocaleDateString('es-EC',{day:'2-digit',month:'short'})}
           </p>
         </div>
       </div>
