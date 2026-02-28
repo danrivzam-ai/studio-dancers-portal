@@ -340,8 +340,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const classesUsed = student.classes_used || 0
           const classesTotal = student.classes_per_cycle || 0
           const hasClassInfo = classesTotal > 0
-          const progressPct = hasClassInfo ? Math.min((classesUsed / classesTotal) * 100, 100) : 0
           const activeMethod = expandedPayment[student.id]
+          // Parse schedule suffix from course_name (e.g. "Ballet Adultas | L - M" → "L - M")
+          const scheduleLabel = (() => {
+            const parts = (student.course_name || '').split(' | ')
+            return parts.length > 1 ? parts[parts.length - 1].trim() : null
+          })()
 
           return (
             <div
@@ -412,33 +416,14 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   </div>
                 )}
 
-                {/* Classes Progress */}
+                {/* Classes Info — text row, sin barra de progreso */}
                 {hasClassInfo && (
-                  <div className="bg-purple-50 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-xs font-medium text-purple-800 flex items-center gap-1.5">
-                        <BookOpen size={13} className="text-purple-600" />
-                        {cycleMode ? 'Clases del ciclo' : 'Clases del mes'}
-                      </p>
-                      <span className="text-xs font-bold text-purple-700">
-                        {classesUsed} / {classesTotal}
-                      </span>
-                    </div>
-                    <div className="w-full bg-purple-200 rounded-full h-2.5">
-                      <div
-                        className={`h-2.5 rounded-full transition-all ${
-                          progressPct >= 100 ? 'bg-red-500' : progressPct >= 75 ? 'bg-amber-500' : 'bg-purple-600'
-                        }`}
-                        style={{ width: `${progressPct}%` }}
-                      />
-                    </div>
-                    {progressPct >= 90 && (
-                      <p className="text-[10px] text-amber-700 mt-1.5 font-medium">
-                        {progressPct >= 100
-                          ? (cycleMode ? 'Ciclo completado — Hora de renovar' : 'Mes completado — Hora de renovar')
-                          : 'Quedan pocas clases'}
-                      </p>
-                    )}
+                  <div className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
+                    <span className="text-[10px] text-purple-600 uppercase font-medium tracking-wider flex items-center gap-1.5">
+                      <BookOpen size={10} className="shrink-0" />
+                      {scheduleLabel ? `${scheduleLabel} · Clase` : (cycleMode ? 'Clases del ciclo' : 'Clases del mes')}
+                    </span>
+                    <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
                   </div>
                 )}
 
