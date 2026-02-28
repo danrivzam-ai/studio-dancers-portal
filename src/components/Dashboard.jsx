@@ -952,18 +952,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                       <BookOpen size={10} className="shrink-0" />
                       {scheduleLabel ? `${scheduleLabel} · Clase` : 'Clases del mes'}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
-                      {student.class_days?.length > 0 && (
-                        <button
-                          onClick={() => openCalendarModal(student)}
-                          className="p-1 bg-purple-200 hover:bg-purple-300 rounded-md transition-colors"
-                          title="Ver calendario de clases"
-                        >
-                          <CalendarDays size={13} className="text-purple-700" />
-                        </button>
-                      )}
-                    </div>
+                    <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
                   </div>
                 )}
 
