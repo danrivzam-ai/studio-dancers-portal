@@ -9,66 +9,60 @@ const STUDIO_WHATSAPP = '593963741884'
 const MAESTRO_WHATSAPP = '593986390822'
 
 // ══════════════════════════════════════════════
-// SVG ICONS — línea fina, danza
+// SVG ICONS — siluetas minimalistas rellenas
 // ══════════════════════════════════════════════
 
 // Arabesque — Ballet Adultas Principiantes
 const IconArabesque = ({ size = 36, color = 'white' }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
-    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="28" cy="7" r="3.5" fill="none" />
-    <path d="M28 10.5 L26 24" />
-    <path d="M26 16 L15 9" />
-    <path d="M26 16 L39 21" />
-    <path d="M26 24 L22 40" />
-    <path d="M26 24 L43 17" />
+  <svg width={size} height={size} viewBox="0 0 48 48" fill={color}>
+    <circle cx="22" cy="6" r="4.5"/>
+    <ellipse cx="20.5" cy="16.5" rx="2.8" ry="6.5" transform="rotate(15 20.5 16.5)"/>
+    <ellipse cx="18.5" cy="33" rx="2.4" ry="9.5"/>
+    <ellipse cx="33" cy="22" rx="12" ry="2.5" transform="rotate(-10 33 22)"/>
+    <ellipse cx="14.5" cy="18.5" rx="5.5" ry="2" transform="rotate(22 14.5 18.5)"/>
+    <ellipse cx="27.5" cy="15" rx="5.5" ry="2" transform="rotate(-16 27.5 15)"/>
   </svg>
 )
 
 // Grand Jeté — Sábados Intensivos
 const IconGrandJete = ({ size = 36, color = 'white' }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
-    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="24" cy="6" r="3.5" fill="none" />
-    <path d="M24 9.5 L22 21" />
-    <path d="M22 14 L7 9" />
-    <path d="M22 14 L39 7" />
-    <path d="M22 21 L11 37" />
-    <path d="M22 21 L37 35" />
+  <svg width={size} height={size} viewBox="0 0 48 48" fill={color}>
+    <circle cx="24" cy="5.5" r="4.5"/>
+    <ellipse cx="23" cy="15.5" rx="2.8" ry="6.5" transform="rotate(-5 23 15.5)"/>
+    <ellipse cx="13.5" cy="30" rx="2.4" ry="9.5" transform="rotate(36 13.5 30)"/>
+    <ellipse cx="35" cy="30" rx="2.4" ry="9.5" transform="rotate(-40 35 30)"/>
+    <ellipse cx="14" cy="11" rx="2" ry="6.5" transform="rotate(-58 14 11)"/>
+    <ellipse cx="34" cy="10" rx="2" ry="6.5" transform="rotate(52 34 10)"/>
   </svg>
 )
 
-// Dúo tomados de la mano — Dance Camp 2026
+// Dúo — Dance Camp 2026
 const IconGroupDance = ({ size = 36, color = 'white' }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
-    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="13" cy="8" r="3" fill="none" />
-    <path d="M13 11 L13 23" />
-    <path d="M13 15 L7 11" />
-    <path d="M13 15 L19 12" />
-    <path d="M13 23 L10 34" />
-    <path d="M13 23 L16 34" />
-    <circle cx="35" cy="8" r="3" fill="none" />
-    <path d="M35 11 L35 23" />
-    <path d="M35 15 L29 12" />
-    <path d="M35 15 L41 11" />
-    <path d="M35 23 L32 34" />
-    <path d="M35 23 L38 34" />
-    {/* Tomados de la mano */}
-    <path d="M19 12 L29 12" />
+  <svg width={size} height={size} viewBox="0 0 48 48" fill={color}>
+    <circle cx="14.5" cy="6" r="3.8"/>
+    <ellipse cx="14.5" cy="15.5" rx="2.6" ry="6"/>
+    <ellipse cx="12.5" cy="29" rx="2.2" ry="8.5"/>
+    <ellipse cx="16.5" cy="29" rx="2.2" ry="8.5"/>
+    <ellipse cx="10" cy="10" rx="2" ry="5.5" transform="rotate(-45 10 10)"/>
+    <ellipse cx="22.5" cy="14.5" rx="5.5" ry="1.8"/>
+    <circle cx="33.5" cy="6" r="3.8"/>
+    <ellipse cx="33.5" cy="15.5" rx="2.6" ry="6"/>
+    <ellipse cx="31.5" cy="29" rx="2.2" ry="8.5"/>
+    <ellipse cx="35.5" cy="29" rx="2.2" ry="8.5"/>
+    <ellipse cx="25.5" cy="14.5" rx="5.5" ry="1.8"/>
+    <ellipse cx="38" cy="10" rx="2" ry="5.5" transform="rotate(45 38 10)"/>
   </svg>
 )
 
-// Maestro en postura de enseñanza
+// Maestro — Ballet Intermedios y Avanzados
 const IconMaestro = ({ size = 36, color = 'white' }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
-    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="24" cy="8" r="4" fill="none" />
-    <path d="M24 12 L24 30" />
-    <path d="M24 20 L37 14" />
-    <path d="M24 20 L14 26" />
-    <path d="M24 30 L20 44" />
-    <path d="M24 30 L28 44" />
+  <svg width={size} height={size} viewBox="0 0 48 48" fill={color}>
+    <circle cx="24" cy="6" r="5"/>
+    <ellipse cx="24" cy="20.5" rx="3.5" ry="8"/>
+    <ellipse cx="21.5" cy="37" rx="2.5" ry="7.5" transform="rotate(4 21.5 37)"/>
+    <ellipse cx="27" cy="37" rx="2.5" ry="7.5" transform="rotate(-4 27 37)"/>
+    <ellipse cx="15.5" cy="18.5" rx="6" ry="2" transform="rotate(26 15.5 18.5)"/>
+    <ellipse cx="35.5" cy="17.5" rx="7.5" ry="2" transform="rotate(-20 35.5 17.5)"/>
   </svg>
 )
 
@@ -83,19 +77,24 @@ const CATEGORY_CONFIG = {
     label: 'Ballet Adultas Principiantes',
     description: 'Clases semanales de ballet para adultas',
     Icon: IconArabesque,
-    gradient: CARD_GRADIENT,
+    bgColor: '#afeeee',
+    textColor: '#0d4444',
+    lightBg: true,
   },
   intensivo: {
     label: 'Sábados Intensivos',
     description: 'Sesiones intensivas de fin de semana',
     Icon: IconGrandJete,
     gradient: CARD_GRADIENT,
+    lightBg: false,
   },
   especial: {
     label: 'Dance Camp 2026',
     description: 'Programa especial intensivo de danza',
     Icon: IconGroupDance,
-    gradient: CARD_GRADIENT,
+    bgColor: '#ffcfe0',
+    textColor: '#6b1a3a',
+    lightBg: true,
   },
 }
 
@@ -104,6 +103,7 @@ const MAESTRO_CONFIG = {
   description: 'Masterclasses con el Maestro Freddy Rivadeneira',
   Icon: IconMaestro,
   gradient: CARD_GRADIENT,
+  lightBg: false,
 }
 
 const PRICE_TYPE_LABELS = {
@@ -351,6 +351,9 @@ function MaestroModal({ onClose }) {
 
 function CategoryCard({ config, count, onClick, delay = 0 }) {
   const Icon = config.Icon
+  const isLight = config.lightBg
+  const iconColor = isLight ? '#551735' : 'white'
+
   return (
     <button
       onClick={onClick}
@@ -358,29 +361,53 @@ function CategoryCard({ config, count, onClick, delay = 0 }) {
       style={{ animation: `fadeIn 0.4s ease-out ${delay}s both` }}
     >
       <div
-        className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-5 text-white shadow-md hover:shadow-lg transition-shadow relative overflow-hidden`}
+        className={`${config.gradient ? `bg-gradient-to-br ${config.gradient}` : ''} rounded-2xl p-5 shadow-md hover:shadow-lg transition-shadow relative overflow-hidden`}
+        style={config.bgColor ? { background: config.bgColor } : {}}
       >
         {/* Icono decorativo de fondo */}
-        <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
-          <Icon size={96} />
+        <div className={`absolute -right-4 -bottom-4 pointer-events-none ${isLight ? 'opacity-12' : 'opacity-10'}`}>
+          <Icon size={96} color={iconColor} />
         </div>
 
         <div className="relative z-10 flex items-center justify-between gap-2">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-              <Icon size={24} />
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: isLight ? 'rgba(85,23,53,0.12)' : 'rgba(255,255,255,0.15)' }}
+            >
+              <Icon size={24} color={iconColor} />
             </div>
             <div className="min-w-0">
-              <h3 className="font-bold text-base leading-tight">{config.label}</h3>
-              <p className="text-white/60 text-xs mt-0.5">{config.description}</p>
+              <h3
+                className="font-bold text-base leading-tight"
+                style={{ color: isLight ? (config.textColor || '#1f2937') : 'white' }}
+              >
+                {config.label}
+              </h3>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: isLight ? '#6b7280' : 'rgba(255,255,255,0.6)' }}
+              >
+                {config.description}
+              </p>
             </div>
           </div>
-          <ChevronRight size={20} className="text-white/50 shrink-0" />
+          <ChevronRight
+            size={20}
+            className="shrink-0"
+            style={{ color: isLight ? 'rgba(85,23,53,0.4)' : 'rgba(255,255,255,0.5)' }}
+          />
         </div>
 
         {count !== undefined && (
           <div className="relative z-10 mt-3">
-            <span className="bg-white/20 px-2.5 py-0.5 rounded-full text-xs font-medium">
+            <span
+              className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
+              style={{
+                background: isLight ? 'rgba(85,23,53,0.12)' : 'rgba(255,255,255,0.2)',
+                color: isLight ? (config.textColor || '#551735') : 'white'
+              }}
+            >
               {count} {count === 1 ? 'curso' : 'cursos'}
             </span>
           </div>
@@ -394,11 +421,11 @@ function CategoryCard({ config, count, onClick, delay = 0 }) {
 // MAIN COMPONENT
 // ══════════════════════════════════════════════
 
-export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
+export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initialCategory }) {
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [showMaestroModal, setShowMaestroModal] = useState(false)
 
@@ -504,19 +531,31 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
     const config = CATEGORY_CONFIG[selectedCategory] || CATEGORY_CONFIG.regular
     const Icon = config.Icon
 
+    const isLight = config.lightBg
+    const iconColor = isLight ? '#551735' : 'white'
+
     return (
       <div className="max-w-md mx-auto p-4 space-y-3 pb-24 animate-fadeIn">
         {/* Header de categoría */}
         <div
-          className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-4 text-white mb-1 relative overflow-hidden`}
+          className={`${config.gradient ? `bg-gradient-to-br ${config.gradient}` : ''} rounded-2xl p-4 mb-1 relative overflow-hidden`}
+          style={config.bgColor ? { background: config.bgColor } : {}}
         >
-          <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
-            <Icon size={80} />
+          <div className={`absolute -right-4 -bottom-4 pointer-events-none ${isLight ? 'opacity-12' : 'opacity-10'}`}>
+            <Icon size={80} color={iconColor} />
           </div>
           <div className="relative z-10">
-            <Icon size={28} />
-            <h2 className="font-bold text-xl mt-2">{config.label}</h2>
-            <p className="text-white/60 text-xs">
+            <Icon size={28} color={iconColor} />
+            <h2
+              className="font-bold text-xl mt-2"
+              style={{ color: isLight ? (config.textColor || '#1f2937') : 'white' }}
+            >
+              {config.label}
+            </h2>
+            <p
+              className="text-xs"
+              style={{ color: isLight ? '#6b7280' : 'rgba(255,255,255,0.6)' }}
+            >
               {catCourses.length} {catCourses.length === 1 ? 'curso disponible' : 'cursos disponibles'}
             </p>
           </div>

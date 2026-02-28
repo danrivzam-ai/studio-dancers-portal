@@ -44,6 +44,7 @@ function getInitialAuthTab() {
 export default function App() {
   const [session, setSession] = useState(getSession)
   const [publicView, setPublicView] = useState(getInitialPublicView)
+  const [catalogCategory, setCatalogCategory] = useState(null)
   const [authTab, setAuthTab] = useState(getInitialAuthTab)
   const [error, setError] = useState(null)
   const isHandlingPopState = useRef(false)
@@ -128,6 +129,7 @@ export default function App() {
         setAuthTab(state.tab || 'payments')
       } else if (state.type === 'public') {
         setPublicView(state.view || 'home')
+        setCatalogCategory(state.category || null)
       }
       isHandlingPopState.current = false
     }
@@ -137,10 +139,11 @@ export default function App() {
   }, [session, authTab, publicView])
 
   // --- NAVIGATION HELPERS ---
-  const navigatePublic = useCallback((view) => {
+  const navigatePublic = useCallback((view, category = null) => {
     if (isHandlingPopState.current) return
-    history.pushState({ type: 'public', view }, '')
+    history.pushState({ type: 'public', view, category }, '')
     setPublicView(view)
+    setCatalogCategory(category)
   }, [])
 
   const navigateTab = useCallback((tab) => {
@@ -200,14 +203,14 @@ export default function App() {
   // --- PUBLIC VIEWS ---
   if (!session) {
     if (publicView === 'catalog') {
-      return <CourseCatalog onBack={() => navigatePublic('home')} />
+      return <CourseCatalog onBack={() => navigatePublic('home')} initialCategory={catalogCategory} />
     }
     if (publicView === 'login') {
       return <Login onLogin={handleLogin} onBack={() => navigatePublic('home')} />
     }
     return (
       <LandingPage
-        onGoToCatalog={() => navigatePublic('catalog')}
+        onGoToCatalog={(category) => navigatePublic('catalog', category || null)}
         onGoToLogin={() => navigatePublic('login')}
       />
     )
