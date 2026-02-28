@@ -8,6 +8,34 @@ import BottomNav from './components/BottomNav'
 import AdminPanel from './components/AdminPanel'
 import './index.css'
 
+// Build timestamp injected at compile-time (changes every build → new SW hash → browser updates)
+// eslint-disable-next-line no-undef
+const _buildTs = typeof __BUILD_TS__ !== 'undefined' ? __BUILD_TS__ : 0
+
+// If ?reset URL param: nuke all SW caches and reload clean
+;(function checkReset() {
+  try {
+    if (!window.location.search.includes('reset')) return
+    // Remove param from URL immediately so it doesn't loop
+    const clean = window.location.pathname
+    history.replaceState({}, '', clean)
+    // Unregister all service workers
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs =>
+        Promise.all(regs.map(r => r.unregister()))
+      ).then(() => {
+        // Clear all caches
+        return caches.keys().then(keys =>
+          Promise.all(keys.map(k => caches.delete(k)))
+        )
+      }).then(() => {
+        // Hard reload
+        window.location.reload(true)
+      })
+    }
+  } catch { /* ignore */ }
+})()
+
 // Safe sessionStorage read
 function getSession() {
   try {

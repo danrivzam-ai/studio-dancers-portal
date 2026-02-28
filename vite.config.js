@@ -3,7 +3,13 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Build timestamp — changes every build so sw.js is always unique → browser always updates
+const BUILD_TS = Date.now()
+
 export default defineConfig({
+  define: {
+    __BUILD_TS__: JSON.stringify(BUILD_TS),
+  },
   plugins: [
     react(),
     tailwindcss(),
