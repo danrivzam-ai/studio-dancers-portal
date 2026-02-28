@@ -48,6 +48,15 @@ export default function App() {
   const [error, setError] = useState(null)
   const isHandlingPopState = useRef(false)
 
+  // --- SPLASH: fade out y remover una vez que React montó ---
+  useEffect(() => {
+    const splash = document.getElementById('splash')
+    if (!splash) return
+    splash.style.opacity = '0'
+    const t = setTimeout(() => { splash.remove() }, 380)
+    return () => clearTimeout(t)
+  }, [])
+
   // --- SERVICE WORKER: force update on load ---
   useEffect(() => {
     if ('serviceWorker' in navigator) {
