@@ -1,67 +1,391 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-import { ArrowLeft, Clock, Users, DollarSign, X, CheckCircle, LogOut, MessageCircle, ChevronRight, Calendar, Star, RefreshCw } from 'lucide-react'
+import {
+  ArrowLeft, Clock, Users, DollarSign, X,
+  CheckCircle, LogOut, MessageCircle, ChevronRight, RefreshCw
+} from 'lucide-react'
 
 const STUDIO_WHATSAPP = '593963741884'
+const MAESTRO_WHATSAPP = '593986390822'
+
+// ══════════════════════════════════════════════
+// SVG ICONS — línea fina, danza
+// ══════════════════════════════════════════════
+
+// Arabesque — Ballet Adultas Principiantes
+const IconArabesque = ({ size = 36, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
+    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="28" cy="7" r="3.5" fill="none" />
+    <path d="M28 10.5 L26 24" />
+    <path d="M26 16 L15 9" />
+    <path d="M26 16 L39 21" />
+    <path d="M26 24 L22 40" />
+    <path d="M26 24 L43 17" />
+  </svg>
+)
+
+// Grand Jeté — Sábados Intensivos
+const IconGrandJete = ({ size = 36, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
+    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="24" cy="6" r="3.5" fill="none" />
+    <path d="M24 9.5 L22 21" />
+    <path d="M22 14 L7 9" />
+    <path d="M22 14 L39 7" />
+    <path d="M22 21 L11 37" />
+    <path d="M22 21 L37 35" />
+  </svg>
+)
+
+// Dúo tomados de la mano — Dance Camp 2026
+const IconGroupDance = ({ size = 36, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
+    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="13" cy="8" r="3" fill="none" />
+    <path d="M13 11 L13 23" />
+    <path d="M13 15 L7 11" />
+    <path d="M13 15 L19 12" />
+    <path d="M13 23 L10 34" />
+    <path d="M13 23 L16 34" />
+    <circle cx="35" cy="8" r="3" fill="none" />
+    <path d="M35 11 L35 23" />
+    <path d="M35 15 L29 12" />
+    <path d="M35 15 L41 11" />
+    <path d="M35 23 L32 34" />
+    <path d="M35 23 L38 34" />
+    {/* Tomados de la mano */}
+    <path d="M19 12 L29 12" />
+  </svg>
+)
+
+// Maestro en postura de enseñanza
+const IconMaestro = ({ size = 36, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none"
+    stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="24" cy="8" r="4" fill="none" />
+    <path d="M24 12 L24 30" />
+    <path d="M24 20 L37 14" />
+    <path d="M24 20 L14 26" />
+    <path d="M24 30 L20 44" />
+    <path d="M24 30 L28 44" />
+  </svg>
+)
+
+// ══════════════════════════════════════════════
+// CATEGORY CONFIG
+// ══════════════════════════════════════════════
+
+const CARD_GRADIENT = 'from-[#551735] to-[#3d0f25]'
 
 const CATEGORY_CONFIG = {
   regular: {
-    label: 'Clases Regulares',
-    description: 'Ballet semanal para todas las edades',
-    emoji: '\u{1FA70}',
-    gradient: 'from-purple-500 to-purple-700'
+    label: 'Ballet Adultas Principiantes',
+    description: 'Clases semanales de ballet para adultas',
+    Icon: IconArabesque,
+    gradient: CARD_GRADIENT,
   },
   intensivo: {
     label: 'Sábados Intensivos',
     description: 'Sesiones intensivas de fin de semana',
-    emoji: '\u2B50',
-    gradient: 'from-pink-500 to-rose-600'
+    Icon: IconGrandJete,
+    gradient: CARD_GRADIENT,
   },
   especial: {
-    label: 'Programas Especiales',
-    description: 'Camps, talleres y eventos',
-    emoji: '\u{1F3AD}',
-    gradient: 'from-amber-500 to-orange-600'
-  }
+    label: 'Dance Camp 2026',
+    description: 'Programa especial intensivo de danza',
+    Icon: IconGroupDance,
+    gradient: CARD_GRADIENT,
+  },
+}
+
+const MAESTRO_CONFIG = {
+  label: 'Ballet Intermedios y Avanzados',
+  description: 'Masterclasses con el Maestro Freddy Rivadeneira',
+  Icon: IconMaestro,
+  gradient: CARD_GRADIENT,
 }
 
 const PRICE_TYPE_LABELS = {
   mes: '/mes',
   paquete: '/paquete',
   clase: '/clase',
-  programa: ''
+  programa: '',
 }
 
-// ═══════ DANCE LOADER ═══════
+// ══════════════════════════════════════════════
+// LOADER
+// ══════════════════════════════════════════════
+
 function CourseLoader() {
   return (
     <div className="flex flex-col items-center justify-center py-16">
       <div className="relative mb-6">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center"
-          style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}>
-          <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="32" cy="12" r="6" fill="#7e22ce"/>
-            <path d="M32 18 C32 18 28 24 26 30 C24 36 20 42 16 46" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 18 C32 18 34 26 34 32 C34 38 32 44 32 50" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 24 C32 24 40 20 46 18" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 24 C32 24 22 22 18 24" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 50 C32 50 28 54 24 56" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 50 C32 50 36 54 40 52" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+        <div
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center"
+          style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}
+        >
+          <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="12" r="6" fill="#7e22ce" />
+            <path d="M32 18 C32 18 28 24 26 30 C24 36 20 42 16 46" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 18 C32 18 34 26 34 32 C34 38 32 44 32 50" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 24 C32 24 40 20 46 18" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 24 C32 24 22 22 18 24" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 50 C32 50 28 54 24 56" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 50 C32 50 36 54 40 52" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         </div>
-        <div className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-purple-400 border-r-pink-300"
-          style={{ animation: 'pirouette 1.2s linear infinite' }} />
+        <div
+          className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-purple-400 border-r-pink-300"
+          style={{ animation: 'pirouette 1.2s linear infinite' }}
+        />
       </div>
       <p className="text-purple-700 font-medium text-sm">Cargando cursos</p>
       <div className="flex items-center gap-1.5 mt-1">
         {[0, 1, 2].map(i => (
-          <div key={i} className="w-1.5 h-1.5 rounded-full bg-purple-400"
-            style={{ animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }} />
+          <div
+            key={i}
+            className="w-1.5 h-1.5 rounded-full bg-purple-400"
+            style={{ animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }}
+          />
         ))}
       </div>
     </div>
   )
 }
+
+// ══════════════════════════════════════════════
+// MAESTRO MODAL
+// ══════════════════════════════════════════════
+
+function MaestroModal({ onClose }) {
+  const schedules = [
+    {
+      bg: 'bg-[#f4ece6]',
+      label: 'Mañanas',
+      days: 'Lun · Mié · Vie',
+      time: '10:00 a.m. – 12:00 p.m.',
+    },
+    {
+      bg: 'bg-[#ffcfe0]/50',
+      label: 'Noches',
+      days: 'Lun · Mié',
+      time: '7:00 p.m. – 8:30 p.m.',
+    },
+    {
+      bg: 'bg-[#afeeee]/50',
+      label: 'Sábados · Clase suelta',
+      days: 'Sábados',
+      time: '10:00 a.m. – 12:00 p.m.',
+    },
+  ]
+
+  const prices = [
+    { label: 'Mensualidad Mañanas', value: '$70', period: '/mes' },
+    { label: 'Mensualidad Noches',  value: '$50', period: '/mes' },
+    { label: 'Clase suelta',        value: '$7',  period: '/clase' },
+  ]
+
+  const waText = encodeURIComponent(
+    '¡Hola Maestro Freddy! Me interesa información sobre las Masterclasses de Ballet Clásico.'
+  )
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full max-w-md max-h-[92vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl animate-slideUp"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* ── Foto ── */}
+        <div className="relative">
+          <img
+            src="/Freddy.png"
+            alt="Maestro Freddy Rivadeneira"
+            className="w-full h-64 object-cover object-top"
+            onError={e => {
+              e.currentTarget.style.display = 'none'
+              e.currentTarget.nextElementSibling.style.display = 'flex'
+            }}
+          />
+          {/* Fallback si no carga la foto */}
+          <div
+            className="w-full h-64 items-center justify-center hidden"
+            style={{ background: 'linear-gradient(135deg, #551735 0%, #3d0f25 100%)' }}
+          >
+            <span className="text-white text-8xl font-extralight opacity-40 tracking-widest">FR</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full"
+          >
+            <X size={18} />
+          </button>
+          {/* Fade de foto a blanco */}
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent" />
+        </div>
+
+        <div className="px-5 pb-6 -mt-3 space-y-5">
+
+          {/* ── Badge + Título ── */}
+          <div>
+            <span
+              className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-2"
+              style={{ background: '#551735', color: 'white' }}
+            >
+              Director Artístico · Fundador
+            </span>
+            <h2 className="text-xl font-bold text-gray-900 leading-tight">
+              Masterclasses con el Maestro Freddy Rivadeneira
+            </h2>
+            <p
+              className="text-xs text-gray-500 mt-2 italic leading-relaxed pl-3 border-l-2"
+              style={{ borderColor: '#551735' }}
+            >
+              Clases magistrales dirigidas exclusivamente a bailarines con bases sólidas
+              que buscan perfeccionar su técnica. No aplica para categorías infantiles.
+            </p>
+          </div>
+
+          <div className="h-px bg-gray-100" />
+
+          {/* ── Biografía ── */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: '#551735' }}>
+              Sobre el Maestro
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Con más de 46 años de trayectoria escénica, el Maestro Freddy Rivadeneira
+              es el corazón artístico y Fundador de Studio Dancers. Formado en Bellas Artes
+              en México y Estados Unidos, su enfoque combina la pureza del ballet clásico
+              con la sensibilidad artística, creando un espacio donde bailarines intermedios
+              y avanzados pueden pulir su fluidez y expresión escénica.
+            </p>
+          </div>
+
+          <div className="h-px bg-gray-100" />
+
+          {/* ── Horarios ── */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: '#551735' }}>
+              🩰 Ballet Clásico — Intermedios y Avanzados
+            </p>
+            <p className="text-[11px] text-gray-400 mb-3">Horarios disponibles</p>
+            <div className="space-y-2">
+              {schedules.map((s, i) => (
+                <div key={i} className={`${s.bg} rounded-xl p-3 flex items-center gap-3`}>
+                  <div
+                    className="w-1 h-10 rounded-full shrink-0"
+                    style={{ background: '#551735' }}
+                  />
+                  <div>
+                    <p className="font-semibold text-sm text-gray-800">{s.label} · {s.days}</p>
+                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                      <Clock size={10} className="shrink-0" />
+                      {s.time}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-px bg-gray-100" />
+
+          {/* ── Valores ── */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#551735' }}>
+              💵 Valores
+            </p>
+            <div>
+              {prices.map((p, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0"
+                >
+                  <span className="text-sm text-gray-600">{p.label}</span>
+                  <span className="font-bold text-base" style={{ color: '#551735' }}>
+                    {p.value}
+                    <span className="text-xs font-normal text-gray-400 ml-0.5">{p.period}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── CTA WhatsApp ── */}
+          <a
+            href={`https://wa.me/${MAESTRO_WHATSAPP}?text=${waText}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3.5 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm"
+          >
+            <MessageCircle size={18} />
+            Contactar al Maestro Freddy
+          </a>
+
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 text-gray-400 text-sm hover:text-gray-600 transition-colors"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════
+// CATEGORY CARD — componente reutilizable
+// ══════════════════════════════════════════════
+
+function CategoryCard({ config, count, onClick, delay = 0 }) {
+  const Icon = config.Icon
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left"
+      style={{ animation: `fadeIn 0.4s ease-out ${delay}s both` }}
+    >
+      <div
+        className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-5 text-white shadow-md hover:shadow-lg transition-shadow relative overflow-hidden`}
+      >
+        {/* Icono decorativo de fondo */}
+        <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+          <Icon size={96} />
+        </div>
+
+        <div className="relative z-10 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+              <Icon size={24} />
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-bold text-base leading-tight">{config.label}</h3>
+              <p className="text-white/60 text-xs mt-0.5">{config.description}</p>
+            </div>
+          </div>
+          <ChevronRight size={20} className="text-white/50 shrink-0" />
+        </div>
+
+        {count !== undefined && (
+          <div className="relative z-10 mt-3">
+            <span className="bg-white/20 px-2.5 py-0.5 rounded-full text-xs font-medium">
+              {count} {count === 1 ? 'curso' : 'cursos'}
+            </span>
+          </div>
+        )}
+      </div>
+    </button>
+  )
+}
+
+// ══════════════════════════════════════════════
+// MAIN COMPONENT
+// ══════════════════════════════════════════════
 
 export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
   const [courses, setCourses] = useState([])
@@ -69,6 +393,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
   const [loadError, setLoadError] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedCourse, setSelectedCourse] = useState(null)
+  const [showMaestroModal, setShowMaestroModal] = useState(false)
 
   const fetchCourses = useCallback(async () => {
     setLoading(true)
@@ -84,23 +409,13 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
     setLoading(false)
   }, [])
 
-  useEffect(() => {
-    fetchCourses()
-  }, [fetchCourses])
+  useEffect(() => { fetchCourses() }, [fetchCourses])
 
-  // --- HISTORY API for internal navigation ---
   useEffect(() => {
     const handlePopState = () => {
-      if (selectedCourse) {
-        setSelectedCourse(null)
-        return
-      }
-      if (selectedCategory) {
-        setSelectedCategory(null)
-        return
-      }
+      if (selectedCourse) { setSelectedCourse(null); return }
+      if (selectedCategory) { setSelectedCategory(null); return }
     }
-
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [selectedCategory, selectedCourse])
@@ -115,17 +430,11 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
     setSelectedCourse(course)
   }, [])
 
-  const goBackFromCategory = useCallback(() => {
-    history.back()
-  }, [])
+  const goBackFromCategory = useCallback(() => { history.back() }, [])
+  const closeCourse = useCallback(() => { history.back() }, [])
 
-  const closeCourse = useCallback(() => {
-    history.back()
-  }, [])
-
-  // Group courses by category
   const grouped = courses.reduce((acc, course) => {
-    const cat = (course.category === 'camp') ? 'especial' : (course.category || 'regular')
+    const cat = course.category === 'camp' ? 'especial' : (course.category || 'regular')
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(course)
     return acc
@@ -135,10 +444,10 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
     if (!min && !max) return null
     if (min === 3 && max === 99) return null
     if (max >= 99) return `Desde ${min} años`
-    return `${min}-${max} años`
+    return `${min}–${max} años`
   }
 
-  // --- CATEGORY LIST VIEW ---
+  // ── Vista: lista de categorías ──
   const renderCategoryList = () => (
     <div className="max-w-md mx-auto p-4 space-y-3 pb-24 animate-fadeIn">
       {loading ? (
@@ -152,68 +461,58 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
             onClick={fetchCourses}
             className="mt-4 px-6 py-2.5 bg-purple-600 text-white rounded-xl font-medium text-sm flex items-center gap-2 mx-auto hover:bg-purple-700 transition-colors"
           >
-            <RefreshCw size={16} />
-            Reintentar
+            <RefreshCw size={16} /> Reintentar
           </button>
         </div>
-      ) : courses.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-4xl mb-3">{'\u{1FA70}'}</p>
-          <p className="text-lg font-medium">No hay cursos disponibles</p>
-          <p className="text-sm mt-1">Vuelve pronto para ver nuevas opciones</p>
-        </div>
       ) : (
-        Object.entries(grouped).map(([category, catCourses], idx) => {
-          const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.regular
-          return (
-            <button
-              key={category}
-              onClick={() => openCategory(category)}
-              className="w-full text-left"
-              style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.1}s both` }}
-            >
-              <div className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-5 text-white shadow-md hover:shadow-lg transition-shadow relative overflow-hidden`}>
-                <span className="absolute -right-3 -bottom-3 text-7xl opacity-20">{config.emoji}</span>
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold text-lg">{config.label}</h3>
-                      <p className="text-white/70 text-xs mt-0.5">{config.description}</p>
-                    </div>
-                    <ChevronRight size={22} className="text-white/60" />
-                  </div>
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full text-xs font-medium">
-                      {catCourses.length} {catCourses.length === 1 ? 'curso' : 'cursos'}
-                    </span>
-                    {catCourses.some(c => c.image_url) && (
-                      <div className="flex -space-x-2">
-                        {catCourses.filter(c => c.image_url).slice(0, 3).map((c, i) => (
-                          <img key={i} src={c.image_url} alt="" className="w-6 h-6 rounded-full border-2 border-white/30 object-cover" />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </button>
-          )
-        })
+        <>
+          {/* Categorías dinámicas (DB) */}
+          {Object.entries(grouped).map(([category, catCourses], idx) => {
+            const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.regular
+            return (
+              <CategoryCard
+                key={category}
+                config={config}
+                count={catCourses.length}
+                onClick={() => openCategory(category)}
+                delay={idx * 0.1}
+              />
+            )
+          })}
+
+          {/* Tarjeta estática Maestro — siempre al final */}
+          <CategoryCard
+            config={MAESTRO_CONFIG}
+            onClick={() => setShowMaestroModal(true)}
+            delay={Object.keys(grouped).length * 0.1}
+          />
+        </>
       )}
     </div>
   )
 
-  // --- COURSES IN CATEGORY VIEW ---
+  // ── Vista: cursos dentro de una categoría ──
   const renderCategoryCourses = () => {
     const catCourses = grouped[selectedCategory] || []
     const config = CATEGORY_CONFIG[selectedCategory] || CATEGORY_CONFIG.regular
+    const Icon = config.Icon
 
     return (
       <div className="max-w-md mx-auto p-4 space-y-3 pb-24 animate-fadeIn">
-        <div className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-4 text-white mb-1`}>
-          <span className="text-3xl">{config.emoji}</span>
-          <h2 className="font-bold text-xl mt-1">{config.label}</h2>
-          <p className="text-white/70 text-xs">{catCourses.length} {catCourses.length === 1 ? 'curso disponible' : 'cursos disponibles'}</p>
+        {/* Header de categoría */}
+        <div
+          className={`bg-gradient-to-br ${config.gradient} rounded-2xl p-4 text-white mb-1 relative overflow-hidden`}
+        >
+          <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+            <Icon size={80} />
+          </div>
+          <div className="relative z-10">
+            <Icon size={28} />
+            <h2 className="font-bold text-xl mt-2">{config.label}</h2>
+            <p className="text-white/60 text-xs">
+              {catCourses.length} {catCourses.length === 1 ? 'curso disponible' : 'cursos disponibles'}
+            </p>
+          </div>
         </div>
 
         {catCourses.map((course, idx) => (
@@ -227,8 +526,11 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
               {course.image_url ? (
                 <img src={course.image_url} alt={course.name} className="w-24 h-24 object-cover shrink-0" />
               ) : (
-                <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center shrink-0">
-                  <span className="text-2xl">{'\u{1FA70}'}</span>
+                <div
+                  className="w-24 h-24 flex items-center justify-center shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #551735, #3d0f25)' }}
+                >
+                  <IconArabesque size={32} />
                 </div>
               )}
               <div className="p-3 flex flex-col justify-center min-w-0 flex-1">
@@ -245,7 +547,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                       {formatAge(course.age_min, course.age_max)}
                     </span>
                   ) : <span />}
-                  <span className="font-bold text-purple-700 text-sm">
+                  <span className="font-bold text-sm" style={{ color: '#551735' }}>
                     ${parseFloat(course.price).toFixed(0)}{PRICE_TYPE_LABELS[course.price_type] || ''}
                   </span>
                 </div>
@@ -258,9 +560,13 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white px-4 py-4">
+    <div className="min-h-screen bg-gray-50">
+
+      {/* ── Header ── */}
+      <div
+        className="text-white px-4 py-4"
+        style={{ background: 'linear-gradient(to right, #551735, #3d0f25)' }}
+      >
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {(onBack || selectedCategory) && (
@@ -273,9 +579,11 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
             )}
             <div>
               <h1 className="font-bold text-lg">
-                {selectedCategory ? (CATEGORY_CONFIG[selectedCategory]?.label || 'Cursos') : 'Nuestros Cursos'}
+                {selectedCategory
+                  ? (CATEGORY_CONFIG[selectedCategory]?.label || 'Cursos')
+                  : 'Nuestros Cursos'}
               </h1>
-              <p className="text-xs text-white/70">
+              <p className="text-xs text-white/60">
                 {selectedCategory ? 'Toca un curso para más info' : 'Elige una categoría'}
               </p>
             </div>
@@ -288,34 +596,33 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
         </div>
       </div>
 
-      {/* Content */}
+      {/* ── Contenido ── */}
       {selectedCategory ? renderCategoryCourses() : renderCategoryList()}
 
-      {/* Course Detail Modal */}
+      {/* ── Modal detalle de curso (DB) ── */}
       {selectedCourse && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={closeCourse}>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center"
+          onClick={closeCourse}
+        >
           <div
             className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl animate-slideUp"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
-            {/* Image */}
             {selectedCourse.image_url ? (
               <div className="relative">
                 <img src={selectedCourse.image_url} alt={selectedCourse.name} className="w-full h-48 object-cover" />
-                <button
-                  onClick={closeCourse}
-                  className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full"
-                >
+                <button onClick={closeCourse} className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full">
                   <X size={18} />
                 </button>
               </div>
             ) : (
-              <div className="relative w-full h-32 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center">
-                <span className="text-5xl">{'\u{1FA70}'}</span>
-                <button
-                  onClick={closeCourse}
-                  className="absolute top-3 right-3 p-2 bg-black/20 text-white rounded-full"
-                >
+              <div
+                className="relative w-full h-32 flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #551735, #3d0f25)' }}
+              >
+                <IconArabesque size={48} />
+                <button onClick={closeCourse} className="absolute top-3 right-3 p-2 bg-black/20 text-white rounded-full">
                   <X size={18} />
                 </button>
               </div>
@@ -329,29 +636,35 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 )}
               </div>
 
-              {/* Info grid */}
               <div className="grid grid-cols-2 gap-3">
                 {selectedCourse.schedule && (
                   <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-[10px] text-gray-400 uppercase font-medium flex items-center gap-1"><Clock size={10} />Horario</p>
+                    <p className="text-[10px] text-gray-400 uppercase font-medium flex items-center gap-1">
+                      <Clock size={10} /> Horario
+                    </p>
                     <p className="text-sm font-semibold text-gray-800 mt-0.5">{selectedCourse.schedule}</p>
                   </div>
                 )}
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-[10px] text-gray-400 uppercase font-medium flex items-center gap-1"><DollarSign size={10} />Precio</p>
-                  <p className="text-sm font-semibold text-purple-700 mt-0.5">
+                  <p className="text-[10px] text-gray-400 uppercase font-medium flex items-center gap-1">
+                    <DollarSign size={10} /> Precio
+                  </p>
+                  <p className="text-sm font-semibold mt-0.5" style={{ color: '#551735' }}>
                     ${parseFloat(selectedCourse.price).toFixed(2)}{PRICE_TYPE_LABELS[selectedCourse.price_type] || ''}
                   </p>
                 </div>
                 {formatAge(selectedCourse.age_min, selectedCourse.age_max) && (
                   <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-[10px] text-gray-400 uppercase font-medium flex items-center gap-1"><Users size={10} />Edades</p>
-                    <p className="text-sm font-semibold text-gray-800 mt-0.5">{formatAge(selectedCourse.age_min, selectedCourse.age_max)}</p>
+                    <p className="text-[10px] text-gray-400 uppercase font-medium flex items-center gap-1">
+                      <Users size={10} /> Edades
+                    </p>
+                    <p className="text-sm font-semibold text-gray-800 mt-0.5">
+                      {formatAge(selectedCourse.age_min, selectedCourse.age_max)}
+                    </p>
                   </div>
                 )}
               </div>
 
-              {/* Benefits */}
               {selectedCourse.benefits && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Beneficios</h3>
@@ -366,15 +679,13 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 </div>
               )}
 
-              {/* Requirements */}
               {selectedCourse.requirements && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Requisitos</h3>
                   <ul className="space-y-1.5">
                     {selectedCourse.requirements.split('\n').filter(Boolean).map((r, i) => (
                       <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                        <span className="text-purple-500">-</span>
-                        {r}
+                        <span style={{ color: '#551735' }}>—</span> {r}
                       </li>
                     ))}
                   </ul>
@@ -387,8 +698,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
                 rel="noopener noreferrer"
                 className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
               >
-                <MessageCircle size={20} />
-                Deseo inscribirme
+                <MessageCircle size={20} /> Deseo inscribirme
               </a>
               <button
                 onClick={closeCourse}
@@ -399,6 +709,11 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Modal Maestro Freddy ── */}
+      {showMaestroModal && (
+        <MaestroModal onClose={() => setShowMaestroModal(false)} />
       )}
     </div>
   )
