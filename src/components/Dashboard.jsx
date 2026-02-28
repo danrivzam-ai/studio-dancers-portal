@@ -351,23 +351,26 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           p_phone_last4: phoneLast4
         })
         if (!error && data && data.length > 0) {
-          // Fetch class_days + classes_per_cycle for each unique course
+          // Fetch class_days + classes_per_cycle + price_type for each unique course
+          // price_type from courses table is the source of truth (RPC may not return it)
           const courseIds = [...new Set(data.map(s => s.course_id).filter(Boolean))]
           const { data: coursesData } = courseIds.length
-            ? await supabase.from('courses').select('id, class_days, classes_per_cycle').in('id', courseIds)
+            ? await supabase.from('courses').select('id, class_days, classes_per_cycle, price_type').in('id', courseIds)
             : { data: [] }
           const courseMap = {}
           ;(coursesData || []).forEach(c => { courseMap[c.id] = c })
 
-          // Enrich each student: classes_used + classes_per_cycle + class_days
+          // Enrich each student: classes_used + classes_per_cycle + class_days + price_type
           const enriched = data.map(s => {
             const course = courseMap[s.course_id]
             const classDays = course?.class_days || []
             const classesPer = course?.classes_per_cycle ?? s.classes_per_cycle ?? 0
+            // price_type: prefer courses table (reliable), fall back to RPC result
+            const priceType = course?.price_type || s.price_type || null
             const classes_used = (s.classes_used != null && s.classes_used > 0)
               ? s.classes_used
               : computeEstimatedClasses(s.last_payment_date, classDays, classesPer)
-            return { ...s, classes_used, classes_per_cycle: classesPer, class_days: classDays }
+            return { ...s, classes_used, classes_per_cycle: classesPer, class_days: classDays, price_type: priceType }
           })
           setLiveStudents(enriched)
           onSessionUpdate?.(enriched)
