@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
@@ -117,6 +117,35 @@ function PayphoneReturnBanner({ onConfirm, onDismiss }) {
 
 const STUDIO_WHATSAPP = '593963741884'
 
+// ═══════ AVATAR HELPERS ═══════
+
+// Compress image to max 400px square, JPEG 75% — lightweight for profile photos
+async function compressAvatar(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const MAX = 400
+        const ratio = Math.min(MAX / img.width, MAX / img.height, 1)
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * ratio)
+        canvas.height = Math.round(img.height * ratio)
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+        canvas.toBlob(resolve, 'image/jpeg', 0.75)
+      }
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+// Get public URL for avatar — Supabase Storage, bucket: avatars, path: {studentId}.jpg
+function getAvatarUrl(studentId, ts) {
+  const { data } = supabase.storage.from('avatars').getPublicUrl(`${studentId}.jpg`)
+  return ts ? `${data.publicUrl}?t=${ts}` : data.publicUrl
+}
+
 // ═══════ MAIN DASHBOARD ═══════
 export default function Dashboard({ students: initialStudents, cedula, phoneLast4, onLogout, onSessionUpdate }) {
   const [liveStudents, setLiveStudents] = useState(initialStudents)
@@ -134,6 +163,11 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [ppError, setPpError] = useState({})
   const [ppAmount, setPpAmount] = useState({})
   const [copiedField, setCopiedField] = useState(null)
+  // Avatar photo state (Storage-only, no DB column needed)
+  const [photoTimestamp, setPhotoTimestamp] = useState({})   // cache-bust key after upload
+  const [photoUploading, setPhotoUploading] = useState({})   // upload in progress flag
+  const [photoError, setPhotoError] = useState({})           // true=no photo/failed, false=loaded OK
+  const avatarInputRefs = useRef({})                          // hidden file inputs per student
   // PayPhone return detection
   const [showReturnBanner, setShowReturnBanner] = useState(false)
   const payphoneOpenedRef = useRef(false)
@@ -226,6 +260,27 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
       setTimeout(() => {
         document.getElementById(`student-${firstStudent.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 100)
+    }
+  }
+
+  const handleAvatarChange = async (studentId, e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''   // allow re-selecting same file
+    setPhotoUploading(prev => ({ ...prev, [studentId]: true }))
+    try {
+      const blob = await compressAvatar(file)
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(`${studentId}.jpg`, blob, { upsert: true, contentType: 'image/jpeg' })
+      if (error) throw error
+      // Cache-bust so browser reloads the new photo
+      setPhotoError(prev => ({ ...prev, [studentId]: false }))
+      setPhotoTimestamp(prev => ({ ...prev, [studentId]: Date.now() }))
+    } catch (err) {
+      console.error('[Avatar] Upload error:', err)
+    } finally {
+      setPhotoUploading(prev => ({ ...prev, [studentId]: false }))
     }
   }
 
@@ -356,15 +411,69 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             >
               {/* ───── Student Identity + Status ───── */}
               <div className="bg-gradient-to-r from-purple-600 to-purple-500 px-4 py-3.5">
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1 mr-3">
-                    <h3 className="font-bold text-white text-base truncate">{student.name}</h3>
-                    <p className="text-xs text-white/70 mt-0.5">{student.course_name}</p>
+                <div className="flex items-center justify-between gap-2">
+
+                  {/* Avatar + name */}
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    {/* Avatar circle — tap to change photo */}
+                    <button
+                      onClick={() => avatarInputRefs.current[student.id]?.click()}
+                      className="relative w-10 h-10 rounded-full shrink-0 overflow-visible flex items-center justify-center"
+                      title="Cambiar foto de perfil"
+                    >
+                      {/* Circle container */}
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20 flex items-center justify-center relative">
+                        {/* Spinner while uploading */}
+                        {photoUploading[student.id] && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
+                            <div
+                              className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full"
+                              style={{ animation: 'pirouette 0.8s linear infinite' }}
+                            />
+                          </div>
+                        )}
+                        {/* Photo — invisible until loaded; stays hidden on error */}
+                        <img
+                          src={getAvatarUrl(student.id, photoTimestamp[student.id])}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
+                          style={{ opacity: photoError[student.id] === false ? 1 : 0 }}
+                          onLoad={() => setPhotoError(prev => ({ ...prev, [student.id]: false }))}
+                          onError={() => setPhotoError(prev => ({ ...prev, [student.id]: true }))}
+                        />
+                        {/* Initials fallback — shows when photo hasn't loaded or errored */}
+                        {photoError[student.id] !== false && (
+                          <span className="text-white font-bold text-sm select-none">
+                            {student.name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      {/* Camera badge */}
+                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-purple-200">
+                        <Camera size={9} className="text-purple-600" />
+                      </div>
+                    </button>
+
+                    {/* Name + course */}
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-white text-base truncate">{student.name}</h3>
+                      <p className="text-xs text-white/70 mt-0.5">{student.course_name}</p>
+                    </div>
                   </div>
+
                   <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap shrink-0 ${badge.color}`}>
                     {badge.label}
                   </span>
                 </div>
+
+                {/* Hidden file input — no capture attr so user can pick gallery or camera */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={el => { avatarInputRefs.current[student.id] = el }}
+                  onChange={(e) => handleAvatarChange(student.id, e)}
+                  className="hidden"
+                />
               </div>
 
               <div className="p-4 space-y-3">
