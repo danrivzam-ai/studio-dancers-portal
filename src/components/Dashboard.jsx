@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
@@ -98,6 +98,145 @@ function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
   return totalPerCycle ? Math.min(count, totalPerCycle) : count
 }
 
+// ═══════ CLASS CALENDAR MODAL ═══════
+// Shows current month with class days highlighted — timezone: America/Guayaquil (UTC-5)
+function ClassCalendar({ student, onClose }) {
+  const classDays = student.class_days || [] // ISO: 1=Lun ... 7=Dom
+
+  // Current date in Guayaquil timezone
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+  const [viewYear, setViewYear] = useState(now.getFullYear())
+  const [viewMonth, setViewMonth] = useState(now.getMonth()) // 0-indexed
+
+  const todayInGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+  const dayNames = ['L','M','X','J','V','S','D']
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+  // First weekday of month: 0=Sun…6=Sat → convert to Mon-first: 0=Mon…6=Sun
+  const firstDayJS = new Date(viewYear, viewMonth, 1).getDay()
+  const offset = (firstDayJS + 6) % 7 // how many blanks before day 1
+
+  const isClassDay = (day) => {
+    const d = new Date(viewYear, viewMonth, day)
+    const jsDay = d.getDay() // 0=Sun..6=Sat
+    const isoDay = jsDay === 0 ? 7 : jsDay
+    return classDays.includes(isoDay)
+  }
+
+  const isToday = (day) =>
+    day === todayInGYE.getDate() &&
+    viewMonth === todayInGYE.getMonth() &&
+    viewYear === todayInGYE.getFullYear()
+
+  const isPast = (day) => {
+    const d = new Date(viewYear, viewMonth, day)
+    d.setHours(23, 59, 59)
+    return d < todayInGYE
+  }
+
+  const prevMonth = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) }
+    else setViewMonth(m => m - 1)
+  }
+  const nextMonth = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) }
+    else setViewMonth(m => m + 1)
+  }
+
+  // Count upcoming class days this month
+  const upcomingClasses = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    .filter(d => isClassDay(d) && !isPast(d)).length
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
+      <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-4 py-3.5 flex items-center justify-between">
+          <div>
+            <p className="text-white font-bold text-sm">{student.name.split(' ')[0]} · Días de clase</p>
+            <p className="text-white/70 text-xs">{student.course_name}</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 bg-white/20 rounded-full">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="white">
+              <path d="M1 1l12 12M13 1L1 13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Month nav */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <button onClick={prevMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="#6b7280" strokeWidth="2" strokeLinecap="round"/></svg>
+          </button>
+          <p className="font-bold text-gray-800 text-sm">{monthNames[viewMonth]} {viewYear}</p>
+          <button onClick={nextMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="#6b7280" strokeWidth="2" strokeLinecap="round"/></svg>
+          </button>
+        </div>
+
+        {/* Day labels */}
+        <div className="grid grid-cols-7 px-3 pt-2">
+          {dayNames.map(d => (
+            <div key={d} className="text-center text-[10px] font-bold text-gray-400 pb-1">{d}</div>
+          ))}
+        </div>
+
+        {/* Calendar grid */}
+        <div className="grid grid-cols-7 gap-px px-3 pb-3">
+          {/* Offset blanks */}
+          {Array.from({ length: offset }).map((_, i) => <div key={`b${i}`} />)}
+
+          {/* Days */}
+          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+            const cls = isClassDay(day)
+            const today = isToday(day)
+            const past = isPast(day)
+            return (
+              <div
+                key={day}
+                className={`
+                  relative flex items-center justify-center aspect-square rounded-full text-xs font-semibold
+                  ${cls && !today ? (past ? 'bg-purple-700 text-white' : 'bg-purple-100 text-purple-800 border-2 border-purple-500') : ''}
+                  ${today && cls ? 'bg-purple-700 text-white ring-2 ring-amber-400 ring-offset-1' : ''}
+                  ${today && !cls ? 'ring-2 ring-amber-400 ring-offset-1 text-gray-700' : ''}
+                  ${!cls && !today ? 'text-gray-500' : ''}
+                `}
+              >
+                {day}
+                {cls && !today && !past && (
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-purple-600" />
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Legend + stats */}
+        <div className="px-4 py-3 bg-purple-50 border-t border-purple-100 space-y-2">
+          <div className="flex gap-3 flex-wrap text-[10px] text-gray-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded-full bg-purple-700 inline-block" />Clase pasada
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded-full bg-purple-100 border-2 border-purple-500 inline-block" />Próxima clase
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded-full ring-2 ring-amber-400 inline-block bg-white" />Hoy
+            </span>
+          </div>
+          {upcomingClasses > 0 && (
+            <p className="text-xs font-semibold text-purple-700">
+              📅 {upcomingClasses} {upcomingClasses === 1 ? 'clase próxima' : 'clases próximas'} este mes
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ═══════ PAYPHONE RETURN BANNER ═══════
 function PayphoneReturnBanner({ onConfirm, onDismiss }) {
   return (
@@ -185,6 +324,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [photoUploading, setPhotoUploading] = useState({})   // upload in progress flag
   const [photoError, setPhotoError] = useState({})           // true=no photo/failed, false=loaded OK
   const avatarInputRefs = useRef({})                          // hidden file inputs per student
+  // Calendar modal
+  const [calendarStudent, setCalendarStudent] = useState(null)
   // PayPhone return detection
   const [showReturnBanner, setShowReturnBanner] = useState(false)
   const payphoneOpenedRef = useRef(false)
@@ -208,20 +349,23 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           p_phone_last4: phoneLast4
         })
         if (!error && data && data.length > 0) {
-          // Fetch class_days for each unique course to compute estimated attendance
+          // Fetch class_days + classes_per_cycle for each unique course
           const courseIds = [...new Set(data.map(s => s.course_id).filter(Boolean))]
           const { data: coursesData } = courseIds.length
-            ? await supabase.from('courses').select('id, class_days').in('id', courseIds)
+            ? await supabase.from('courses').select('id, class_days, classes_per_cycle').in('id', courseIds)
             : { data: [] }
           const courseMap = {}
           ;(coursesData || []).forEach(c => { courseMap[c.id] = c })
 
-          // Enrich each student with computed classes_used if DB value is absent
+          // Enrich each student: classes_used + classes_per_cycle + class_days
           const enriched = data.map(s => {
-            if (s.classes_used != null && s.classes_used > 0) return s
-            const classDays = courseMap[s.course_id]?.class_days || []
-            const computed = computeEstimatedClasses(s.last_payment_date, classDays, s.classes_per_cycle)
-            return { ...s, classes_used: computed }
+            const course = courseMap[s.course_id]
+            const classDays = course?.class_days || []
+            const classesPer = course?.classes_per_cycle ?? s.classes_per_cycle ?? 0
+            const classes_used = (s.classes_used != null && s.classes_used > 0)
+              ? s.classes_used
+              : computeEstimatedClasses(s.last_payment_date, classDays, classesPer)
+            return { ...s, classes_used, classes_per_cycle: classesPer, class_days: classDays }
           })
           setLiveStudents(enriched)
           onSessionUpdate?.(enriched)
@@ -235,22 +379,27 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     return () => clearInterval(interval)
   }, [cedula, phoneLast4, refreshKey])
 
-  // Fetch transfer requests + end loading
+  // Fetch transfer requests + end loading (with timeout safety)
   useEffect(() => {
+    // Safety: force loading false after 8s to prevent infinite load screens
+    const safetyTimer = setTimeout(() => setLoading(false), 8000)
     const fetchRequests = async () => {
-      const allReqs = {}
-      for (const s of students) {
-        const { data } = await supabase.rpc('rpc_client_get_requests', {
-          p_cedula: cedula,
-          p_phone_last4: phoneLast4,
-          p_student_id: s.id
-        })
-        allReqs[s.id] = data || []
-      }
-      setRequests(allReqs)
-      setLoading(false)
+      try {
+        const allReqs = {}
+        for (const s of students) {
+          const { data } = await supabase.rpc('rpc_client_get_requests', {
+            p_cedula: cedula,
+            p_phone_last4: phoneLast4,
+            p_student_id: s.id
+          })
+          allReqs[s.id] = data || []
+        }
+        setRequests(allReqs)
+      } catch { /* silent — requests are optional display info */ }
+      finally { clearTimeout(safetyTimer); setLoading(false) }
     }
     fetchRequests()
+    return () => clearTimeout(safetyTimer)
   }, [students, cedula, phoneLast4, refreshKey])
 
   // ─── PayPhone return detection ───
@@ -557,14 +706,25 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   </div>
                 )}
 
-                {/* Classes Info — text row, sin barra de progreso */}
+                {/* Classes Info + Calendar button */}
                 {hasClassInfo && (
                   <div className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
                     <span className="text-[10px] text-purple-600 uppercase font-medium tracking-wider flex items-center gap-1.5">
                       <BookOpen size={10} className="shrink-0" />
                       {scheduleLabel ? `${scheduleLabel} · Clase` : (cycleMode ? 'Clases del ciclo' : 'Clases del mes')}
                     </span>
-                    <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
+                      {student.class_days?.length > 0 && (
+                        <button
+                          onClick={() => setCalendarStudent(student)}
+                          className="p-1 bg-purple-200 hover:bg-purple-300 rounded-md transition-colors"
+                          title="Ver calendario de clases"
+                        >
+                          <CalendarDays size={13} className="text-purple-700" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -853,6 +1013,14 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           cedula={cedula}
           phoneLast4={phoneLast4}
           onClose={() => setShowHistory(null)}
+        />
+      )}
+
+      {/* Calendar Modal */}
+      {calendarStudent && (
+        <ClassCalendar
+          student={calendarStudent}
+          onClose={() => setCalendarStudent(null)}
         />
       )}
     </div>

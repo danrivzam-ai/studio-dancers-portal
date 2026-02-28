@@ -425,7 +425,8 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
+  // If a specific course name is requested, don't pre-select category — wait for auto-open
+  const [selectedCategory, setSelectedCategory] = useState(initialCourseName ? null : (initialCategory || null))
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [showMaestroModal, setShowMaestroModal] = useState(false)
 
@@ -467,9 +468,19 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
   }, [selectedCategory, selectedCourse])
 
   const openCategory = useCallback((category) => {
+    const catCourses = courses.filter(c =>
+      (c.category === 'camp' ? 'especial' : (c.category || 'regular')) === category
+    )
+    // If only 1 course in category, go directly to course detail
+    if (catCourses.length === 1) {
+      history.pushState({ catalog: 'course', courseId: catCourses[0].id }, '')
+      setSelectedCategory(category)
+      setSelectedCourse(catCourses[0])
+      return
+    }
     history.pushState({ catalog: 'category', category }, '')
     setSelectedCategory(category)
-  }, [])
+  }, [courses])
 
   const openCourse = useCallback((course) => {
     history.pushState({ catalog: 'course', courseId: course.id }, '')

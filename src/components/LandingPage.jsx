@@ -1,4 +1,4 @@
-import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users } from 'lucide-react'
+import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users, Target, ShoppingBag, Pin, Smartphone, Star } from 'lucide-react'
 
 // ── Social media icons ──
 const InstagramIcon = () => (
@@ -447,11 +447,14 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
 
             <div className="space-y-3 mb-6">
               {[
-                '🎯 Conecta tu tienda directamente con cientos de bailarinas y familias en Guayaquil que usan nuestra app a diario.',
-                '🛍️ Posiciona tus productos (leotardos, zapatillas, accesorios) en el momento exacto de la decisión de compra.',
-                '📌 Obtén un espacio exclusivo con contacto directo a tu WhatsApp o catálogo digital.',
-              ].map((text, i) => (
+                { Icon: Target, text: 'Conecta tu tienda directamente con cientos de bailarinas y familias en Guayaquil que usan nuestra app a diario.' },
+                { Icon: ShoppingBag, text: 'Posiciona tus productos (leotardos, zapatillas, accesorios) en el momento exacto de la decisión de compra.' },
+                { Icon: Pin, text: 'Obtén un espacio exclusivo con contacto directo a tu WhatsApp o catálogo digital.' },
+              ].map(({ Icon, text }, i) => (
                 <div key={i} className="flex items-start gap-3 bg-white/10 rounded-xl px-3.5 py-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-400/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Icon size={15} className="text-amber-300" />
+                  </div>
                   <p className="text-sm text-white/90 leading-relaxed">{text}</p>
                 </div>
               ))}
@@ -461,10 +464,11 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
               href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent('¡Hola! Quiero ser Aliado Comercial de Studio Dancers. Me gustaría información sobre los planes de partners.')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-sm text-white shadow-lg transition-opacity hover:opacity-90"
+              className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-sm text-white shadow-lg transition-opacity hover:opacity-90"
               style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)' }}
             >
-              📲 Quiero ser Aliado Comercial
+              <Smartphone size={16} />
+              Quiero ser Aliado Comercial
             </a>
           </div>
 
@@ -496,7 +500,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
                         <p className="text-[10px] text-white/80">{p.category}</p>
                       </div>
                     </div>
-                    <span className="px-2 py-0.5 bg-white/25 text-white text-[10px] font-bold rounded-full">⭐ Oro</span>
+                    <span className="px-2 py-0.5 bg-white/25 text-white text-[10px] font-bold rounded-full flex items-center gap-1"><Star size={9} fill="white" /> Oro</span>
                   </div>
                   <div className="bg-amber-50 px-4 py-3">
                     <p className="text-xs text-gray-600 leading-relaxed mb-3">{p.description}</p>
