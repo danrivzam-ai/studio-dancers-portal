@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 
@@ -270,6 +270,26 @@ function computeMonthlyTotal(lastPaymentDate, classDays) {
     d.setDate(d.getDate() + 1)
   }
   return count
+}
+
+// Returns the label for the student's next class day in Guayaquil TZ
+// Returns: 'Hoy', 'Mañana', or e.g. 'lunes 3 de marzo'
+function getNextClassDate(classDays) {
+  const days = normalizeClassDays(classDays)
+  if (!days.length) return null
+  const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+  todayGYE.setHours(0, 0, 0, 0)
+  for (let i = 0; i <= 7; i++) {
+    const d = new Date(todayGYE)
+    d.setDate(d.getDate() + i)
+    const isoDay = d.getDay() === 0 ? 7 : d.getDay()
+    if (days.includes(isoDay)) {
+      if (i === 0) return 'Hoy'
+      if (i === 1) return 'Mañana'
+      return d.toLocaleDateString('es-EC', { weekday: 'long', day: 'numeric', month: 'long' })
+    }
+  }
+  return null
 }
 
 // ═══════ CLASS CALENDAR MODAL ═══════
@@ -819,6 +839,18 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             const parts = (student.course_name || '').split(' | ')
             return parts.length > 1 ? parts[parts.length - 1].trim() : null
           })()
+          // Next class date label (only for monthly students with class_days)
+          const nextClassLabel = (!cycleMode && hasClassInfo)
+            ? getNextClassDate(student.class_days)
+            : null
+          // Payment reminder: days until next payment (negative = overdue)
+          const daysUntilPayment = (() => {
+            if (!student.next_payment_date || student.payment_status === 'paid') return null
+            const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+            todayGYE.setHours(0, 0, 0, 0)
+            const due = new Date(student.next_payment_date + 'T00:00:00')
+            return Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
+          })()
 
           return (
             <div
@@ -895,6 +927,27 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
               </div>
 
               <div className="p-4 space-y-3">
+                {/* ───── Tu próxima clase ───── */}
+                {nextClassLabel && (
+                  <div className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 ${
+                    nextClassLabel === 'Hoy'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                      : nextClassLabel === 'Mañana'
+                        ? 'bg-gradient-to-r from-teal-400 to-cyan-500'
+                        : 'bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-100'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <CalendarCheck size={14} className={nextClassLabel === 'Hoy' || nextClassLabel === 'Mañana' ? 'text-white' : 'text-teal-600'} />
+                      <span className={`text-[10px] uppercase font-semibold tracking-wider ${nextClassLabel === 'Hoy' || nextClassLabel === 'Mañana' ? 'text-white/80' : 'text-teal-600'}`}>
+                        Tu próxima clase
+                      </span>
+                    </div>
+                    <span className={`text-sm font-bold capitalize ${nextClassLabel === 'Hoy' || nextClassLabel === 'Mañana' ? 'text-white' : 'text-teal-700'}`}>
+                      {nextClassLabel}
+                    </span>
+                  </div>
+                )}
+
                 {/* ───── Financial Summary ───── */}
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="bg-purple-50 rounded-xl p-3 text-center">
@@ -943,6 +996,34 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                       <p className="text-xs font-semibold text-amber-800">Saldo pendiente</p>
                       <p className="text-lg font-bold text-amber-700">${parseFloat(student.balance).toFixed(2)}</p>
                     </div>
+                  </div>
+                )}
+
+                {/* Recordatorio de pago */}
+                {daysUntilPayment !== null && daysUntilPayment <= 3 && (
+                  <div className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border ${
+                    daysUntilPayment < 0
+                      ? 'bg-rose-50 border-rose-200'
+                      : daysUntilPayment === 0
+                        ? 'bg-orange-50 border-orange-200'
+                        : 'bg-amber-50 border-amber-200'
+                  }`}>
+                    <Bell size={14} className={
+                      daysUntilPayment < 0 ? 'text-rose-500' :
+                      daysUntilPayment === 0 ? 'text-orange-500' : 'text-amber-500'
+                    } />
+                    <p className={`text-xs font-medium flex-1 ${
+                      daysUntilPayment < 0 ? 'text-rose-700' :
+                      daysUntilPayment === 0 ? 'text-orange-700' : 'text-amber-700'
+                    }`}>
+                      {daysUntilPayment < 0
+                        ? `Tu pago venció hace ${Math.abs(daysUntilPayment)} día${Math.abs(daysUntilPayment) !== 1 ? 's' : ''}`
+                        : daysUntilPayment === 0
+                          ? 'Tu pago vence hoy'
+                          : daysUntilPayment === 1
+                            ? 'Tu pago vence mañana'
+                            : `Tu pago vence en ${daysUntilPayment} días`}
+                    </p>
                   </div>
                 )}
 

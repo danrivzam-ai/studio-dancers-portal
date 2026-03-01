@@ -606,23 +606,51 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
               </div>
             </a>
 
-            <a
-              href="https://maps.app.goo.gl/Gs55vnS1dX8eLWky9"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3.5 bg-gray-50 border border-gray-200 rounded-xl p-3.5 hover:bg-gray-100 transition-colors"
-            >
-              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
-                <MapPin size={18} className="text-purple-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800 text-sm">Ubicación</p>
-                <p className="text-xs text-gray-500">Guayaquil, Ecuador</p>
-              </div>
-            </a>
+            {/* Mapa embebido */}
+            <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+              <iframe
+                title="Studio Dancers ubicación"
+                src="https://maps.google.com/maps?q=Studio+Dancers+Guayaquil+Ecuador&output=embed&z=15"
+                width="100%"
+                height="200"
+                style={{ border: 0, display: 'block' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+              <a
+                href="https://maps.app.goo.gl/Gs55vnS1dX8eLWky9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 transition-colors"
+              >
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
+                  <MapPin size={15} className="text-purple-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-800 text-sm">Ver en Google Maps</p>
+                  <p className="text-xs text-gray-500">Guayaquil, Ecuador</p>
+                </div>
+                <ChevronRight size={16} className="text-gray-400 shrink-0" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* ═══════ BOTÓN FLOTANTE WHATSAPP ═══════ */}
+      <a
+        href={`https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent('¡Hola! Me gustaría información sobre los cursos de Studio Dancers.')}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-5 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 active:bg-green-700 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
+        style={{ boxShadow: '0 4px 20px rgba(37,211,102,0.45)' }}
+        aria-label="Contactar por WhatsApp"
+      >
+        <MessageCircle size={26} className="text-white" fill="white" />
+        {/* Pulse ring */}
+        <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-30 pointer-events-none" />
+      </a>
 
       {/* ═══════ FOOTER ═══════ */}
       <div className="bg-gradient-to-br from-purple-800 to-purple-900 px-5 py-8">
