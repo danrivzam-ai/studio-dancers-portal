@@ -1,8 +1,16 @@
 import { useEffect } from 'react'
+import { Trophy, Award, Gift, Star } from 'lucide-react'
+
+// Tier icon component — no emojis
+function TierIcon({ tier, color }) {
+  const props = { size: 48, color, strokeWidth: 1.5 }
+  if (tier === 'oro')    return <Trophy {...props} />
+  if (tier === 'plata')  return <Award  {...props} />
+  return                        <Star   {...props} />   // bronce
+}
 
 const TIER_CFG = {
   bronce: {
-    emoji: '🥉',
     label: 'Bronce',
     months: 3,
     discount: 5,
@@ -16,13 +24,13 @@ const TIER_CFG = {
     badgeBorder: '#fdba74',
     barFrom: '#f97316',
     barTo: '#ea580c',
+    iconColor: '#f97316',
     confetti: ['#f97316', '#fb923c', '#fdba74', '#fff7ed', '#fbbf24'],
     nextTier: 'Plata',
     nextDiscount: 10,
     nextMonths: 6,
   },
   plata: {
-    emoji: '🥈',
     label: 'Plata',
     months: 6,
     discount: 10,
@@ -36,13 +44,13 @@ const TIER_CFG = {
     badgeBorder: '#cbd5e1',
     barFrom: '#94a3b8',
     barTo: '#475569',
+    iconColor: '#64748b',
     confetti: ['#94a3b8', '#cbd5e1', '#64748b', '#e2e8f0', '#c0c0c0'],
     nextTier: 'Oro',
     nextDiscount: 15,
     nextMonths: 12,
   },
   oro: {
-    emoji: '🏆',
     label: 'Oro',
     months: 12,
     discount: 15,
@@ -56,6 +64,7 @@ const TIER_CFG = {
     badgeBorder: '#fcd34d',
     barFrom: '#f59e0b',
     barTo: '#d97706',
+    iconColor: '#d97706',
     confetti: ['#f59e0b', '#fbbf24', '#fcd34d', '#fef3c7', '#d97706'],
     nextTier: null,
     nextDiscount: null,
@@ -63,7 +72,6 @@ const TIER_CFG = {
   },
 }
 
-// Simple confetti particle (pure CSS animation via inline style)
 function Confetti({ cfg }) {
   const particles = Array.from({ length: 18 }, (_, i) => {
     const color = cfg.confetti[i % cfg.confetti.length]
@@ -99,7 +107,6 @@ export default function MilestoneModal({ tier, studentName, onClose }) {
   const cfg = TIER_CFG[tier]
   if (!cfg) return null
 
-  // Close on Escape key
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
@@ -123,25 +130,22 @@ export default function MilestoneModal({ tier, studentName, onClose }) {
         }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Confetti rain */}
         <Confetti cfg={cfg} />
 
-        {/* Content */}
         <div className="relative z-10 px-6 pt-8 pb-6 text-center">
-          {/* Big emoji */}
+          {/* Tier icon */}
           <div
-            className="text-6xl mb-3 select-none"
+            className="flex justify-center mb-3"
             style={{ animation: 'milestonePopIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both' }}
           >
-            {cfg.emoji}
+            <TierIcon tier={tier} color={cfg.iconColor} />
           </div>
 
-          {/* Title */}
           <p
             className="text-xs font-bold uppercase tracking-widest mb-1"
             style={{ color: cfg.subtitleColor }}
           >
-            ¡Nuevo nivel desbloqueado!
+            Nuevo nivel desbloqueado
           </p>
           <h2
             className="text-2xl font-extrabold mb-1"
@@ -150,7 +154,7 @@ export default function MilestoneModal({ tier, studentName, onClose }) {
             Nivel {cfg.label}
           </h2>
           <p className="text-sm mb-5" style={{ color: cfg.subtitleColor }}>
-            {firstName}, ¡llevás {cfg.months} meses de puntualidad impecable!
+            {firstName}, llevas {cfg.months} meses de puntualidad impecable.
           </p>
 
           {/* Discount pill */}
@@ -158,11 +162,11 @@ export default function MilestoneModal({ tier, studentName, onClose }) {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-5"
             style={{ background: cfg.badgeBg, color: cfg.badgeText, border: `1px solid ${cfg.badgeBorder}` }}
           >
-            <span>🎁</span>
+            <Gift size={14} />
             <span>{cfg.discount}% de descuento desbloqueado</span>
           </div>
 
-          {/* Progress bar reaching 100% */}
+          {/* Progress bar */}
           <div className="mb-5">
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.08)' }}>
               <div
@@ -174,25 +178,23 @@ export default function MilestoneModal({ tier, studentName, onClose }) {
                 }}
               />
             </div>
-            {cfg.nextTier && (
+            {cfg.nextTier ? (
               <p className="text-[10px] mt-1.5 text-center" style={{ color: cfg.subtitleColor }}>
-                Seguí así → {cfg.nextMonths - cfg.months} {cfg.nextMonths - cfg.months === 1 ? 'mes' : 'meses'} más para {cfg.nextTier} ({cfg.nextDiscount}%)
+                {cfg.nextMonths - cfg.months} {cfg.nextMonths - cfg.months === 1 ? 'mes' : 'meses'} mas para {cfg.nextTier} · {cfg.nextDiscount}% de descuento
               </p>
-            )}
-            {!cfg.nextTier && (
+            ) : (
               <p className="text-[10px] mt-1.5 text-center" style={{ color: cfg.subtitleColor }}>
-                ¡Nivel máximo! Gracias por tu fidelidad ✨
+                Nivel maximo alcanzado. Gracias por tu fidelidad.
               </p>
             )}
           </div>
 
-          {/* CTA button */}
           <button
             onClick={onClose}
             className="w-full py-3 rounded-xl font-bold text-white text-sm transition-opacity hover:opacity-90 active:opacity-80"
             style={{ background: `linear-gradient(90deg, ${cfg.barFrom}, ${cfg.barTo})` }}
           >
-            ¡Genial, gracias! 🎉
+            Continuar
           </button>
         </div>
       </div>

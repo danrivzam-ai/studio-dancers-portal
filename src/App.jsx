@@ -80,22 +80,6 @@ export default function App() {
   const [error, setError] = useState(null)
   const isHandlingPopState = useRef(false)
 
-  // --- SPLASH: fade out y remover una vez que React montó ---
-  useEffect(() => {
-    const splash = document.getElementById('splash')
-    if (!splash) return
-    // Delay start of fade so first React paint is committed before fading
-    let removeTimer
-    const fadeTimer = setTimeout(() => {
-      splash.style.opacity = '0'
-      removeTimer = setTimeout(() => { splash.remove() }, 420)
-    }, 80)
-    return () => {
-      clearTimeout(fadeTimer)
-      clearTimeout(removeTimer)
-    }
-  }, [])
-
   // --- SERVICE WORKER: force update + auto-reload when new SW takes control ---
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return

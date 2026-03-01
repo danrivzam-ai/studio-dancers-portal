@@ -505,9 +505,9 @@ export default function BalletGlossary({ onLogout }) {
       <div className="max-w-md mx-auto px-4 pb-24 space-y-2">
         {filtered.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p className="text-3xl mb-2">🔍</p>
+            <Search size={32} className="mx-auto mb-2 text-gray-300" />
             <p className="text-sm font-medium">Sin resultados</p>
-            <p className="text-xs mt-1">Intentá con otro término</p>
+            <p className="text-xs mt-1">Intenta con otro termino</p>
           </div>
         ) : (
           filtered.map((entry, i) => (
