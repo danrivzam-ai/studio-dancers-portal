@@ -1,4 +1,6 @@
-import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users, Target, ShoppingBag, Pin, Smartphone, Star } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users, Target, ShoppingBag, Pin, Smartphone, Star, Images, X, ChevronLeft } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
 // ── Social media icons ──
 const InstagramIcon = () => (
@@ -130,27 +132,6 @@ const IconNutrition = ({ size = 20, color = 'white' }) => (
 
 const STUDIO_WHATSAPP = '593963741884'
 
-// Ballet silhouette decorativa — bailarina con tuto, arabesque pose
-const BalletDecoration = () => (
-  <svg className="absolute right-2 bottom-6 opacity-10 w-36 h-36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Head */}
-    <circle cx="35" cy="9" r="4.5" stroke="white" strokeWidth="2.2"/>
-    {/* Hair bun */}
-    <circle cx="39.5" cy="6.5" r="2.2" stroke="white" strokeWidth="1.8"/>
-    {/* Torso */}
-    <path d="M35 13.5 C34 17 33 21 32 25" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-    {/* Tutu */}
-    <path d="M19 27 C22 21 44 21 47 27 C50 33 44 37 32 36.5 C20 37 14 33 19 27Z" stroke="white" strokeWidth="2"/>
-    {/* Left arm raised */}
-    <path d="M31 19 C27 15 22 11 17 9" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-    {/* Right arm extended */}
-    <path d="M38 19 C43 20 50 19 54 17" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-    {/* Left leg down */}
-    <path d="M28 36.5 C26 41 23 47 21 53" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-    {/* Right leg arabesque */}
-    <path d="M36 36.5 C41 39 47 43 53 47" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-  </svg>
-)
 
 const FEATURES = [
   {
@@ -281,6 +262,34 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // ── Gallery state ──────────────────────────────────────────────────
+  const [galleryPhotos, setGalleryPhotos] = useState([])
+  const [lightbox, setLightbox] = useState(null) // index | null
+
+  useEffect(() => {
+    supabase
+      .from('gallery_photos')
+      .select('id, storage_path, caption')
+      .eq('active', true)
+      .order('display_order', { ascending: true })
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { if (data?.length) setGalleryPhotos(data) })
+  }, [])
+
+  const getGalleryUrl = (path) =>
+    supabase.storage.from('gallery').getPublicUrl(path).data.publicUrl
+
+  const openLightbox = (idx) => {
+    setLightbox(idx)
+    document.body.style.overflow = 'hidden'
+  }
+  const closeLightbox = () => {
+    setLightbox(null)
+    document.body.style.overflow = ''
+  }
+  const prevPhoto = () => setLightbox(i => (i - 1 + galleryPhotos.length) % galleryPhotos.length)
+  const nextPhoto = () => setLightbox(i => (i + 1) % galleryPhotos.length)
+
   return (
     <div className="min-h-screen bg-white">
       {/* ═══════ HERO SECTION ═══════ */}
@@ -288,7 +297,6 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
         <div className="absolute top-10 left-[-40px] w-32 h-32 bg-white/5 rounded-full" />
         <div className="absolute bottom-20 right-[-20px] w-24 h-24 bg-white/5 rounded-full" />
         <div className="absolute top-1/3 right-8 w-16 h-16 bg-pink-400/10 rounded-full" />
-        <BalletDecoration />
 
         <div className="text-center max-w-sm relative z-10 animate-fadeIn">
           <img
@@ -646,6 +654,95 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
           </div>
         </div>
       </div>
+
+      {/* ═══════ GALERÍA ═══════ */}
+      {galleryPhotos.length > 0 && (
+        <div className="px-5 py-10 bg-white">
+          <div className="max-w-md mx-auto">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
+                <Images size={16} className="text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-800 leading-tight">Nuestro estudio</h2>
+                <p className="text-xs text-gray-400">Momentos del día a día</p>
+              </div>
+            </div>
+
+            {/* Grid 2 cols */}
+            <div className="grid grid-cols-2 gap-2">
+              {galleryPhotos.map((photo, idx) => (
+                <button
+                  key={photo.id}
+                  onClick={() => openLightbox(idx)}
+                  className="aspect-square rounded-xl overflow-hidden bg-gray-100 focus:outline-none active:scale-95 transition-transform"
+                >
+                  <img
+                    src={getGalleryUrl(photo.storage_path)}
+                    alt={photo.caption || 'Foto del estudio'}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lightbox !== null && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* Close */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white"
+          >
+            <X size={18} />
+          </button>
+
+          {/* Prev */}
+          {galleryPhotos.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); prevPhoto() }}
+              className="absolute left-3 w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+
+          {/* Image */}
+          <div className="px-14 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={getGalleryUrl(galleryPhotos[lightbox].storage_path)}
+              alt={galleryPhotos[lightbox].caption || 'Foto del estudio'}
+              className="w-full max-h-[80vh] object-contain rounded-xl"
+            />
+            {galleryPhotos[lightbox].caption && (
+              <p className="text-white/70 text-sm text-center mt-3">
+                {galleryPhotos[lightbox].caption}
+              </p>
+            )}
+            <p className="text-white/30 text-xs text-center mt-1">
+              {lightbox + 1} / {galleryPhotos.length}
+            </p>
+          </div>
+
+          {/* Next */}
+          {galleryPhotos.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); nextPhoto() }}
+              className="absolute right-3 w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white"
+            >
+              <ChevronRight size={20} />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ═══════ BOTÓN FLOTANTE WHATSAPP ═══════ */}
       <a
