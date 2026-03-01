@@ -172,15 +172,33 @@ function DanceLoader() {
       <div className="relative mb-8">
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center"
           style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}>
-          <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Ballet dancer silhouette */}
-            <circle cx="32" cy="12" r="6" fill="#7e22ce"/>
-            <path d="M32 18 C32 18 28 24 26 30 C24 36 20 42 16 46" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 18 C32 18 34 26 34 32 C34 38 32 44 32 50" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 24 C32 24 40 20 46 18" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 24 C32 24 22 22 18 24" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 50 C32 50 28 54 24 56" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M32 50 C32 50 36 54 40 52" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round"/>
+          <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Head */}
+            <circle cx="35" cy="9" r="4.5" stroke="#7e22ce" strokeWidth="2.2"/>
+            {/* Hair bun */}
+            <circle cx="39.5" cy="6.5" r="2.2" stroke="#7e22ce" strokeWidth="1.8"/>
+            {/* Ponytail */}
+            <path d="M41 5 C47 1 53 6 49 13" stroke="#7e22ce" strokeWidth="1.8" strokeLinecap="round"/>
+            {/* Torso */}
+            <path d="M35 13.5 C34 17 33 21 32 25" stroke="#7e22ce" strokeWidth="2.2" strokeLinecap="round"/>
+            {/* Tutu skirt */}
+            <path d="M19 27 C22 21 44 21 47 27 C50 33 44 37 32 36.5 C20 37 14 33 19 27Z" stroke="#7e22ce" strokeWidth="2"/>
+            {/* Left arm raised up */}
+            <path d="M31 19 C27 15 22 11 17 9" stroke="#7e22ce" strokeWidth="2.2" strokeLinecap="round"/>
+            {/* Right arm extended */}
+            <path d="M38 19 C43 20 50 19 54 17" stroke="#7e22ce" strokeWidth="2.2" strokeLinecap="round"/>
+            {/* Left leg down */}
+            <path d="M28 36.5 C26 41 23 47 21 53" stroke="#7e22ce" strokeWidth="2.2" strokeLinecap="round"/>
+            {/* Right leg arabesque */}
+            <path d="M36 36.5 C41 39 47 43 53 47" stroke="#7e22ce" strokeWidth="2.2" strokeLinecap="round"/>
+            {/* Sparkle ✦ top-left (large) */}
+            <path d="M10 19 L12 25 L10 31 L8 25Z M5.5 25 L10 23.5 L14.5 25 L10 26.5Z" fill="#7e22ce"/>
+            {/* Sparkle ✦ top-right (medium) */}
+            <path d="M53 10 L54.5 14.5 L53 19 L51.5 14.5Z M49 14.5 L53 13.2 L57 14.5 L53 15.8Z" fill="#7e22ce"/>
+            {/* Sparkle ✦ bottom-left (small) */}
+            <path d="M8 47 L9.2 51 L8 55 L6.8 51Z M5 51 L8 50.2 L11 51 L8 51.8Z" fill="#7e22ce"/>
+            {/* Sparkle ✦ bottom-right (medium) */}
+            <path d="M54 43 L55.4 47.5 L54 52 L52.6 47.5Z M51 47.5 L54 46.2 L57 47.5 L54 48.8Z" fill="#7e22ce"/>
           </svg>
         </div>
         {/* Rotating ring */}
