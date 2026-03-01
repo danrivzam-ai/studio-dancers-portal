@@ -54,6 +54,28 @@ const IconGroupDance = ({ size = 36, color = 'white' }) => (
   </svg>
 )
 
+// Baby Ballet — niña pequeña con tutú
+const IconBabyBallet = ({ size = 36, color = 'white' }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill={color}>
+    <circle cx="24" cy="5.5" r="4"/>
+    <ellipse cx="24" cy="14" rx="2.4" ry="5.5"/>
+    {/* tutú */}
+    <ellipse cx="24" cy="19" rx="7.5" ry="2.8"/>
+    {/* falda izq */}
+    <ellipse cx="18" cy="21" rx="4" ry="1.6" transform="rotate(-20 18 21)"/>
+    {/* falda der */}
+    <ellipse cx="30" cy="21" rx="4" ry="1.6" transform="rotate(20 30 21)"/>
+    {/* pierna izq */}
+    <ellipse cx="21.5" cy="32" rx="1.8" ry="7" transform="rotate(8 21.5 32)"/>
+    {/* pierna der */}
+    <ellipse cx="26.5" cy="32" rx="1.8" ry="7" transform="rotate(-8 26.5 32)"/>
+    {/* brazo izq */}
+    <ellipse cx="16" cy="13.5" rx="1.2" ry="4.5" transform="rotate(-40 16 13.5)"/>
+    {/* brazo der */}
+    <ellipse cx="32" cy="13.5" rx="1.2" ry="4.5" transform="rotate(40 32 13.5)"/>
+  </svg>
+)
+
 // Maestro — Ballet Intermedios y Avanzados
 const IconMaestro = ({ size = 36, color = 'white' }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" fill={color}>
@@ -74,11 +96,19 @@ const CARD_GRADIENT = 'from-[#551735] to-[#3d0f25]'
 
 const CATEGORY_CONFIG = {
   regular: {
-    label: 'Ballet Adultas Principiantes',
-    description: 'Clases semanales de ballet para adultas',
+    label: 'Ballet Adultas · Principiantes',
+    description: 'Clases semanales · Martes/Jueves y Sábados',
     Icon: IconArabesque,
     bgColor: '#afeeee',
     textColor: '#0d4444',
+    lightBg: true,
+  },
+  ninas: {
+    label: 'Baby Ballet · Niñas',
+    description: 'Clases de sábados para pequeñas bailarinas',
+    Icon: IconBabyBallet,
+    bgColor: '#fce7f3',
+    textColor: '#9d174d',
     lightBg: true,
   },
   intensivo: {
@@ -90,13 +120,17 @@ const CATEGORY_CONFIG = {
   },
   especial: {
     label: 'Dance Camp 2026',
-    description: 'Dance Camp 2026: Exploradoras de la Danza',
+    description: 'Programa especial vacacional · Exploradoras de la Danza',
     Icon: IconGroupDance,
     bgColor: '#ffcfe0',
     textColor: '#6b1a3a',
     lightBg: true,
+    badge: 'Recital · 25 Abr',
   },
 }
+
+// Orden de visualización en el catálogo
+const CATEGORY_ORDER = ['regular', 'ninas', 'intensivo', 'especial']
 
 const MAESTRO_CONFIG = {
   label: 'Ballet Intermedios y Avanzados',
@@ -399,8 +433,8 @@ function CategoryCard({ config, count, onClick, delay = 0 }) {
           />
         </div>
 
-        {count !== undefined && (
-          <div className="relative z-10 mt-3">
+        <div className="relative z-10 mt-3 flex items-center gap-2 flex-wrap">
+          {count !== undefined && (
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
               style={{
@@ -410,8 +444,19 @@ function CategoryCard({ config, count, onClick, delay = 0 }) {
             >
               {count} {count === 1 ? 'curso' : 'cursos'}
             </span>
-          </div>
-        )}
+          )}
+          {config.badge && (
+            <span
+              className="px-2.5 py-0.5 rounded-full text-xs font-bold"
+              style={{
+                background: isLight ? 'rgba(85,23,53,0.85)' : 'rgba(255,255,255,0.25)',
+                color: 'white'
+              }}
+            >
+              {config.badge}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   )
@@ -452,7 +497,8 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
     const needle = initialCourseName.toLowerCase()
     const match = courses.find(c => (c.name || '').toLowerCase().includes(needle))
     if (match) {
-      const cat = match.category === 'camp' ? 'especial' : (match.category || 'regular')
+      let cat = match.category || 'regular'
+      if (cat === 'camp') cat = 'especial'
       setSelectedCategory(cat)
       setSelectedCourse(match)
     }
@@ -491,7 +537,8 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
   const closeCourse = useCallback(() => { history.back() }, [])
 
   const grouped = courses.reduce((acc, course) => {
-    const cat = course.category === 'camp' ? 'especial' : (course.category || 'regular')
+    let cat = course.category || 'regular'
+    if (cat === 'camp') cat = 'especial'
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(course)
     return acc
@@ -523,19 +570,38 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
         </div>
       ) : (
         <>
-          {/* Categorías dinámicas (DB) */}
-          {Object.entries(grouped).map(([category, catCourses], idx) => {
-            const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.regular
-            return (
-              <CategoryCard
-                key={category}
-                config={config}
-                count={catCourses.length}
-                onClick={() => openCategory(category)}
-                delay={idx * 0.1}
-              />
-            )
-          })}
+          {/* Categorías dinámicas (DB) — orden controlado */}
+          {CATEGORY_ORDER
+            .filter(cat => grouped[cat]?.length > 0)
+            .map((category, idx) => {
+              const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.regular
+              return (
+                <CategoryCard
+                  key={category}
+                  config={config}
+                  count={grouped[category].length}
+                  onClick={() => openCategory(category)}
+                  delay={idx * 0.1}
+                />
+              )
+            })
+          }
+          {/* Categorías no definidas en CATEGORY_ORDER (por si hay nuevas en DB) */}
+          {Object.entries(grouped)
+            .filter(([cat]) => !CATEGORY_ORDER.includes(cat))
+            .map(([category, catCourses], idx) => {
+              const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.regular
+              return (
+                <CategoryCard
+                  key={category}
+                  config={config}
+                  count={catCourses.length}
+                  onClick={() => openCategory(category)}
+                  delay={(CATEGORY_ORDER.length + idx) * 0.1}
+                />
+              )
+            })
+          }
 
           {/* Tarjeta estática Maestro — siempre al final */}
           <CategoryCard
