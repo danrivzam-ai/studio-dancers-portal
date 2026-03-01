@@ -130,16 +130,25 @@ const IconNutrition = ({ size = 20, color = 'white' }) => (
 
 const STUDIO_WHATSAPP = '593963741884'
 
-// Ballet silhouette decorativa
+// Ballet silhouette decorativa — bailarina con tuto, arabesque pose
 const BalletDecoration = () => (
-  <svg className="absolute right-4 bottom-8 opacity-10 w-32 h-32" viewBox="0 0 120 120" fill="white">
-    <circle cx="60" cy="18" r="10"/>
-    <path d="M60 28c0 0-8 12-12 24s-10 18-18 26" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
-    <path d="M60 28c0 0 4 16 4 28s-4 24-4 36" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
-    <path d="M60 40c0 0 16-8 28-12" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
-    <path d="M60 40c0 0-16-4-24 0" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
-    <path d="M60 92c0 0-8 8-16 12" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
-    <path d="M60 92c0 0 8 8 16 4" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
+  <svg className="absolute right-2 bottom-6 opacity-10 w-36 h-36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Head */}
+    <circle cx="35" cy="9" r="4.5" stroke="white" strokeWidth="2.2"/>
+    {/* Hair bun */}
+    <circle cx="39.5" cy="6.5" r="2.2" stroke="white" strokeWidth="1.8"/>
+    {/* Torso */}
+    <path d="M35 13.5 C34 17 33 21 32 25" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
+    {/* Tutu */}
+    <path d="M19 27 C22 21 44 21 47 27 C50 33 44 37 32 36.5 C20 37 14 33 19 27Z" stroke="white" strokeWidth="2"/>
+    {/* Left arm raised */}
+    <path d="M31 19 C27 15 22 11 17 9" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
+    {/* Right arm extended */}
+    <path d="M38 19 C43 20 50 19 54 17" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
+    {/* Left leg down */}
+    <path d="M28 36.5 C26 41 23 47 21 53" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
+    {/* Right leg arabesque */}
+    <path d="M36 36.5 C41 39 47 43 53 47" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
   </svg>
 )
 

@@ -54,13 +54,13 @@ export default defineConfig({
       // Use injectManifest for full control over service worker
       strategies: 'generateSW',
       workbox: {
-        // NO precaching of JS/CSS — avoids stale cached bundles causing gray screen
-        globPatterns: ['**/*.{html,png,ico,svg}'],
+        // Precache only static assets — NOT html (html always served from network)
+        globPatterns: ['**/*.{png,ico,svg}'],
         skipWaiting: true,
         clientsClaim: true,
-        navigateFallback: '/index.html',
+        // No navigateFallback — index.html served from network so it's always fresh
         cleanupOutdatedCaches: true,
-        // All JS/CSS served NetworkFirst — always fresh from server
+        // JS/CSS/HTML served NetworkFirst — always fresh from server
         runtimeCaching: [
           {
             urlPattern: /\.(?:js|css)$/,
@@ -69,6 +69,15 @@ export default defineConfig({
               cacheName: 'app-assets',
               expiration: { maxEntries: 30, maxAgeSeconds: 86400 },
               networkTimeoutSeconds: 5,
+            }
+          },
+          {
+            urlPattern: /\.html$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              expiration: { maxEntries: 5, maxAgeSeconds: 3600 },
+              networkTimeoutSeconds: 3,
             }
           },
           {
