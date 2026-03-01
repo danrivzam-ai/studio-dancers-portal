@@ -392,9 +392,6 @@ function GlossaryCard({ entry }) {
         <span className={`w-2 h-2 rounded-full shrink-0 ${colors.dot}`} />
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-bold text-gray-800 leading-tight">{entry.term}</p>
-          {entry.pronunciation && !open && (
-            <p className="text-[10px] text-gray-400 italic mt-0.5 truncate">{entry.pronunciation}</p>
-          )}
         </div>
         {open
           ? <ChevronUp size={15} className="text-gray-400 shrink-0" />
@@ -404,11 +401,6 @@ function GlossaryCard({ entry }) {
 
       {open && (
         <div className={`px-4 pb-4 pt-0 ${colors.bg}`}>
-          {entry.pronunciation && (
-            <p className="text-[10px] text-gray-500 italic mb-2">
-              Pronunciación: <span className="font-medium">{entry.pronunciation}</span>
-            </p>
-          )}
           <p className="text-[12px] text-gray-700 leading-relaxed">{entry.definition}</p>
           <span className={`inline-block mt-2 text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} border ${colors.border}`}>
             {entry.category}
