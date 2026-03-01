@@ -83,3 +83,24 @@ body {
 .animate-slideUp {
   animation: slideUp 0.35s ease-out forwards;
 }
+
+/* ═══════ MILESTONE MODAL ANIMATIONS ═══════ */
+
+/* Elastic pop-in for the modal card */
+@keyframes milestonePopIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Progress bar fill from 0 to 100% */
+@keyframes barFillIn {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+/* Confetti particle falling */
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg);    opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(320px) rotate(720deg); opacity: 0; }
+}

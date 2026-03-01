@@ -1,9 +1,10 @@
-import { CreditCard, Lightbulb, BookOpen, CalendarDays } from 'lucide-react'
+import { CreditCard, Lightbulb, BookOpen, CalendarDays, GraduationCap } from 'lucide-react'
 
 const TABS = [
   { id: 'payments',  label: 'Pagos',      icon: CreditCard },
   { id: 'calendar',  label: 'Calendario', icon: CalendarDays },
   { id: 'tips',      label: 'Tips',       icon: Lightbulb },
+  { id: 'glossary',  label: 'Glosario',   icon: GraduationCap },
   { id: 'courses',   label: 'Cursos',     icon: BookOpen },
 ]
 

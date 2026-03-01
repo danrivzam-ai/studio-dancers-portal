@@ -1,4 +1,4 @@
-import { Flame, Shirt, Star, Brain, Droplets, Zap, LogOut } from 'lucide-react'
+import { Flame, Shirt, Star, Brain, Droplets, Zap, LogOut, Music2, ExternalLink } from 'lucide-react'
 
 const BALLET_TIPS = [
   {
@@ -74,6 +74,36 @@ const BALLET_TIPS = [
   }
 ]
 
+const PLAYLISTS = [
+  {
+    id: 'clasica',
+    emoji: '🎻',
+    title: 'Música Clásica · Ballet',
+    description: 'Tchaikovsky, Delibes, Minkus. Ideal para practicar barra y combinaciones.',
+    accent: 'border-purple-400',
+    iconColor: 'bg-purple-100 text-purple-600',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DX4PkVkn6ZiRR',
+  },
+  {
+    id: 'stretching',
+    emoji: '🧘',
+    title: 'Estiramiento · Relax',
+    description: 'Música suave y continua para el estiramiento final y la recuperación muscular.',
+    accent: 'border-teal-400',
+    iconColor: 'bg-teal-100 text-teal-600',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DX9uKNf5jGX6m',
+  },
+  {
+    id: 'baby',
+    emoji: '🩰',
+    title: 'Baby Ballet · Primeros pasos',
+    description: 'Melodías alegres y dinámicas para las más pequeñas. ¡A bailar con alegría!',
+    accent: 'border-pink-400',
+    iconColor: 'bg-pink-100 text-pink-500',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DX1s9knjP51Oa',
+  },
+]
+
 export default function BalletTips({ onLogout }) {
   return (
     <div className="min-h-screen bg-gray-100">
@@ -123,6 +153,40 @@ export default function BalletTips({ onLogout }) {
             </div>
           )
         })}
+
+        {/* ───── Playlists de Spotify ───── */}
+        <div className="pt-2">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
+              <Music2 size={15} className="text-green-600" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-700 leading-tight">Playlists para bailar</p>
+              <p className="text-[10px] text-gray-400">Curadas por el estudio · abre en Spotify</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {PLAYLISTS.map(pl => (
+              <a
+                key={pl.id}
+                href={pl.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-3 bg-white rounded-xl shadow-sm border border-gray-100 border-l-4 ${pl.accent} px-4 py-3 hover:bg-gray-50 active:bg-gray-100 transition-colors`}
+              >
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-lg ${pl.iconColor}`}>
+                  {pl.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold text-gray-800 leading-tight">{pl.title}</p>
+                  <p className="text-[11px] text-gray-500 leading-snug mt-0.5 line-clamp-2">{pl.description}</p>
+                </div>
+                <ExternalLink size={13} className="text-gray-300 shrink-0" />
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

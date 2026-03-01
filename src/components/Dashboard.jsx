@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
+import MilestoneModal from './MilestoneModal'
 
 // ═══════ FIDELIDAD ═══════
 function getLoyaltyTier(consecutiveMonths) {
@@ -537,6 +538,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [photoUploading, setPhotoUploading] = useState({})   // upload in progress flag
   const [photoError, setPhotoError] = useState({})           // true=no photo/failed, false=loaded OK
   const avatarInputRefs = useRef({})                          // hidden file inputs per student
+  // Milestone celebration modal — { tier, studentName } or null
+  const [milestone, setMilestone] = useState(null)
   // Calendar modal
   const [calendarStudent, setCalendarStudent] = useState(null)
   // Track which modal is open — used by back-button handler to close modals natively
@@ -611,6 +614,33 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     const interval = setInterval(refreshStudents, 30000)
     return () => clearInterval(interval)
   }, [cedula, phoneLast4, refreshKey])
+
+  // ─── Milestone detection ───
+  // After every live-student refresh, check if any student just reached a tier
+  // threshold for the first time. Show celebration modal once per tier per student.
+  useEffect(() => {
+    if (!liveStudents?.length) return
+    const TIERS = [
+      { tier: 'oro',    months: 12 },
+      { tier: 'plata',  months: 6  },
+      { tier: 'bronce', months: 3  },
+    ]
+    for (const s of liveStudents) {
+      const m = parseInt(s.consecutive_months) || 0
+      if (!m) continue
+      for (const { tier, months } of TIERS) {
+        if (m >= months) {
+          const key = `sd_milestone_${s.id}_${tier}`
+          if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, '1')
+            setMilestone({ tier, studentName: s.name })
+            return // show one at a time
+          }
+          break // only show the highest unlocked tier not yet seen
+        }
+      }
+    }
+  }, [liveStudents])
 
   // Fetch transfer requests + end loading (with timeout safety)
   useEffect(() => {
@@ -815,6 +845,15 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
         <PayphoneReturnBanner
           onConfirm={handleReturnConfirm}
           onDismiss={() => setShowReturnBanner(false)}
+        />
+      )}
+
+      {/* Milestone celebration modal */}
+      {milestone && (
+        <MilestoneModal
+          tier={milestone.tier}
+          studentName={milestone.studentName}
+          onClose={() => setMilestone(null)}
         />
       )}
 
