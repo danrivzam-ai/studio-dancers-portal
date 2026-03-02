@@ -303,10 +303,18 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
   return (
     <div className="min-h-screen bg-white">
       {/* ═══════ HERO SECTION ═══════ */}
-      <div className="relative min-h-[85vh] bg-gradient-to-br from-purple-800 via-purple-600 to-pink-500 flex flex-col items-center justify-center p-6 overflow-hidden">
+      <div className="relative min-h-[70vh] bg-gradient-to-br from-purple-800 via-purple-600 to-pink-500 flex flex-col items-center justify-center p-6 overflow-hidden">
         <div className="absolute top-10 left-[-40px] w-32 h-32 bg-white/5 rounded-full" />
         <div className="absolute bottom-20 right-[-20px] w-24 h-24 bg-white/5 rounded-full" />
         <div className="absolute top-1/3 right-8 w-16 h-16 bg-pink-400/10 rounded-full" />
+
+        {/* Link discreto portal — esquina superior derecha */}
+        <button
+          onClick={onGoToLogin}
+          className="absolute top-4 right-5 z-10 text-white/60 hover:text-white text-xs font-medium flex items-center gap-0.5 transition-colors"
+        >
+          Ingresa a tu cuenta <ChevronRight size={13} />
+        </button>
 
         <div className="text-center max-w-sm relative z-10 animate-fadeIn">
           <img
@@ -314,34 +322,17 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
             alt="Studio Dancers"
             className="w-44 mx-auto mb-4 object-contain drop-shadow-xl"
           />
-          <p className="text-white/80 text-sm mb-1">Escuela de Ballet en Guayaquil</p>
-          <p className="text-white/50 text-xs mb-8">Donde los sueños se bailan</p>
+          <p className="text-white/80 text-sm mb-1">Escuela de Ballet en La Alborada, Guayaquil</p>
+          <p className="text-white/60 text-xs mb-8">Más de 30 años formando bailarinas</p>
 
-          <div className="space-y-3">
-            <button
-              onClick={() => onGoToCatalog()}
-              className="w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-white text-purple-700 rounded-2xl font-bold hover:bg-white/95 active:bg-purple-50 transition-all text-base shadow-xl shadow-purple-900/30"
-            >
-              <BookOpen size={20} />
-              Ver Cursos Disponibles
-            </button>
-            <button
-              onClick={onGoToLogin}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 border border-white/40 text-white/80 rounded-2xl font-medium hover:bg-white/10 active:bg-white/15 transition-all text-sm backdrop-blur-sm"
-            >
-              <LogIn size={17} />
-              Ingresar al Portal de Pagos
-            </button>
-          </div>
+          <button
+            onClick={() => onGoToCatalog()}
+            className="w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-white text-purple-700 rounded-2xl font-bold hover:bg-white/95 active:bg-purple-50 transition-all text-base shadow-xl shadow-purple-900/30"
+          >
+            <BookOpen size={20} />
+            Ver Cursos Disponibles
+          </button>
         </div>
-
-        <button
-          onClick={scrollToContent}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 hover:text-white/70 transition-colors"
-          style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}
-        >
-          <ChevronDown size={28} />
-        </button>
       </div>
 
       {/* ═══════ FEATURES ═══════ */}
