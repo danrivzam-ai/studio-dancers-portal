@@ -104,8 +104,8 @@ const CATEGORY_CONFIG = {
     lightBg: true,
   },
   ninas: {
-    label: 'Baby Ballet · Niñas',
-    description: 'Clases de sábados para pequeñas bailarinas',
+    label: 'Sábados · Niñas y Jóvenes',
+    description: 'Baby Ballet · Dance Crew (8–15 años)',
     Icon: IconBabyBallet,
     bgColor: '#fce7f3',
     textColor: '#9d174d',
