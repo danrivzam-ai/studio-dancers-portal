@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import {
   ArrowLeft, Clock, Users, DollarSign, X,
-  CheckCircle, LogOut, MessageCircle, ChevronRight, RefreshCw
+  CheckCircle, LogOut, MessageCircle, ChevronRight, ChevronDown, RefreshCw
 } from 'lucide-react'
 
 const STUDIO_WHATSAPP = '593963741884'
@@ -145,6 +145,32 @@ const PRICE_TYPE_LABELS = {
   paquete: '/paquete',
   clase: '/clase',
   programa: '',
+}
+
+// ══════════════════════════════════════════════
+// FAQ DATA — por categoría (editable aquí)
+// ══════════════════════════════════════════════
+
+const CATEGORY_FAQ = {
+  regular: [
+    { q: '¿Necesito experiencia previa?',          a: 'No. Las clases están diseñadas para quienes nunca han bailado. Empezamos desde cero.' },
+    { q: '¿Hay límite de edad?',                   a: 'No. Lo único que necesitas son ganas de empezar.' },
+    { q: '¿Qué necesito para mi primera clase?',   a: 'Ropa cómoda, medias y una botella de agua. No necesitas zapatillas de ballet para empezar.' },
+    { q: '¿Puedo inscribirme en cualquier momento?', a: 'Sí. Escríbenos por WhatsApp y te indicamos cuándo puedes integrarte.' },
+  ],
+  especial: [
+    { q: '¿Cuánto dura el Dance Camp?',                    a: '8 semanas de clases, los lunes, martes y miércoles.' },
+    { q: '¿Qué incluye la inscripción de $99?',            a: 'Las 8 semanas de clases más el kit (camiseta y zapatillas de media punta). No incluye el recital final.' },
+    { q: '¿Mi hija necesita experiencia en danza?',        a: 'No. Cada grupo está adaptado a su edad y nivel.' },
+    { q: '¿Qué debe traer?',                               a: 'Leggins, malla, lycra o jogger. Cabello recogido y peinado. Agua y merienda ligera.' },
+    { q: '¿Puedo inscribir a hermanas en grupos diferentes?', a: 'Sí. Los horarios están diseñados para que puedas coordinar.' },
+  ],
+  ninas: [
+    { q: '¿Es todos los sábados?',         a: 'Sí, todos los sábados del ciclo. La constancia es clave para el progreso.' },
+    { q: '¿Qué pasa si falta un sábado?',  a: 'Puede reintegrarse la siguiente semana. No se reponen clases individuales.' },
+    { q: '¿Qué necesita traer?',           a: 'Ropa cómoda, cabello recogido y peinado, y agua. Las zapatillas se pueden adquirir después.' },
+    { q: '¿Hacen presentación al final?',  a: 'Sí. Cada ciclo culmina con un recital para las familias.' },
+  ],
 }
 
 // ══════════════════════════════════════════════
@@ -463,6 +489,52 @@ function CategoryCard({ config, count, onClick, delay = 0 }) {
 }
 
 // ══════════════════════════════════════════════
+// FAQ ACCORDION
+// ══════════════════════════════════════════════
+
+function FAQSection({ category, config }) {
+  const faqs = CATEGORY_FAQ[category] || []
+  const [openIdx, setOpenIdx] = useState(null)
+  if (!faqs.length) return null
+
+  const accentColor = config.textColor || '#551735'
+  const accentBg   = config.bgColor   || '#f3f4f6'
+
+  return (
+    <div className="mt-2 pb-2">
+      <p className="text-[10px] font-bold uppercase tracking-widest mb-3 px-1" style={{ color: accentColor }}>
+        Preguntas frecuentes
+      </p>
+      <div className="space-y-2">
+        {faqs.map((faq, i) => (
+          <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+            <button
+              onClick={() => setOpenIdx(openIdx === i ? null : i)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left gap-3"
+            >
+              <span className="text-sm font-medium text-gray-800 leading-snug">{faq.q}</span>
+              <ChevronDown
+                size={16}
+                className={`shrink-0 transition-transform duration-200 ${openIdx === i ? 'rotate-180' : ''}`}
+                style={{ color: accentColor }}
+              />
+            </button>
+            {openIdx === i && (
+              <div
+                className="px-4 pb-3 pt-1 text-sm text-gray-600 leading-relaxed border-t border-gray-100"
+                style={{ background: `${accentBg}40` }}
+              >
+                {faq.a}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════
 // MAIN COMPONENT
 // ══════════════════════════════════════════════
 
@@ -690,6 +762,9 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
             </div>
           </button>
         ))}
+
+        {/* FAQ de la categoría */}
+        <FAQSection category={selectedCategory} config={config} />
       </div>
     )
   }

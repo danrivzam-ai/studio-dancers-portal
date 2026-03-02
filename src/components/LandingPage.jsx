@@ -159,7 +159,7 @@ const QUICK_COURSES = [
     name: 'Dance Camp 2026',
     age: '3-17 años',
     schedule: 'Vacaciones',
-    tag: 'Incluye recital de clausura · 25 Abr',
+    tag: 'Clases diarias · Kit incluido · Baby · Kids · Teens',
     Icon: IconGroupDance,
     bgStyle: { background: 'rgba(255,207,224,0.65)' },
     borderColor: '#f5b8d0',
