@@ -899,12 +899,15 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
         {/* Prominent payment reminder banner */}
         {(() => {
           const urgentStudents = students.filter(s => {
-            if (!s.next_payment_date || s.payment_status === 'paid') return false
+            if (!s.next_payment_date) return false
             const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
             todayGYE.setHours(0, 0, 0, 0)
             const due = new Date(s.next_payment_date + 'T00:00:00')
             const days = Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
-            return days <= 5
+            // Overdue: siempre mostrar (DB no resetea payment_status al terminar el ciclo)
+            if (days < 0) return true
+            // Próximo ≤5 días: solo si aún no ha pagado este ciclo
+            return days <= 5 && s.payment_status !== 'paid'
           })
           if (!urgentStudents.length) return null
           const overdue = urgentStudents.filter(s => {
