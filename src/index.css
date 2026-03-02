@@ -98,6 +98,12 @@ body {
   to   { transform: scaleX(1); transform-origin: left; }
 }
 
+/* Announcement card entrance */
+@keyframes announceIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
 /* Confetti particle falling */
 @keyframes confettiFall {
   0%   { transform: translateY(0) rotate(0deg);    opacity: 1; }

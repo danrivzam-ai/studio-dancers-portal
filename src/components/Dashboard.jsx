@@ -1459,7 +1459,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   <div
                     key={a.id}
                     className={`rounded-xl border p-3.5 ${cfg.bg} ${cfg.border}`}
-                    style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.12}s both` }}
+                    style={{ animation: `announceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) ${idx * 0.18}s both` }}
                   >
                     <div className="flex items-start gap-2">
                       <div className="shrink-0 mt-0.5">
