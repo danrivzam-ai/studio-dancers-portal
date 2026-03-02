@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck, Megaphone, Pin, X as XIcon } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 import MilestoneModal from './MilestoneModal'
@@ -547,6 +547,11 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   // PayPhone return detection
   const [showReturnBanner, setShowReturnBanner] = useState(false)
   const payphoneOpenedRef = useRef(false)
+  // Tablón de anuncios
+  const [announcements, setAnnouncements] = useState([])
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('dismissed_announcements') || '[]')) } catch { return new Set() }
+  })
 
   // Fetch bank info
   useEffect(() => {
@@ -664,6 +669,19 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     fetchRequests()
     return () => clearTimeout(safetyTimer)
   }, [students, cedula, phoneLast4, refreshKey])
+
+  // Fetch active announcements
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]
+    supabase
+      .from('announcements')
+      .select('*')
+      .eq('active', true)
+      .or(`expires_at.is.null,expires_at.gte.${today}`)
+      .order('pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { if (data) setAnnouncements(data) })
+  }, [])
 
   // ─── PayPhone return detection ───
   // When user taps "Pagar con Tarjeta" link, we flag it.
@@ -877,6 +895,98 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-4">
+
+        {/* Prominent payment reminder banner */}
+        {(() => {
+          const urgentStudents = students.filter(s => {
+            if (!s.next_payment_date || s.payment_status === 'paid') return false
+            const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+            todayGYE.setHours(0, 0, 0, 0)
+            const due = new Date(s.next_payment_date + 'T00:00:00')
+            const days = Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
+            return days <= 5
+          })
+          if (!urgentStudents.length) return null
+          const overdue = urgentStudents.filter(s => {
+            const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+            todayGYE.setHours(0, 0, 0, 0)
+            return new Date(s.next_payment_date + 'T00:00:00') < todayGYE
+          })
+          const isOverdue = overdue.length > 0
+          return (
+            <div className={`rounded-2xl p-4 flex items-start gap-3 shadow-sm border ${isOverdue ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isOverdue ? 'bg-rose-100' : 'bg-amber-100'}`}>
+                <Bell size={20} className={isOverdue ? 'text-rose-600' : 'text-amber-600'} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`font-bold text-sm ${isOverdue ? 'text-rose-800' : 'text-amber-800'}`}>
+                  {isOverdue ? 'Pago vencido' : 'Pago próximo a vencer'}
+                </p>
+                {urgentStudents.map(s => {
+                  const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+                  todayGYE.setHours(0, 0, 0, 0)
+                  const due = new Date(s.next_payment_date + 'T00:00:00')
+                  const days = Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
+                  return (
+                    <p key={s.id} className={`text-xs mt-0.5 ${isOverdue ? 'text-rose-700' : 'text-amber-700'}`}>
+                      {s.name} · {days < 0 ? `Vencido hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}` : days === 0 ? 'Vence hoy' : `Vence en ${days} día${days !== 1 ? 's' : ''}`}
+                    </p>
+                  )
+                })}
+                <p className={`text-xs mt-1.5 font-medium ${isOverdue ? 'text-rose-600' : 'text-amber-600'}`}>
+                  Usa las opciones de pago en tu tarjeta de alumna para ponerte al día.
+                </p>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* Tablón de anuncios */}
+        {(() => {
+          const COLOR_MAP = {
+            purple: { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-800', body: 'text-purple-700', pin: 'text-purple-400', dismiss: 'text-purple-300 hover:text-purple-600' },
+            blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   title: 'text-blue-800',   body: 'text-blue-700',   pin: 'text-blue-400',   dismiss: 'text-blue-300 hover:text-blue-600' },
+            green:  { bg: 'bg-green-50',  border: 'border-green-200',  title: 'text-green-800',  body: 'text-green-700',  pin: 'text-green-400',  dismiss: 'text-green-300 hover:text-green-600' },
+            amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  title: 'text-amber-800',  body: 'text-amber-700',  pin: 'text-amber-400',  dismiss: 'text-amber-300 hover:text-amber-600' },
+            rose:   { bg: 'bg-rose-50',   border: 'border-rose-200',   title: 'text-rose-800',   body: 'text-rose-700',   pin: 'text-rose-400',   dismiss: 'text-rose-300 hover:text-rose-600' },
+          }
+          const visible = announcements.filter(a => !dismissedAnnouncements.has(a.id))
+          if (!visible.length) return null
+          const dismissOne = (id) => {
+            setDismissedAnnouncements(prev => {
+              const next = new Set(prev)
+              next.add(id)
+              try { localStorage.setItem('dismissed_announcements', JSON.stringify([...next])) } catch {}
+              return next
+            })
+          }
+          return (
+            <div className="space-y-2">
+              {visible.map(a => {
+                const cfg = COLOR_MAP[a.color] || COLOR_MAP.purple
+                return (
+                  <div key={a.id} className={`rounded-xl border p-3.5 ${cfg.bg} ${cfg.border}`}>
+                    <div className="flex items-start gap-2">
+                      <div className="shrink-0 mt-0.5">
+                        {a.pinned
+                          ? <Pin size={14} className={cfg.pin} />
+                          : <Megaphone size={14} className={cfg.pin} />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-semibold text-sm ${cfg.title}`}>{a.title}</p>
+                        <p className={`text-xs mt-1 leading-relaxed whitespace-pre-wrap ${cfg.body}`}>{a.body}</p>
+                      </div>
+                      <button onClick={() => dismissOne(a.id)} className={`shrink-0 p-1 rounded-lg transition-colors ${cfg.dismiss}`}>
+                        <XIcon size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })()}
+
         {/* Student Cards */}
         {students.map((student, idx) => {
           const badge = getStatusBadge(student.payment_status)
