@@ -1453,14 +1453,18 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           }
           return (
             <div className="space-y-2">
-              {visible.map(a => {
+              {visible.map((a, idx) => {
                 const cfg = COLOR_MAP[a.color] || COLOR_MAP.purple
                 return (
-                  <div key={a.id} className={`rounded-xl border p-3.5 ${cfg.bg} ${cfg.border}`}>
+                  <div
+                    key={a.id}
+                    className={`rounded-xl border p-3.5 ${cfg.bg} ${cfg.border}`}
+                    style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.12}s both` }}
+                  >
                     <div className="flex items-start gap-2">
                       <div className="shrink-0 mt-0.5">
                         {a.pinned
-                          ? <Pin size={14} className={cfg.pin} />
+                          ? <Pin size={14} className={cfg.pin} style={{ animation: 'gentlePulse 2.5s ease-in-out infinite' }} />
                           : <Megaphone size={14} className={cfg.pin} />}
                       </div>
                       <div className="flex-1 min-w-0">
