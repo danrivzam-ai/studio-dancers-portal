@@ -547,11 +547,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   // PayPhone return detection
   const [showReturnBanner, setShowReturnBanner] = useState(false)
   const payphoneOpenedRef = useRef(false)
-  // Tablón de anuncios
+  // Tablón de anuncios — dismiss es solo por sesión (vuelve a aparecer al reabrir la app)
   const [announcements, setAnnouncements] = useState([])
-  const [dismissedAnnouncements, setDismissedAnnouncements] = useState(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('dismissed_announcements') || '[]')) } catch { return new Set() }
-  })
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState(new Set())
 
   // Fetch bank info
   useEffect(() => {
@@ -923,7 +921,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
               </div>
               <div className="flex-1 min-w-0">
                 <p className={`font-bold text-sm ${isOverdue ? 'text-rose-800' : 'text-amber-800'}`}>
-                  {isOverdue ? 'Pago vencido' : 'Pago próximo a vencer'}
+                  {isOverdue ? 'Tu membresía venció' : 'Es momento de renovar'}
                 </p>
                 {urgentStudents.map(s => {
                   const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
@@ -932,12 +930,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   const days = Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
                   return (
                     <p key={s.id} className={`text-xs mt-0.5 ${isOverdue ? 'text-rose-700' : 'text-amber-700'}`}>
-                      {s.name} · {days < 0 ? `Vencido hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}` : days === 0 ? 'Vence hoy' : `Vence en ${days} día${days !== 1 ? 's' : ''}`}
+                      {s.name} · {days < 0 ? `Venció hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}` : days === 0 ? 'Vence hoy' : `Vence en ${days} día${days !== 1 ? 's' : ''}`}
                     </p>
                   )
                 })}
                 <p className={`text-xs mt-1.5 font-medium ${isOverdue ? 'text-rose-600' : 'text-amber-600'}`}>
-                  Usa las opciones de pago en tu tarjeta de alumna para ponerte al día.
+                  {isOverdue ? 'Renueva para seguir disfrutando tus clases.' : 'Renueva tu membresía antes de que venza.'}
                 </p>
               </div>
             </div>
@@ -956,12 +954,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const visible = announcements.filter(a => !dismissedAnnouncements.has(a.id))
           if (!visible.length) return null
           const dismissOne = (id) => {
-            setDismissedAnnouncements(prev => {
-              const next = new Set(prev)
-              next.add(id)
-              try { localStorage.setItem('dismissed_announcements', JSON.stringify([...next])) } catch {}
-              return next
-            })
+            setDismissedAnnouncements(prev => new Set([...prev, id]))
           }
           return (
             <div className="space-y-2">
