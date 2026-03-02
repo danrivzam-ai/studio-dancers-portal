@@ -942,47 +942,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           )
         })()}
 
-        {/* Tablón de anuncios */}
-        {(() => {
-          const COLOR_MAP = {
-            purple: { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-800', body: 'text-purple-700', pin: 'text-purple-400', dismiss: 'text-purple-300 hover:text-purple-600' },
-            blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   title: 'text-blue-800',   body: 'text-blue-700',   pin: 'text-blue-400',   dismiss: 'text-blue-300 hover:text-blue-600' },
-            green:  { bg: 'bg-green-50',  border: 'border-green-200',  title: 'text-green-800',  body: 'text-green-700',  pin: 'text-green-400',  dismiss: 'text-green-300 hover:text-green-600' },
-            amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  title: 'text-amber-800',  body: 'text-amber-700',  pin: 'text-amber-400',  dismiss: 'text-amber-300 hover:text-amber-600' },
-            rose:   { bg: 'bg-rose-50',   border: 'border-rose-200',   title: 'text-rose-800',   body: 'text-rose-700',   pin: 'text-rose-400',   dismiss: 'text-rose-300 hover:text-rose-600' },
-          }
-          const visible = announcements.filter(a => !dismissedAnnouncements.has(a.id))
-          if (!visible.length) return null
-          const dismissOne = (id) => {
-            setDismissedAnnouncements(prev => new Set([...prev, id]))
-          }
-          return (
-            <div className="space-y-2">
-              {visible.map(a => {
-                const cfg = COLOR_MAP[a.color] || COLOR_MAP.purple
-                return (
-                  <div key={a.id} className={`rounded-xl border p-3.5 ${cfg.bg} ${cfg.border}`}>
-                    <div className="flex items-start gap-2">
-                      <div className="shrink-0 mt-0.5">
-                        {a.pinned
-                          ? <Pin size={14} className={cfg.pin} />
-                          : <Megaphone size={14} className={cfg.pin} />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-semibold text-sm ${cfg.title}`}>{a.title}</p>
-                        <p className={`text-xs mt-1 leading-relaxed whitespace-pre-wrap ${cfg.body}`}>{a.body}</p>
-                      </div>
-                      <button onClick={() => dismissOne(a.id)} className={`shrink-0 p-1 rounded-lg transition-colors ${cfg.dismiss}`}>
-                        <XIcon size={14} />
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })()}
-
         {/* Student Cards */}
         {students.map((student, idx) => {
           const badge = getStatusBadge(student.payment_status)
@@ -1477,6 +1436,47 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             </div>
           )
         })}
+
+        {/* Tablón de anuncios */}
+        {(() => {
+          const COLOR_MAP = {
+            purple: { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-800', body: 'text-purple-700', pin: 'text-purple-400', dismiss: 'text-purple-300 hover:text-purple-600' },
+            blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   title: 'text-blue-800',   body: 'text-blue-700',   pin: 'text-blue-400',   dismiss: 'text-blue-300 hover:text-blue-600' },
+            green:  { bg: 'bg-green-50',  border: 'border-green-200',  title: 'text-green-800',  body: 'text-green-700',  pin: 'text-green-400',  dismiss: 'text-green-300 hover:text-green-600' },
+            amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  title: 'text-amber-800',  body: 'text-amber-700',  pin: 'text-amber-400',  dismiss: 'text-amber-300 hover:text-amber-600' },
+            rose:   { bg: 'bg-rose-50',   border: 'border-rose-200',   title: 'text-rose-800',   body: 'text-rose-700',   pin: 'text-rose-400',   dismiss: 'text-rose-300 hover:text-rose-600' },
+          }
+          const visible = announcements.filter(a => !dismissedAnnouncements.has(a.id))
+          if (!visible.length) return null
+          const dismissOne = (id) => {
+            setDismissedAnnouncements(prev => new Set([...prev, id]))
+          }
+          return (
+            <div className="space-y-2">
+              {visible.map(a => {
+                const cfg = COLOR_MAP[a.color] || COLOR_MAP.purple
+                return (
+                  <div key={a.id} className={`rounded-xl border p-3.5 ${cfg.bg} ${cfg.border}`}>
+                    <div className="flex items-start gap-2">
+                      <div className="shrink-0 mt-0.5">
+                        {a.pinned
+                          ? <Pin size={14} className={cfg.pin} />
+                          : <Megaphone size={14} className={cfg.pin} />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-semibold text-sm ${cfg.title}`}>{a.title}</p>
+                        <p className={`text-xs mt-1 leading-relaxed whitespace-pre-wrap ${cfg.body}`}>{a.body}</p>
+                      </div>
+                      <button onClick={() => dismissOne(a.id)} className={`shrink-0 p-1 rounded-lg transition-colors ${cfg.dismiss}`}>
+                        <XIcon size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })()}
 
         {/* Contact + Footer */}
         <div className="pt-2 pb-6 space-y-3">
