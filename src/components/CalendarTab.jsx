@@ -1,6 +1,39 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LogOut, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+
+// ── Tips del día ──────────────────────────────────────────────────────────────
+const TIPS_ADULT = [
+  { icon: '💧', title: 'Hidratación', text: 'Bebe al menos 2 litros de agua al día. Tu cuerpo trabaja intensamente en cada clase y necesita reponerse.' },
+  { icon: '🔥', title: 'Calentamiento', text: 'Nunca saltes el calentamiento. 10 minutos de trabajo previo reducen a la mitad el riesgo de lesiones.' },
+  { icon: '😴', title: 'Recuperación', text: 'Dormir 7–8 horas es cuando tus músculos realmente se reparan. El descanso es parte del entrenamiento.' },
+  { icon: '🥚', title: 'Nutrición post-clase', text: 'Consume proteínas (huevo, pollo, legumbres) dentro de los 30 minutos después de clase para optimizar la recuperación muscular.' },
+  { icon: '🧍', title: 'Postura diaria', text: 'El ballet vive fuera del estudio también: columna erguida, hombros bajos, abdomen activo en cada momento del día.' },
+  { icon: '🧘', title: 'Estiramiento', text: 'Estirar después de clase (músculos calientes) es mucho más efectivo y seguro que hacerlo en frío antes.' },
+  { icon: '🛌', title: 'Día de descanso', text: 'Un día de reposo completo a la semana no es pereza — es entrenamiento. Permite que el tejido muscular se regenere.' },
+  { icon: '🌬️', title: 'Respiración', text: 'En momentos de tensión, inhala profundo por la nariz y exhala largo por la boca. La respiración regula el sistema nervioso.' },
+  { icon: '🩰', title: 'Cuidado de pies', text: 'Hidrata tus pies a diario, mantén las uñas cortas y trata las ampollas a tiempo. Son tu herramienta principal.' },
+  { icon: '🧠', title: 'Visualización', text: 'Antes de ejecutar, visualiza el movimiento completo. Los bailarines profesionales usan esta técnica para fijar la memoria muscular.' },
+]
+
+const TIPS_MINOR = [
+  { icon: '🌟', title: 'Constancia', text: 'Llevar a tu hija a todas las clases programadas es el factor número uno en su progreso. La constancia supera al talento innato.' },
+  { icon: '😴', title: 'Sueño', text: 'Los niños necesitan 9–10 horas de sueño en noches de clase para que el cuerpo asimile lo aprendido y crezca sano.' },
+  { icon: '🍎', title: 'Refrigerio', text: 'Lleva un snack nutritivo para después de clase: fruta, yogur o un sándwich. Los niños gastan mucha energía bailando.' },
+  { icon: '💧', title: 'Hidratación', text: 'Manda siempre una botella de agua. La hidratación en niños es clave para la concentración y el rendimiento en clase.' },
+  { icon: '👗', title: 'Uniforme', text: 'Usa siempre la ropa reglamentaria del estudio. Ayuda a la postura, la concentración y el sentido de pertenencia al grupo.' },
+  { icon: '🎵', title: 'Música en casa', text: 'Poner música clásica en el auto o en casa familiariza a tu hija con los ritmos y estilos que trabaja en clase.' },
+  { icon: '💛', title: 'Tu rol como apoyo', text: 'Evita corregir la técnica en casa — ese rol es del profesor. Tu presencia y entusiasmo en recitales es lo más valioso.' },
+  { icon: '🎉', title: 'Celebra lo pequeño', text: 'Un plié nuevo, una coreografía memorizada... celebra cada logro. La motivación en niños se construye con reconocimiento.' },
+  { icon: '⏰', title: 'Puntualidad', text: 'Llegar 5 minutos antes permite que las niñas se preparen mentalmente y el profesor pueda comenzar a tiempo.' },
+  { icon: '🤒', title: 'Descanso cuando hay enfermedad', text: 'Si tu hija tiene fiebre o malestar, es mejor faltar un día que ir a clase. La recuperación también es parte del entrenamiento.' },
+]
+
+function getDailyTip(isMinor) {
+  const tips = isMinor ? TIPS_MINOR : TIPS_ADULT
+  const dayIndex = new Date().getDate() % tips.length
+  return tips[dayIndex]
+}
 
 // ── helpers (mirror Dashboard) ──────────────────────────────────────────────
 function normalizeClassDays(days) {
@@ -218,6 +251,26 @@ export default function CalendarTab({ students: initial, onLogout }) {
             </p>
           </div>
         </div>
+
+        {/* ── Tip del día ── */}
+        {(() => {
+          const tip = getDailyTip(student?.is_minor)
+          return (
+            <div className="bg-white rounded-2xl shadow-sm border border-purple-100 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles size={14} className="text-purple-500 shrink-0" />
+                <p className="text-[11px] font-bold text-purple-500 uppercase tracking-wider">Tip del día</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-2xl leading-none mt-0.5">{tip.icon}</span>
+                <div>
+                  <p className="text-sm font-bold text-gray-800 leading-snug">{tip.title}</p>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{tip.text}</p>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
 
       </div>
     </div>

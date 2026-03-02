@@ -7,6 +7,7 @@ export default function Login({ onLogin, onBack }) {
   const [phoneLast4, setPhoneLast4] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [rememberDevice, setRememberDevice] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -45,7 +46,8 @@ export default function Login({ onLogin, onBack }) {
       onLogin({
         students: data,
         cedula: cedula.trim(),
-        phoneLast4: phoneLast4.trim()
+        phoneLast4: phoneLast4.trim(),
+        rememberDevice
       })
     } catch (err) {
       console.error('Login error:', err)
@@ -67,7 +69,7 @@ export default function Login({ onLogin, onBack }) {
         {/* Logo */}
         <div className="text-center mb-6">
           <img src="/logo.png" alt="Studio Dancers" className="w-20 h-20 mx-auto mb-3 object-contain" />
-          <h1 className="text-xl font-bold text-gray-800">Portal de Pagos</h1>
+          <h1 className="text-xl font-bold text-gray-800">Mi Studio</h1>
           <p className="text-sm text-gray-500 mt-1">Ingrese sus datos para continuar</p>
         </div>
 
@@ -103,6 +105,18 @@ export default function Login({ onLogin, onBack }) {
               maxLength={4}
             />
           </div>
+
+          {/* Recordar dispositivo */}
+          <button
+            type="button"
+            onClick={() => setRememberDevice(v => !v)}
+            className="flex items-center gap-3 w-full py-1 select-none"
+          >
+            <div className={`relative w-10 h-6 rounded-full transition-colors shrink-0 ${rememberDevice ? 'bg-purple-600' : 'bg-gray-200'}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${rememberDevice ? 'translate-x-4' : 'translate-x-0'}`} />
+            </div>
+            <span className="text-sm text-gray-600">Recordar este dispositivo</span>
+          </button>
 
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">

@@ -486,7 +486,7 @@ export default function BalletGlossary({ onLogout }) {
                     : 'bg-white text-gray-500 border-gray-200'
                 }`}
               >
-                {cat === 'Todos' ? 'Todos' : cat.split(' ')[0]}
+                {cat}
               </button>
             )
           })}

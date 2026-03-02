@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { supabase } from './lib/supabase'
 import LandingPage from './components/LandingPage'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
@@ -179,11 +180,45 @@ export default function App() {
     }
   }, [authTab])
 
+  // --- REMEMBER DEVICE: auto-login on mount if valid token ---
+  useEffect(() => {
+    if (session) return // already logged in via sessionStorage
+    try {
+      const stored = localStorage.getItem('studio_device_token')
+      if (!stored) return
+      const token = JSON.parse(stored)
+      if (!token?.cedula || !token?.phoneLast4 || !token?.expires) return
+      if (Date.now() > token.expires) { localStorage.removeItem('studio_device_token'); return }
+      // Re-verify with RPC to get fresh student data
+      supabase.rpc('rpc_client_login', { p_cedula: token.cedula, p_phone_last4: token.phoneLast4 })
+        .then(({ data, error: rpcErr }) => {
+          if (!rpcErr && data?.length > 0) {
+            const sessionData = { students: data, cedula: token.cedula, phoneLast4: token.phoneLast4 }
+            sessionStorage.setItem('portal_session', JSON.stringify(sessionData))
+            setSession(sessionData)
+            setAuthTab('payments')
+            history.replaceState({ type: 'auth', tab: 'payments' }, '')
+          } else {
+            localStorage.removeItem('studio_device_token')
+          }
+        })
+        .catch(() => localStorage.removeItem('studio_device_token'))
+    } catch { localStorage.removeItem('studio_device_token') }
+  }, [])
+
   // --- LOGIN / LOGOUT ---
   const handleLogin = (data) => {
     try {
-      sessionStorage.setItem('portal_session', JSON.stringify(data))
-      setSession(data)
+      const sessionData = { students: data.students, cedula: data.cedula, phoneLast4: data.phoneLast4 }
+      sessionStorage.setItem('portal_session', JSON.stringify(sessionData))
+      if (data.rememberDevice) {
+        localStorage.setItem('studio_device_token', JSON.stringify({
+          cedula: data.cedula,
+          phoneLast4: data.phoneLast4,
+          expires: Date.now() + 30 * 24 * 60 * 60 * 1000
+        }))
+      }
+      setSession(sessionData)
       setAuthTab('payments')
       history.replaceState({ type: 'auth', tab: 'payments' }, '')
     } catch (err) {
@@ -193,6 +228,7 @@ export default function App() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('portal_session')
+    localStorage.removeItem('studio_device_token')
     setSession(null)
     setPublicView('home')
     setAuthTab('payments')

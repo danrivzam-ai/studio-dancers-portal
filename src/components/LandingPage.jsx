@@ -797,7 +797,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
             </button>
             <span className="text-white/20">|</span>
             <button onClick={onGoToLogin} className="text-white/60 hover:text-white text-xs transition-colors">
-              Portal de Pagos
+              Mi Studio
             </button>
           </div>
 
