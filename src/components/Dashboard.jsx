@@ -453,29 +453,29 @@ function ClassCalendar({ student, onClose }) {
 // ═══════ PAYPHONE RETURN BANNER ═══════
 function PayphoneReturnBanner({ onConfirm, onDismiss }) {
   return (
-    <div className="animate-slideInTop bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 shadow-lg">
-      <div className="max-w-md mx-auto">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-            <CreditCard size={20} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-5 py-5 text-center">
+          <div className="w-14 h-14 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CreditCard size={26} className="text-white" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">¿Completaste tu pago?</p>
-            <p className="text-[11px] text-white/80">Notifica al estudio para que lo verifiquen</p>
-          </div>
+          <p className="font-bold text-white text-lg leading-tight">¿Completaste tu pago?</p>
+          <p className="text-[12px] text-white/80 mt-1">Notifica al estudio para que lo verifiquen</p>
         </div>
-        <div className="flex gap-2 mt-2.5">
+        {/* Acciones */}
+        <div className="flex gap-3 p-4">
           <button
             onClick={onDismiss}
-            className="flex-1 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+            className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
           >
             No aún
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-2 bg-white hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-bold transition-colors flex items-center justify-center gap-1.5"
           >
-            <Bell size={14} />
+            <Bell size={15} />
             Sí, notificar
           </button>
         </div>
