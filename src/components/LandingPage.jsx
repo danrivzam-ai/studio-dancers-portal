@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users, Target, ShoppingBag, Pin, Smartphone, Star, Images, X, ChevronLeft } from 'lucide-react'
+import { BookOpen, LogIn, MapPin, Clock, ChevronDown, ChevronRight, MessageCircle, Users, Target, ShoppingBag, Pin, Smartphone, Star, Images, X, ChevronLeft, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 // ── Social media icons ──
@@ -159,9 +159,12 @@ const QUICK_COURSES = [
     name: 'Dance Camp 2026',
     age: '3-17 años',
     schedule: 'Vacaciones',
+    tag: 'Incluye recital de clausura · 25 Abr',
     Icon: IconGroupDance,
     bgStyle: { background: 'rgba(255,207,224,0.65)' },
     borderColor: '#f5b8d0',
+    tagBg: 'rgba(245,184,208,0.45)',
+    tagColor: '#6b1a3a',
     category: 'especial',
     iconBg: '#ffcfe0',
     iconColor: '#6b1a3a',
@@ -170,9 +173,12 @@ const QUICK_COURSES = [
     name: 'Ballet Adultas Principiantes',
     age: 'Desde 18 años',
     schedule: 'Mar/Jue · Sábados',
+    tag: 'Dos horarios · Empieza sin experiencia previa',
     Icon: IconArabesque,
     bgStyle: { background: 'rgba(175,238,238,0.65)' },
     borderColor: '#7dd4d4',
+    tagBg: 'rgba(125,212,212,0.30)',
+    tagColor: '#0d4444',
     category: 'regular',
     iconBg: '#afeeee',
     iconColor: '#0d4444',
@@ -181,9 +187,12 @@ const QUICK_COURSES = [
     name: 'Sábados · Niñas y Jóvenes',
     age: '3-15 años',
     schedule: 'Sábados',
+    tag: 'Baby Ballet 3–6 · Dance Crew 8–15 · Inscripciones abiertas',
     Icon: IconDancerDuo,
     bgStyle: { background: 'rgba(252,231,243,0.65)' },
     borderColor: '#f5b8d0',
+    tagBg: 'rgba(245,184,208,0.45)',
+    tagColor: '#9d174d',
     category: 'ninas',
     iconBg: '#fce7f3',
     iconColor: '#9d174d',
@@ -381,31 +390,47 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
                 <button
                   key={idx}
                   onClick={() => onGoToCatalog(course.category, course.courseName || null)}
-                  className="w-full flex items-center gap-3.5 border rounded-xl p-3.5 text-left hover:shadow-md active:scale-[0.98] transition-all"
+                  className="w-full flex flex-col border rounded-xl overflow-hidden text-left hover:shadow-md active:scale-[0.98] transition-all"
                   style={{
                     borderColor: course.borderColor,
                     background: course.bgStyle?.background || '#f5f3ff',
                     animation: `fadeIn 0.3s ease-out ${idx * 0.08}s both`
                   }}
                 >
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
-                    style={{ background: course.iconBg || 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
-                  >
-                    <Icon size={20} color={course.iconColor || 'white'} />
+                  {/* Main row */}
+                  <div className="flex items-center gap-3.5 px-3.5 pt-3.5 pb-3">
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+                      style={{ background: course.iconBg || 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
+                    >
+                      <Icon size={20} color={course.iconColor || 'white'} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-gray-800 text-sm">{course.name}</h3>
+                      <div className="flex items-center gap-3 mt-0.5">
+                        <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                          <Users size={10} />{course.age}
+                        </span>
+                        <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                          <Clock size={10} />{course.schedule}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight size={16} className="text-gray-400 shrink-0" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-800 text-sm">{course.name}</h3>
-                    <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-[11px] text-gray-500 flex items-center gap-1">
-                        <Users size={10} />{course.age}
-                      </span>
-                      <span className="text-[11px] text-gray-500 flex items-center gap-1">
-                        <Clock size={10} />{course.schedule}
+
+                  {/* Marketing tag strip */}
+                  {course.tag && (
+                    <div
+                      className="flex items-center gap-1.5 px-3.5 py-2 border-t"
+                      style={{ borderColor: course.borderColor, background: course.tagBg }}
+                    >
+                      <Zap size={10} style={{ color: course.tagColor }} className="shrink-0" />
+                      <span className="text-[11px] font-semibold leading-tight" style={{ color: course.tagColor }}>
+                        {course.tag}
                       </span>
                     </div>
-                  </div>
-                  <ChevronRight size={16} className="text-gray-400 shrink-0" />
+                  )}
                 </button>
               )
             })}
