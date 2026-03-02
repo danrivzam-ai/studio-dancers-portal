@@ -169,7 +169,7 @@ const QUICK_COURSES = [
   {
     name: 'Ballet Adultas Principiantes',
     age: 'Desde 18 años',
-    schedule: 'Mar y Jue',
+    schedule: 'Mar/Jue · Sábados',
     Icon: IconArabesque,
     bgStyle: { background: 'rgba(175,238,238,0.65)' },
     borderColor: '#7dd4d4',
@@ -178,14 +178,15 @@ const QUICK_COURSES = [
     iconColor: '#0d4444',
   },
   {
-    name: 'Intensivos Sábados',
-    age: '7+ años',
+    name: 'Sábados · Niñas y Jóvenes',
+    age: '3-15 años',
     schedule: 'Sábados',
-    Icon: IconGrandJete,
-    bgStyle: {},
-    borderColor: '#c4b5fd',
-    category: 'intensivo',
-    courseName: 'Dance CREW',
+    Icon: IconDancerDuo,
+    bgStyle: { background: 'rgba(252,231,243,0.65)' },
+    borderColor: '#f5b8d0',
+    category: 'ninas',
+    iconBg: '#fce7f3',
+    iconColor: '#9d174d',
   },
 ]
 

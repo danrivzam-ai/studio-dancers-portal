@@ -130,7 +130,7 @@ const CATEGORY_CONFIG = {
 }
 
 // Orden de visualización en el catálogo
-const CATEGORY_ORDER = ['regular', 'ninas', 'intensivo', 'especial']
+const CATEGORY_ORDER = ['especial', 'regular', 'ninas', 'intensivo']
 
 const MAESTRO_CONFIG = {
   label: 'Ballet Intermedios y Avanzados',
