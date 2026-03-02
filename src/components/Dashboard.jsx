@@ -1088,7 +1088,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                           Renovación
                         </>
                       ) : (
-                        'Próximo pago'
+                        'Renueva antes del'
                       )}
                     </p>
                     <p className={`text-sm font-bold mt-1 ${student.next_payment_date ? 'text-gray-800' : 'text-gray-400'}`}>
