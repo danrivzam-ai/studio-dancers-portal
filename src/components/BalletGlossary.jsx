@@ -110,10 +110,6 @@ function GlossaryCard({ entry }) {
         <div className="flex-1 min-w-0">
           {/* Término */}
           <p className="text-[13.5px] font-bold text-gray-800 leading-snug">{entry.term}</p>
-          {/* Pronunciación — siempre visible */}
-          {entry.pronunciation && entry.pronunciation !== '—' && (
-            <p className="text-[11px] text-gray-400 italic mt-0.5 leading-tight">/{entry.pronunciation}/</p>
-          )}
         </div>
 
         {open
