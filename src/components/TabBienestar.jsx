@@ -1,22 +1,22 @@
 import { useState, useEffect, useCallback } from 'react'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, Dumbbell, Zap, HeartPulse, Brain, Music, LayoutGrid } from 'lucide-react'
 import { getBienestar } from '../lib/adultas'
 
 export const CATEGORIA_CFG = {
-  fortalecimiento:  { label: 'Fortalecimiento', emoji: '💪', badgeBg: 'bg-teal-100',    badgeText: 'text-teal-700'   },
-  estiramiento:     { label: 'Estiramiento',     emoji: '🤸', badgeBg: 'bg-blue-100',   badgeText: 'text-blue-700'   },
-  salud:            { label: 'Salud',             emoji: '❤️', badgeBg: 'bg-orange-100', badgeText: 'text-orange-700' },
-  bienestar_mental: { label: 'Bienestar mental',  emoji: '🧘', badgeBg: 'bg-purple-100', badgeText: 'text-purple-700' },
-  cultura_ballet:   { label: 'Cultura ballet',    emoji: '🩰', badgeBg: 'bg-yellow-100', badgeText: 'text-yellow-700' },
+  fortalecimiento:  { label: 'Fortalecimiento', Icon: Dumbbell,   badgeBg: 'bg-teal-100',    badgeText: 'text-teal-700',   iconColor: 'text-teal-600'   },
+  estiramiento:     { label: 'Estiramiento',     Icon: Zap,        badgeBg: 'bg-blue-100',    badgeText: 'text-blue-700',   iconColor: 'text-blue-600'   },
+  salud:            { label: 'Salud',            Icon: HeartPulse, badgeBg: 'bg-orange-100',  badgeText: 'text-orange-700', iconColor: 'text-orange-500' },
+  bienestar_mental: { label: 'Bienestar mental', Icon: Brain,      badgeBg: 'bg-purple-100',  badgeText: 'text-purple-700', iconColor: 'text-purple-600' },
+  cultura_ballet:   { label: 'Cultura ballet',   Icon: Music,      badgeBg: 'bg-yellow-100',  badgeText: 'text-yellow-700', iconColor: 'text-yellow-600' },
 }
 
 const FILTROS = [
-  { id: null,               label: 'Todo' },
-  { id: 'fortalecimiento',  label: '💪 Fortalecimiento' },
-  { id: 'estiramiento',     label: '🤸 Estiramiento' },
-  { id: 'salud',            label: '❤️ Salud' },
-  { id: 'bienestar_mental', label: '🧘 Mental' },
-  { id: 'cultura_ballet',   label: '🩰 Ballet' },
+  { id: null,               label: 'Todo',           Icon: LayoutGrid },
+  { id: 'fortalecimiento',  label: 'Fuerza',         Icon: Dumbbell   },
+  { id: 'estiramiento',     label: 'Estiramiento',   Icon: Zap        },
+  { id: 'salud',            label: 'Salud',          Icon: HeartPulse },
+  { id: 'bienestar_mental', label: 'Mental',         Icon: Brain      },
+  { id: 'cultura_ballet',   label: 'Ballet',         Icon: Music      },
 ]
 
 function formatMarkdown(text) {
@@ -30,6 +30,7 @@ function formatMarkdown(text) {
 
 function BienestarCard({ item, expanded, onToggle }) {
   const cfg = CATEGORIA_CFG[item.categoria] || CATEGORIA_CFG.fortalecimiento
+  const Icon = cfg.Icon
   const fecha = new Date(item.fecha_publicacion + 'T12:00:00')
     .toLocaleDateString('es-EC', { day: 'numeric', month: 'short' })
 
@@ -37,7 +38,9 @@ function BienestarCard({ item, expanded, onToggle }) {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <button onClick={onToggle} className="w-full p-4 text-left">
         <div className="flex items-start gap-3">
-          <span className="text-2xl shrink-0">{cfg.emoji}</span>
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${cfg.badgeBg}`}>
+            <Icon size={17} className={cfg.iconColor} />
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.badgeBg} ${cfg.badgeText}`}>
@@ -98,67 +101,72 @@ export default function TabBienestar({ students, cedula, phoneLast4 }) {
 
   const filtered = filtro ? items.filter(i => i.categoria === filtro) : items
 
-  if (!student) return (
-    <div className="flex justify-center py-12 text-gray-400 text-sm">No hay estudiante seleccionado</div>
-  )
-
   return (
-    <div className="px-4 pt-5 pb-4 max-w-lg mx-auto">
-      <div className="mb-4">
-        <h2 className="text-lg font-bold text-gray-800">Bienestar</h2>
-        <p className="text-xs text-gray-500 mt-0.5">Contenido nuevo cada lunes y jueves</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-4 py-4 text-white">
+        <h1 className="font-bold text-lg leading-tight">Bienestar</h1>
+        <p className="text-purple-200 text-xs mt-0.5">Contenido nuevo cada lunes y jueves</p>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-        {FILTROS.map(f => (
-          <button
-            key={String(f.id)}
-            onClick={() => setFiltro(f.id)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-              filtro === f.id
-                ? 'bg-purple-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      <div className="px-4 pt-4 pb-20 max-w-lg mx-auto">
+        {/* Filtros */}
+        <div className="flex gap-2 overflow-x-auto pb-3 mb-3 scrollbar-hide">
+          {FILTROS.map(f => {
+            const FIcon = f.Icon
+            const active = filtro === f.id
+            return (
+              <button
+                key={String(f.id)}
+                onClick={() => setFiltro(f.id)}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                  active
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'bg-white border border-gray-200 text-gray-600'
+                }`}
+              >
+                <FIcon size={12} />
+                {f.label}
+              </button>
+            )
+          })}
+        </div>
 
-      {loading && items.length === 0 ? (
-        <div className="flex justify-center py-12">
-          <div className="w-6 h-6 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          <span className="text-4xl mb-3 block">✨</span>
-          <p className="text-sm">Pronto habrá contenido aquí</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map(item => (
-            <BienestarCard
-              key={item.publicacion_id}
-              item={item}
-              expanded={expanded === item.publicacion_id}
-              onToggle={() => setExpanded(prev => prev === item.publicacion_id ? null : item.publicacion_id)}
-            />
-          ))}
-          {!filtro && hasMore && (
-            <button
-              onClick={() => {
-                const next = page + 1
-                setPage(next)
-                load(next * PAGE)
-              }}
-              disabled={loading}
-              className="w-full py-3 text-sm text-purple-600 font-medium disabled:opacity-50"
-            >
-              {loading ? 'Cargando…' : 'Ver más'}
-            </button>
-          )}
-        </div>
-      )}
+        {loading && items.length === 0 ? (
+          <div className="flex justify-center py-12">
+            <div className="w-6 h-6 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <Brain size={40} className="mx-auto mb-3 opacity-30" />
+            <p className="text-sm">Pronto habrá contenido aquí</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map(item => (
+              <BienestarCard
+                key={item.publicacion_id}
+                item={item}
+                expanded={expanded === item.publicacion_id}
+                onToggle={() => setExpanded(prev => prev === item.publicacion_id ? null : item.publicacion_id)}
+              />
+            ))}
+            {!filtro && hasMore && (
+              <button
+                onClick={() => {
+                  const next = page + 1
+                  setPage(next)
+                  load(next * PAGE)
+                }}
+                disabled={loading}
+                className="w-full py-3 text-sm text-purple-600 font-medium disabled:opacity-50"
+              >
+                {loading ? 'Cargando…' : 'Ver más'}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

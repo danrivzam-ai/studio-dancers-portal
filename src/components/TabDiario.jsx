@@ -80,20 +80,23 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
   )
 
   return (
-    <div className="px-4 pt-5 pb-20 max-w-lg mx-auto">
-      <div className="flex items-center justify-between mb-5">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-4 py-4 text-white flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-gray-800">Mi diario</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Solo tú puedes ver esto</p>
+          <h1 className="font-bold text-lg leading-tight">Mi diario</h1>
+          <p className="text-purple-200 text-xs mt-0.5">Solo tú puedes ver esto</p>
         </div>
         <button
           onClick={openNew}
-          className="flex items-center gap-1.5 bg-purple-600 text-white text-sm font-medium px-3 py-2 rounded-xl hover:bg-purple-700 transition-colors"
+          className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors"
         >
           <Plus size={15} />
-          Nueva entrada
+          Nueva
         </button>
       </div>
+
+    <div className="px-4 pt-4 pb-20 max-w-lg mx-auto">
 
       {showForm && (
         <div className="bg-white rounded-2xl shadow-sm border border-purple-100 p-4 mb-4">
@@ -205,6 +208,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
           ))}
         </div>
       )}
+    </div>
     </div>
   )
 }
