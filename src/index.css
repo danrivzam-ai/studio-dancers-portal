@@ -1,10 +1,15 @@
 @import "tailwindcss";
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
   background-color: white;
-  min-height: 100vh;
+  min-height: 100svh;
+  overscroll-behavior: none;
 }
 
 /* ═══════ ANIMATIONS ═══════ */
