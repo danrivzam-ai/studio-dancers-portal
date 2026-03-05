@@ -5,7 +5,7 @@ import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import CourseCatalog from './components/CourseCatalog'
 import BalletTips from './components/BalletTips'
-import BalletGlossary from './components/BalletGlossary'
+import Reportes from './components/Reportes'
 import CalendarTab from './components/CalendarTab'
 import BottomNav from './components/BottomNav'
 import './index.css'
@@ -302,8 +302,8 @@ export default function App() {
       {authTab === 'tips' && (
         <BalletTips onLogout={handleLogout} />
       )}
-      {authTab === 'glossary' && (
-        <BalletGlossary onLogout={handleLogout} />
+      {authTab === 'reportes' && (
+        <Reportes students={session.students} onLogout={handleLogout} />
       )}
       {authTab === 'courses' && (
         <CourseCatalog isAuthenticated onLogout={handleLogout} />
