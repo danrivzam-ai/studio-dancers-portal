@@ -1,11 +1,11 @@
-import { CreditCard, Lightbulb, BookOpen, CalendarDays, FileText } from 'lucide-react'
+import { CreditCard, Sparkles, Target, BookHeart, FileText } from 'lucide-react'
 
 const TABS = [
   { id: 'payments',  label: 'Pagos',      icon: CreditCard },
-  { id: 'calendar',  label: 'Calendario', icon: CalendarDays },
-  { id: 'tips',      label: 'Tips',       icon: Lightbulb },
-  { id: 'reportes',  label: 'Reportes',   icon: FileText },
-  { id: 'courses',   label: 'Cursos',     icon: BookOpen },
+  { id: 'bienestar', label: 'Bienestar',  icon: Sparkles   },
+  { id: 'retos',     label: 'Retos',      icon: Target     },
+  { id: 'diario',    label: 'Mi diario',  icon: BookHeart  },
+  { id: 'reportes',  label: 'Reportes',   icon: FileText   },
 ]
 
 export default function BottomNav({ activeTab, onChangeTab }) {

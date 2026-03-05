@@ -4,9 +4,10 @@ import LandingPage from './components/LandingPage'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import CourseCatalog from './components/CourseCatalog'
-import BalletTips from './components/BalletTips'
 import Reportes from './components/Reportes'
-import CalendarTab from './components/CalendarTab'
+import TabBienestar from './components/TabBienestar'
+import TabRetos from './components/TabRetos'
+import TabDiario from './components/TabDiario'
 import BottomNav from './components/BottomNav'
 import './index.css'
 
@@ -293,20 +294,29 @@ export default function App() {
           }}
         />
       )}
-      {authTab === 'calendar' && (
-        <CalendarTab
+      {authTab === 'bienestar' && (
+        <TabBienestar
           students={session.students}
-          onLogout={handleLogout}
+          cedula={session.cedula}
+          phoneLast4={session.phoneLast4}
         />
       )}
-      {authTab === 'tips' && (
-        <BalletTips onLogout={handleLogout} />
+      {authTab === 'retos' && (
+        <TabRetos
+          students={session.students}
+          cedula={session.cedula}
+          phoneLast4={session.phoneLast4}
+        />
+      )}
+      {authTab === 'diario' && (
+        <TabDiario
+          students={session.students}
+          cedula={session.cedula}
+          phoneLast4={session.phoneLast4}
+        />
       )}
       {authTab === 'reportes' && (
         <Reportes students={session.students} onLogout={handleLogout} />
-      )}
-      {authTab === 'courses' && (
-        <CourseCatalog isAuthenticated onLogout={handleLogout} />
       )}
       <BottomNav activeTab={authTab} onChangeTab={navigateTab} />
     </div>
