@@ -1,30 +1,43 @@
-import { CreditCard, Sparkles, Target, BookHeart, FileText } from 'lucide-react'
+import { CreditCard, Sparkles, Target, BookHeart, FileText, CalendarDays } from 'lucide-react'
 
-const TABS = [
-  { id: 'payments',  label: 'Pagos',      icon: CreditCard },
-  { id: 'bienestar', label: 'Bienestar',  icon: Sparkles   },
-  { id: 'retos',     label: 'Retos',      icon: Target     },
-  { id: 'diario',    label: 'Mi diario',  icon: BookHeart  },
-  { id: 'reportes',  label: 'Reportes',   icon: FileText   },
+const TABS_ADULTAS = [
+  { id: 'payments',   label: 'Pagos',      icon: CreditCard   },
+  { id: 'bienestar',  label: 'Bienestar',  icon: Sparkles     },
+  { id: 'retos',      label: 'Retos',      icon: Target       },
+  { id: 'diario',     label: 'Mi diario',  icon: BookHeart    },
+  { id: 'calendario', label: 'Calendario', icon: CalendarDays },
+  { id: 'reportes',   label: 'Reportes',   icon: FileText     },
 ]
 
-export default function BottomNav({ activeTab, onChangeTab }) {
+const TABS_NINAS = [
+  { id: 'payments',   label: 'Pagos',      icon: CreditCard   },
+  { id: 'calendario', label: 'Calendario', icon: CalendarDays },
+  { id: 'reportes',   label: 'Reportes',   icon: FileText     },
+]
+
+export default function BottomNav({ activeTab, onChangeTab, isAdultas }) {
+  const tabs   = isAdultas ? TABS_ADULTAS : TABS_NINAS
+  // Con 6 tabs usamos iconos e interlineado más compactos
+  const compact = tabs.length >= 6
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="max-w-md mx-auto flex">
-        {TABS.map(tab => {
+        {tabs.map(tab => {
           const Icon = tab.icon
           const isActive = activeTab === tab.id
           return (
             <button
               key={tab.id}
               onClick={() => onChangeTab(tab.id)}
-              className={`flex-1 flex flex-col items-center py-2 pt-2.5 transition-colors ${
-                isActive ? 'text-purple-600' : 'text-gray-400'
-              }`}
+              className={`flex-1 flex flex-col items-center transition-colors ${
+                compact ? 'py-1.5 pt-2' : 'py-2 pt-2.5'
+              } ${isActive ? 'text-purple-600' : 'text-gray-400'}`}
             >
-              <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-              <span className={`text-[10px] mt-0.5 ${isActive ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
+              <Icon size={compact ? 19 : 22} strokeWidth={isActive ? 2.5 : 2} />
+              <span className={`mt-0.5 ${compact ? 'text-[9px]' : 'text-[10px]'} ${isActive ? 'font-bold' : 'font-medium'}`}>
+                {tab.label}
+              </span>
             </button>
           )
         })}

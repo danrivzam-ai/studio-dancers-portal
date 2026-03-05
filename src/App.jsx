@@ -8,6 +8,7 @@ import Reportes from './components/Reportes'
 import TabBienestar from './components/TabBienestar'
 import TabRetos from './components/TabRetos'
 import TabDiario from './components/TabDiario'
+import CalendarTab from './components/CalendarTab'
 import BottomNav from './components/BottomNav'
 import './index.css'
 
@@ -279,9 +280,18 @@ export default function App() {
   }
 
   // --- AUTHENTICATED VIEWS ---
+  // Determinar si es alumna adulta (al menos una estudiante no es menor)
+  const isAdultas = session.students.some(s => s.is_minor === false)
+
+  // Si el tab activo no corresponde al tipo de alumna, redirigir a pagos
+  const ADULTAS_TABS = ['payments', 'bienestar', 'retos', 'diario', 'calendario', 'reportes']
+  const NINAS_TABS   = ['payments', 'calendario', 'reportes']
+  const validTabs    = isAdultas ? ADULTAS_TABS : NINAS_TABS
+  const currentTab   = validTabs.includes(authTab) ? authTab : 'payments'
+
   return (
     <div className="pb-16">
-      {authTab === 'payments' && (
+      {currentTab === 'payments' && (
         <Dashboard
           students={session.students}
           cedula={session.cedula}
@@ -294,31 +304,37 @@ export default function App() {
           }}
         />
       )}
-      {authTab === 'bienestar' && (
+      {currentTab === 'bienestar' && isAdultas && (
         <TabBienestar
           students={session.students}
           cedula={session.cedula}
           phoneLast4={session.phoneLast4}
         />
       )}
-      {authTab === 'retos' && (
+      {currentTab === 'retos' && isAdultas && (
         <TabRetos
           students={session.students}
           cedula={session.cedula}
           phoneLast4={session.phoneLast4}
         />
       )}
-      {authTab === 'diario' && (
+      {currentTab === 'diario' && isAdultas && (
         <TabDiario
           students={session.students}
           cedula={session.cedula}
           phoneLast4={session.phoneLast4}
         />
       )}
-      {authTab === 'reportes' && (
+      {currentTab === 'calendario' && (
+        <CalendarTab
+          students={session.students}
+          onLogout={handleLogout}
+        />
+      )}
+      {currentTab === 'reportes' && (
         <Reportes students={session.students} onLogout={handleLogout} />
       )}
-      <BottomNav activeTab={authTab} onChangeTab={navigateTab} />
+      <BottomNav activeTab={currentTab} onChangeTab={navigateTab} isAdultas={isAdultas} />
     </div>
   )
 }
