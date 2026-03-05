@@ -1,4 +1,4 @@
-import { CreditCard, Sparkles, Target, BookHeart, FileText, CalendarDays } from 'lucide-react'
+import { CreditCard, Sparkles, Target, BookHeart, FileText, CalendarDays, BookOpen } from 'lucide-react'
 
 const TABS_ADULTAS = [
   { id: 'payments',   label: 'Pagos',      icon: CreditCard   },
@@ -12,6 +12,7 @@ const TABS_ADULTAS = [
 const TABS_NINAS = [
   { id: 'payments',   label: 'Pagos',      icon: CreditCard   },
   { id: 'calendario', label: 'Calendario', icon: CalendarDays },
+  { id: 'glosario',   label: 'Glosario',   icon: BookOpen     },
   { id: 'reportes',   label: 'Reportes',   icon: FileText     },
 ]
 
