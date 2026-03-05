@@ -5,7 +5,7 @@ import App from './App.jsx'
 
 // ======== AGGRESSIVE SERVICE WORKER CLEANUP ========
 // Unregister ALL old service workers and clear ALL caches on version bump
-const APP_VERSION = '3.0'
+const APP_VERSION = '3.1'
 const storedVersion = localStorage.getItem('portal_version')
 
 if (storedVersion !== APP_VERSION) {

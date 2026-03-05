@@ -281,8 +281,13 @@ export default function App() {
   }
 
   // --- AUTHENTICATED VIEWS ---
-  // Determinar si es alumna adulta (al menos una estudiante no es menor)
-  const isAdultas = session.students.some(s => s.is_minor === false)
+  // Determinar si es alumna adulta (is_minor no existe en el RPC — siempre undefined).
+  // Se detecta por course_id (código) y fallback por course_name que contenga "adulto".
+  const ADULTAS_IDS = new Set(['ballet-adultos-semana', 'ballet-adultos-sabados'])
+  const isAdultas = session.students.some(s =>
+    ADULTAS_IDS.has(s.course_id) ||
+    (s.course_name || '').toLowerCase().includes('adulto')
+  )
 
   // Si el tab activo no corresponde al tipo de alumna, redirigir a pagos
   const ADULTAS_TABS = ['payments', 'bienestar', 'retos', 'diario', 'calendario', 'reportes']
