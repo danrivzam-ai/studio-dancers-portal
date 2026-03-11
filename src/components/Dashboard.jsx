@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, CreditCard, BookOpen, RefreshCw, Shield, ExternalLink, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck, Megaphone, Pin, X as XIcon } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, BookOpen, RefreshCw, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck, Megaphone, Pin, X as XIcon } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 import MilestoneModal from './MilestoneModal'
@@ -450,40 +450,6 @@ function ClassCalendar({ student, onClose }) {
   )
 }
 
-// ═══════ PAYPHONE RETURN BANNER ═══════
-function PayphoneReturnBanner({ onConfirm, onDismiss }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/50">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-5 py-5 text-center">
-          <div className="w-14 h-14 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CreditCard size={26} className="text-white" />
-          </div>
-          <p className="font-bold text-white text-lg leading-tight">¿Completaste tu pago?</p>
-          <p className="text-[12px] text-white/80 mt-1">Notifica al estudio para que lo verifiquen</p>
-        </div>
-        {/* Acciones */}
-        <div className="flex gap-3 p-4">
-          <button
-            onClick={onDismiss}
-            className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
-          >
-            No aún
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-bold transition-colors flex items-center justify-center gap-1.5"
-          >
-            <Bell size={15} />
-            Sí, notificar
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 const STUDIO_WHATSAPP = '593963741884'
 
 // ═══════ AVATAR HELPERS ═══════
@@ -527,11 +493,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [loading, setLoading] = useState(true)
   const [expandedPayment, setExpandedPayment] = useState({})
   const [selectedBankIdx, setSelectedBankIdx] = useState({})
-  const [ppConfirm, setPpConfirm] = useState({})
-  const [ppLoading, setPpLoading] = useState({})
-  const [ppSuccess, setPpSuccess] = useState({})
-  const [ppError, setPpError] = useState({})
-  const [ppAmount, setPpAmount] = useState({})
   const [copiedField, setCopiedField] = useState(null)
   // Avatar photo state (Storage-only, no DB column needed)
   const [photoTimestamp, setPhotoTimestamp] = useState({})   // cache-bust key after upload
@@ -544,9 +505,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [calendarStudent, setCalendarStudent] = useState(null)
   // Track which modal is open — used by back-button handler to close modals natively
   const modalHistoryRef = useRef(null)  // 'upload' | 'history' | 'calendar' | null
-  // PayPhone return detection
-  const [showReturnBanner, setShowReturnBanner] = useState(false)
-  const payphoneOpenedRef = useRef(false)
   // Tablón de anuncios — dismiss es solo por sesión (vuelve a aparecer al reabrir la app)
   const [announcements, setAnnouncements] = useState([])
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState(new Set())
@@ -681,29 +639,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
       .then(({ data }) => { if (data) setAnnouncements(data) })
   }, [])
 
-  // ─── PayPhone return detection ───
-  // When user taps "Pagar con Tarjeta" link, we flag it.
-  // When user comes back (visibility change), we show the banner.
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && payphoneOpenedRef.current) {
-        payphoneOpenedRef.current = false
-        // Small delay to let the app stabilize
-        setTimeout(() => setShowReturnBanner(true), 600)
-      }
-    }
-
-    // Also check sessionStorage in case the app was killed/reloaded
-    const ppFlag = sessionStorage.getItem('pp_payment_started')
-    if (ppFlag) {
-      sessionStorage.removeItem('pp_payment_started')
-      setTimeout(() => setShowReturnBanner(true), 800)
-    }
-
-    document.addEventListener('visibilitychange', handleVisibility)
-    return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [])
-
   // ─── Modal back-button support ───
   // Each modal pushes a history entry on open. Pressing the Android/iOS back
   // button fires popstate → this handler closes the modal instead of navigating away.
@@ -741,25 +676,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const closeUpload   = () => { history.back() }
   const closeHistoryModal = () => { history.back() }
   const closeCalendarModal = () => { history.back() }
-
-  const handlePayphoneLinkClick = () => {
-    payphoneOpenedRef.current = true
-    sessionStorage.setItem('pp_payment_started', '1')
-  }
-
-  const handleReturnConfirm = () => {
-    setShowReturnBanner(false)
-    // Auto-expand card payment for first student and show confirm form
-    const firstStudent = students[0]
-    if (firstStudent) {
-      setExpandedPayment(prev => ({ ...prev, [firstStudent.id]: 'card' }))
-      setPpConfirm(prev => ({ ...prev, [firstStudent.id]: true }))
-      // Scroll to student card
-      setTimeout(() => {
-        document.getElementById(`student-${firstStudent.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }, 100)
-    }
-  }
 
   const handleAvatarChange = async (studentId, e) => {
     const file = e.target.files?.[0]
@@ -813,42 +729,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     }))
   }
 
-  const handlePayphoneConfirm = async (studentId) => {
-    const amount = ppAmount[studentId]
-    setPpError(prev => ({ ...prev, [studentId]: '' }))
-
-    if (!amount || parseFloat(amount) <= 0) {
-      setPpError(prev => ({ ...prev, [studentId]: 'Ingrese el monto pagado' }))
-      return
-    }
-
-    setPpLoading(prev => ({ ...prev, [studentId]: true }))
-    try {
-      const { error: rpcError } = await supabase.rpc('rpc_client_submit_transfer', {
-        p_cedula: cedula,
-        p_phone_last4: phoneLast4,
-        p_student_id: studentId,
-        p_amount: parseFloat(amount),
-        p_bank_name: 'PayPhone (Tarjeta)',
-        p_receipt_image_url: null,
-        p_notes: 'Pago con tarjeta vía PayPhone'
-      })
-      if (rpcError) throw rpcError
-      setPpSuccess(prev => ({ ...prev, [studentId]: true }))
-      setRefreshKey(k => k + 1)
-      setTimeout(() => {
-        setPpSuccess(prev => ({ ...prev, [studentId]: false }))
-        setPpConfirm(prev => ({ ...prev, [studentId]: false }))
-        setPpAmount(prev => ({ ...prev, [studentId]: '' }))
-      }, 3000)
-    } catch (err) {
-      console.error('PayPhone confirm error:', err)
-      setPpError(prev => ({ ...prev, [studentId]: 'Error al registrar. Intente de nuevo.' }))
-    } finally {
-      setPpLoading(prev => ({ ...prev, [studentId]: false }))
-    }
-  }
-
   // ═══════ LOADING STATE ═══════
   if (loading) {
     return <DanceLoader />
@@ -856,14 +736,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
   return (
     <div className="min-h-screen bg-gray-100 animate-fadeIn">
-      {/* PayPhone Return Banner */}
-      {showReturnBanner && (
-        <PayphoneReturnBanner
-          onConfirm={handleReturnConfirm}
-          onDismiss={() => setShowReturnBanner(false)}
-        />
-      )}
-
       {/* Milestone celebration modal */}
       {milestone && (
         <MilestoneModal
@@ -1193,24 +1065,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                       </span>
                     </button>
 
-                    {/* Card */}
-                    <button
-                      onClick={() => togglePaymentMethod(student.id, 'card')}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
-                        activeMethod === 'card'
-                          ? 'border-green-500 bg-green-50 shadow-sm'
-                          : 'border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50'
-                      }`}
-                    >
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
-                        activeMethod === 'card' ? 'bg-green-600' : 'bg-green-100'
-                      }`}>
-                        <CreditCard size={18} className={activeMethod === 'card' ? 'text-white' : 'text-green-600'} />
-                      </div>
-                      <span className={`text-xs font-semibold ${activeMethod === 'card' ? 'text-green-700' : 'text-gray-700'}`}>
-                        Tarjeta
-                      </span>
-                    </button>
                   </div>
 
                   {/* ── Transfer Expanded ── */}
@@ -1291,96 +1145,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                     </div>
                   )}
 
-                  {/* ── Card Expanded ── */}
-                  {activeMethod === 'card' && (
-                    <div className="mt-3 bg-green-50 rounded-xl border border-green-200 overflow-hidden animate-slideDown">
-                      <div className="p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Shield size={14} className="text-green-600" />
-                          <p className="text-xs text-gray-600">
-                            Pago seguro vía Produbanco y PayPhone. Datos encriptados (PCI DSS 4.0).
-                          </p>
-                        </div>
-
-                        <a
-                          href="https://ppls.me/8IycwXygt2iTUEYuTLiyQ"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={handlePayphoneLinkClick}
-                          className="w-full flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-xl font-semibold text-sm transition-colors"
-                        >
-                          <CreditCard size={16} />
-                          Pagar con Tarjeta
-                          <ExternalLink size={13} className="opacity-70" />
-                        </a>
-
-                        {/* PayPhone Confirmation */}
-                        {!ppConfirm[student.id] ? (
-                          <button
-                            onClick={() => setPpConfirm(prev => ({ ...prev, [student.id]: true }))}
-                            className="w-full mt-2.5 py-2.5 text-green-700 text-xs font-semibold bg-green-100 hover:bg-green-200 rounded-xl transition-colors flex items-center justify-center gap-1.5"
-                          >
-                            <Bell size={13} />
-                            Ya pagué — Notificar al estudio
-                          </button>
-                        ) : ppSuccess[student.id] ? (
-                          <div className="mt-2.5 bg-green-100 border border-green-300 rounded-xl p-3 text-center">
-                            <CheckCircle size={22} className="text-green-600 mx-auto mb-1" />
-                            <p className="text-sm font-semibold text-green-800">Pago registrado</p>
-                            <p className="text-[11px] text-green-600">El estudio verificará su pago</p>
-                          </div>
-                        ) : (
-                          <div className="mt-2.5 bg-white border border-green-200 rounded-xl p-3 space-y-2 animate-slideDown">
-                            <p className="text-xs font-medium text-gray-700">Confirmar pago con tarjeta:</p>
-                            <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">$</span>
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                value={ppAmount[student.id] || ''}
-                                onChange={(e) => setPpAmount(prev => ({ ...prev, [student.id]: e.target.value }))}
-                                className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                placeholder="Monto pagado"
-                              />
-                            </div>
-                            {ppError[student.id] && (
-                              <p className="text-red-600 text-xs bg-red-50 rounded-lg p-2">{ppError[student.id]}</p>
-                            )}
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => {
-                                  setPpConfirm(prev => ({ ...prev, [student.id]: false }))
-                                  setPpError(prev => ({ ...prev, [student.id]: '' }))
-                                }}
-                                className="flex-1 py-2.5 text-gray-500 text-sm font-medium bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                              >
-                                Cancelar
-                              </button>
-                              <button
-                                onClick={() => handlePayphoneConfirm(student.id)}
-                                disabled={ppLoading[student.id]}
-                                className="flex-1 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
-                              >
-                                {ppLoading[student.id] ? (
-                                  <span style={{ animation: 'gentlePulse 1s ease-in-out infinite' }}>Enviando...</span>
-                                ) : (
-                                  <>
-                                    <CheckCircle size={14} />
-                                    Confirmar
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="bg-green-100/50 px-3 py-1.5 flex items-center justify-center gap-1.5">
-                        <Shield size={10} className="text-green-700" />
-                        <span className="text-[9px] text-green-700 font-medium">Transacción segura · PCI DSS 4.0 · No almacena datos</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* ───── Recent Requests ───── */}
