@@ -1065,6 +1065,18 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                       </span>
                     </button>
 
+                    {/* Card — próximamente */}
+                    <button
+                      disabled
+                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-400 text-base">💳</span>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400">Tarjeta</span>
+                      <span className="text-[9px] text-gray-400 font-medium">Próximamente</span>
+                    </button>
+
                   </div>
 
                   {/* ── Transfer Expanded ── */}
