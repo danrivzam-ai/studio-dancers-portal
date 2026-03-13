@@ -816,7 +816,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
         {/* Student Cards */}
         {students.map((student, idx) => {
-          const badge = getStatusBadge(student.payment_status)
+          const badge = student.is_courtesy
+            ? { label: 'Activo', color: 'bg-green-100 text-green-700' }
+            : getStatusBadge(student.payment_status)
           const studentRequests = requests[student.id] || []
           const pendingReqs = studentRequests.filter(r => r.status === 'pending')
           const cycleMode = isCycleBased(student)
