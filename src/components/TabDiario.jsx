@@ -151,7 +151,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
           <div ref={formRef} className="bg-white rounded-2xl shadow-sm border border-purple-100 p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-gray-700">
-                {editing ? 'Editar entrada' : '✍️ Nueva entrada'}
+                {editing ? 'Editar entrada' : 'Nueva entrada'}
               </p>
               <button onClick={closeForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
                 <X size={16} />

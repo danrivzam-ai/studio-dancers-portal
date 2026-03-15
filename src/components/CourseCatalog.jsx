@@ -337,7 +337,7 @@ function MaestroModal({ onClose }) {
           {/* ── Horarios ── */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: '#551735' }}>
-              🩰 Ballet Clásico — Intermedios y Avanzados
+              Ballet Clásico — Intermedios y Avanzados
             </p>
             <p className="text-[11px] text-gray-400 mb-3">Horarios disponibles</p>
             <div className="space-y-2">

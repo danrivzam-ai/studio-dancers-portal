@@ -59,7 +59,7 @@ export default function Login({ onLogin, onBack }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-600 to-pink-500 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 relative">
         {/* Back button */}
         {onBack && (
           <button onClick={onBack} className="absolute top-4 left-4 p-1.5 text-gray-400 hover:text-gray-600 transition-colors">

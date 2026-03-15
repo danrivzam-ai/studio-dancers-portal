@@ -110,7 +110,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
   if (success) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center" onClick={e => e.stopPropagation()}>
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center" onClick={e => e.stopPropagation()}>
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={32} className="text-green-600" />
           </div>
@@ -131,7 +131,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between">
           <div>

@@ -122,7 +122,7 @@ export default function MilestoneModal({ tier, studentName, onClose }) {
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-xs rounded-2xl overflow-hidden shadow-2xl"
+        className="relative w-full max-w-xs rounded-2xl overflow-hidden shadow-xl"
         style={{
           background: `linear-gradient(145deg, ${cfg.bgFrom} 0%, ${cfg.bgTo} 100%)`,
           border: `2px solid ${cfg.border}`,

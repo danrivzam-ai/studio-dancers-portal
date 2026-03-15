@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { AlertCircle } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import LandingPage from './components/LandingPage'
 import Login from './components/Login'
@@ -251,7 +252,7 @@ export default function App() {
     }
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-5xl mb-4">😕</p>
+        <AlertCircle size={48} className="text-gray-300 mx-auto mb-4" />
         <p className="text-gray-700 font-semibold">Ocurrió un error</p>
         <p className="text-gray-500 text-sm mt-1">Toque el botón para limpiar caché y reiniciar</p>
         <button

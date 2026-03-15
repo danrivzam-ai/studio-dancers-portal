@@ -66,7 +66,7 @@ try {
   console.error('[Portal] Render crash:', err)
   root.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:24px;text-align:center;font-family:system-ui,sans-serif;background:#f3f4f6">
-      <p style="font-size:48px;margin-bottom:16px">😕</p>
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <p style="color:#374151;font-weight:600;font-size:16px">Ocurrió un error al cargar</p>
       <p style="color:#9ca3af;font-size:13px;margin-top:8px">Toque el boton para limpiar cache y reiniciar</p>
       <button onclick="

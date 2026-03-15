@@ -33,7 +33,7 @@ export default function PaymentHistory({ studentId, studentName, cedula, phoneLa
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2">

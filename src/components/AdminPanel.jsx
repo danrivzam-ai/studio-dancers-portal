@@ -109,7 +109,7 @@ export default function AdminPanel({ onBack }) {
   if (resetTarget) {
     return (
       <div className="min-h-screen bg-gray-900/95 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" style={{ animation: 'fadeIn 0.25s ease-out both' }}>
+        <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" style={{ animation: 'fadeIn 0.25s ease-out both' }}>
           <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mx-auto mb-3">
             <Lock size={22} className="text-purple-700" />
           </div>
