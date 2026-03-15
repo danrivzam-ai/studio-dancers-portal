@@ -131,7 +131,7 @@ function SkeletonCard() {
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
       {/* Header skeleton */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-500 px-4 py-3.5">
+      <div className="bg-purple-600 px-4 py-3.5">
         <div className="flex items-center justify-between">
           <div className="flex-1 mr-3">
             <div className="h-4 w-32 bg-white/20 rounded-md" />
@@ -366,7 +366,7 @@ function ClassCalendar({ student, onClose }) {
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
       <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-4 py-3.5 flex items-center justify-between">
+        <div className="bg-purple-700 px-4 py-3.5 flex items-center justify-between">
           <div>
             <p className="text-white font-bold text-sm">{student.name.split(' ')[0]} · Días de clase</p>
             <p className="text-white/70 text-xs">{student.course_name}</p>
@@ -746,7 +746,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
       )}
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white px-4 py-4">
+      <div className="bg-purple-700 text-white px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div>
             <h1 className="font-bold text-lg">{bankInfo?.school_name || 'Studio Dancers'}</h1>
@@ -856,7 +856,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
               style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.1}s both` }}
             >
               {/* ───── Student Identity + Status ───── */}
-              <div className="bg-gradient-to-r from-purple-600 to-purple-500 px-4 py-3.5">
+              <div className="bg-purple-600 px-4 py-3.5">
                 <div className="flex items-center justify-between gap-2">
 
                   {/* Avatar + name */}

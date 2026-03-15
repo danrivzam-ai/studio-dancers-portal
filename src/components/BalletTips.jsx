@@ -108,7 +108,7 @@ export default function BalletTips({ onLogout }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white px-4 py-4">
+      <div className="bg-purple-700 text-white px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div>
             <h1 className="font-bold text-lg">Secretos del Bailarín</h1>

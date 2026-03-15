@@ -195,7 +195,7 @@ export default function BalletGlossary() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ── Header ── */}
-      <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white px-4 pt-5 pb-4">
+      <div className="bg-purple-700 text-white px-4 pt-5 pb-4">
         <div className="max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">

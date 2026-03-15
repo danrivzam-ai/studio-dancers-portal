@@ -169,7 +169,7 @@ export default function AdminPanel({ onBack }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-purple-700 px-4 pt-safe-top pb-4">
+      <div className="bg-purple-800 px-4 pt-safe-top pb-4">
         <div className="flex items-center gap-3 pt-3">
           <button
             onClick={onBack}

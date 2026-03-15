@@ -141,7 +141,7 @@ export default function CalendarTab({ students: initial, onLogout }) {
     <div className="min-h-screen bg-gray-50 pb-20">
 
       {/* ── Header ── */}
-      <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-4 pt-10 pb-4 safe-top">
+      <div className="bg-purple-700 px-4 pt-10 pb-4 safe-top">
         <div className="flex items-center justify-between mb-1">
           <div className="min-w-0 flex-1 mr-3">
             <h1 className="text-white font-bold text-lg leading-tight">Mi Calendario</h1>

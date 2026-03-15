@@ -127,7 +127,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
     <div className="min-h-screen bg-gray-50" ref={containerRef}>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-4 py-4 text-white flex items-center justify-between">
+      <div className="bg-purple-700 px-4 py-4 text-white flex items-center justify-between">
         <div className="flex items-center gap-3">
           <DiaryIcon className="w-9 h-9 shrink-0" />
           <div>

@@ -104,7 +104,7 @@ export default function TabBienestar({ students, cedula, phoneLast4 }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-4 py-4 text-white">
+      <div className="bg-purple-700 px-4 py-4 text-white">
         <h1 className="font-bold text-lg leading-tight">Bienestar</h1>
         <p className="text-purple-200 text-xs mt-0.5">Contenido nuevo cada lunes y jueves</p>
       </div>
