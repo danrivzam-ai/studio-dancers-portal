@@ -221,8 +221,8 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
         ) : entradas.length === 0 && !showForm ? (
           <div className="text-center py-14 px-4">
             <DiaryIcon className="w-20 h-20 mx-auto mb-4 opacity-60" />
-            <p className="text-base font-semibold text-gray-700 mb-1">Tu diario está vacío</p>
-            <p className="text-xs text-gray-400 mb-5">Escribe cómo fue tu primera clase,<br />cómo te sentiste, qué aprendiste.</p>
+            <p className="text-base font-semibold text-gray-700 mb-1">Tu historia comienza aquí</p>
+            <p className="text-xs text-gray-400 mb-5">Cada clase es un paso adelante.<br />Registra cómo te sentiste y mira tu progreso.</p>
             <button
               onClick={openNew}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 active:scale-95 transition-all shadow-sm"

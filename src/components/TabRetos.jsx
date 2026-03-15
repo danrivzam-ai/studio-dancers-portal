@@ -86,7 +86,8 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
             })() : (
               <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center text-gray-400">
                 <Target size={32} className="mx-auto mb-2 opacity-30" />
-                <p className="text-sm">El reto de esta semana aparecerá el lunes</p>
+                <p className="text-sm font-medium text-gray-500">Nuevo reto disponible el lunes</p>
+                <p className="text-xs text-gray-400 mt-1">Mientras tanto, sigue practicando lo aprendido.</p>
               </div>
             )}
 

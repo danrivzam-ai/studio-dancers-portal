@@ -751,7 +751,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           <div>
             <h1 className="font-bold text-lg">{bankInfo?.school_name || 'Studio Dancers'}</h1>
             <p className="text-xs text-white/70">
-              {students.length === 1 ? students[0].name : `${students.length} alumno${students.length > 1 ? 's' : ''} registrado${students.length > 1 ? 's' : ''}`}
+              {(() => {
+                const h = new Date().getHours()
+                const greeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
+                const firstName = students.length === 1 ? students[0].name.split(' ')[0] : ''
+                return firstName ? `${greeting}, ${firstName}` : `${greeting} · ${students.length} alumno${students.length > 1 ? 's' : ''}`
+              })()}
             </p>
           </div>
           <button

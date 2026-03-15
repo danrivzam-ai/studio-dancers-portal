@@ -252,6 +252,19 @@ export default function CalendarTab({ students: initial, onLogout }) {
           </div>
         </div>
 
+        {/* ── Consistency message ── */}
+        {total > 0 && upcoming === 0 && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-center">
+            <p className="text-sm font-semibold text-emerald-700">Completaste todas tus clases este mes</p>
+            <p className="text-xs text-emerald-500 mt-0.5">La constancia es el secreto del progreso.</p>
+          </div>
+        )}
+        {total > 0 && upcoming > 0 && (total - upcoming) / total >= 0.7 && (
+          <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-3 text-center">
+            <p className="text-xs text-purple-600">Llevas {total - upcoming} de {total} clases. Vas muy bien.</p>
+          </div>
+        )}
+
         {/* ── Tip del día ── */}
         {(() => {
           const tip = getDailyTip(student?.is_minor)
