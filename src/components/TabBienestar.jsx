@@ -19,8 +19,17 @@ const FILTROS = [
   { id: 'cultura_ballet',   label: 'Ballet',         Icon: Music      },
 ]
 
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function formatMarkdown(text) {
-  return text
+  return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/^### (.+)$/gm, '<h4 class="font-bold text-gray-800 mt-3 mb-1">$1</h4>')
     .replace(/^## (.+)$/gm,  '<h3 class="font-bold text-gray-800 mt-3 mb-1 text-base">$1</h3>')

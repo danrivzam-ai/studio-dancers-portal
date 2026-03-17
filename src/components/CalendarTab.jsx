@@ -145,7 +145,7 @@ export default function CalendarTab({ students: initial, onLogout }) {
         <div className="flex items-center justify-between mb-1">
           <div className="min-w-0 flex-1 mr-3">
             <h1 className="text-white font-bold text-lg leading-tight">Mi Calendario</h1>
-            <p className="text-white/70 text-xs mt-0.5 truncate">{courseName}{schedule ? ` · ${schedule}` : ''}</p>
+            <p className="text-white/80 text-xs mt-0.5 truncate">{courseName}{schedule ? ` · ${schedule}` : ''}</p>
           </div>
           <button onClick={onLogout} className="p-2 bg-white/20 rounded-full shrink-0">
             <LogOut size={16} className="text-white" />
@@ -177,11 +177,11 @@ export default function CalendarTab({ students: initial, onLogout }) {
 
           {/* Month nav */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <button onClick={prevMonth} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+            <button onClick={prevMonth} aria-label="Mes anterior" className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
               <ChevronLeft size={18} className="text-gray-500" />
             </button>
             <p className="font-bold text-gray-800">{MONTHS[viewMonth]} {viewYear}</p>
-            <button onClick={nextMonth} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+            <button onClick={nextMonth} aria-label="Mes siguiente" className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
               <ChevronRight size={18} className="text-gray-500" />
             </button>
           </div>

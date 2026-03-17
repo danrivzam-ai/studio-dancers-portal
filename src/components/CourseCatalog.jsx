@@ -281,6 +281,7 @@ function MaestroModal({ onClose }) {
           {/* Botón cerrar */}
           <button
             onClick={onClose}
+            aria-label="Cerrar"
             className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full"
           >
             <X size={18} />
@@ -782,6 +783,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
             {(onBack || selectedCategory) && (
               <button
                 onClick={() => selectedCategory ? goBackFromCategory() : onBack?.()}
+                aria-label="Volver"
                 className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
               >
                 <ArrowLeft size={20} />
@@ -793,7 +795,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
                   ? (CATEGORY_CONFIG[selectedCategory]?.label || 'Cursos')
                   : 'Nuestros Cursos'}
               </h1>
-              <p className="text-xs text-white/60">
+              <p className="text-xs text-white/80">
                 {selectedCategory ? 'Toca un curso para más info' : 'Elige una categoría'}
               </p>
             </div>
@@ -822,7 +824,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
             {selectedCourse.image_url ? (
               <div className="relative">
                 <img src={selectedCourse.image_url} alt={selectedCourse.name} className="w-full h-48 object-cover" />
-                <button onClick={closeCourse} className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full">
+                <button onClick={closeCourse} aria-label="Cerrar" className="absolute top-3 right-3 p-2 bg-black/40 text-white rounded-full">
                   <X size={18} />
                 </button>
               </div>
@@ -832,7 +834,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
                 style={{ background: 'linear-gradient(135deg, #551735, #3d0f25)' }}
               >
                 <IconArabesque size={48} />
-                <button onClick={closeCourse} className="absolute top-3 right-3 p-2 bg-black/20 text-white rounded-full">
+                <button onClick={closeCourse} aria-label="Cerrar" className="absolute top-3 right-3 p-2 bg-black/20 text-white rounded-full">
                   <X size={18} />
                 </button>
               </div>

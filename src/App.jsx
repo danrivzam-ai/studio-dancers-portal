@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { supabase } from './lib/supabase'
+import ErrorBoundary from './components/ErrorBoundary'
 import LandingPage from './components/LandingPage'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
@@ -297,6 +298,7 @@ export default function App() {
   const currentTab   = validTabs.includes(authTab) ? authTab : 'payments'
 
   return (
+    <ErrorBoundary>
     <div className="pb-16">
       {currentTab === 'payments' && (
         <Dashboard
@@ -346,5 +348,6 @@ export default function App() {
       )}
       <BottomNav activeTab={currentTab} onChangeTab={navigateTab} isAdultas={isAdultas} />
     </div>
+    </ErrorBoundary>
   )
 }

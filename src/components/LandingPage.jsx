@@ -311,7 +311,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
         {/* Link discreto portal — esquina superior derecha */}
         <button
           onClick={onGoToLogin}
-          className="absolute top-4 right-5 z-10 text-white/60 hover:text-white text-xs font-medium flex items-center gap-0.5 transition-colors"
+          className="absolute top-4 right-5 z-10 text-white/80 hover:text-white text-xs font-medium flex items-center gap-0.5 transition-colors"
         >
           Ingresa a tu cuenta <ChevronRight size={13} />
         </button>
@@ -322,8 +322,8 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
             alt="Studio Dancers"
             className="w-44 mx-auto mb-4 object-contain drop-shadow-xl"
           />
-          <p className="text-white/80 text-sm mb-1">Escuela de Ballet en La Alborada, Guayaquil</p>
-          <p className="text-white/60 text-xs mb-8">Más de 30 años formando bailarinas</p>
+          <p className="text-white/90 text-sm mb-1">Escuela de Ballet en La Alborada, Guayaquil</p>
+          <p className="text-white/80 text-xs mb-8">Más de 30 años formando bailarinas</p>
 
           <button
             onClick={() => onGoToCatalog()}
@@ -792,11 +792,11 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
           </div>
 
           <div className="flex items-center justify-center gap-4 mb-4">
-            <button onClick={() => onGoToCatalog()} className="text-white/60 hover:text-white text-xs transition-colors">
+            <button onClick={() => onGoToCatalog()} className="text-white/80 hover:text-white text-xs transition-colors">
               Ver Cursos
             </button>
-            <span className="text-white/20">|</span>
-            <button onClick={onGoToLogin} className="text-white/60 hover:text-white text-xs transition-colors">
+            <span className="text-white/40">|</span>
+            <button onClick={onGoToLogin} className="text-white/80 hover:text-white text-xs transition-colors">
               Mi Studio
             </button>
           </div>

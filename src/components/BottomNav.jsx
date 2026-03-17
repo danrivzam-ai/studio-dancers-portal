@@ -22,7 +22,7 @@ export default function BottomNav({ activeTab, onChangeTab, isAdultas }) {
   const compact = tabs.length >= 6
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40" role="tablist" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="max-w-md mx-auto flex">
         {tabs.map(tab => {
           const Icon = tab.icon
@@ -30,9 +30,12 @@ export default function BottomNav({ activeTab, onChangeTab, isAdultas }) {
           return (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={isActive}
+              aria-label={tab.label}
               onClick={() => onChangeTab(tab.id)}
               className={`flex-1 flex flex-col items-center transition-colors ${
-                compact ? 'py-1.5 pt-2' : 'py-2 pt-2.5'
+                compact ? 'py-2 pt-2.5' : 'py-2 pt-2.5'
               } ${isActive ? 'text-purple-600' : 'text-gray-400'}`}
             >
               <Icon size={compact ? 19 : 22} strokeWidth={isActive ? 2.5 : 2} />
