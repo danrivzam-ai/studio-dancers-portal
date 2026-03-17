@@ -133,6 +133,12 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
           <div>
             <h1 className="font-bold text-lg leading-tight">Mi diario</h1>
             <p className="text-purple-200 text-xs mt-0.5">Solo tú puedes ver esto</p>
+            <p className="text-xs text-white/50 mt-0.5">
+              {(() => {
+                const h = new Date().getHours()
+                return h < 12 ? 'Escribe sobre tu mañana de práctica' : h < 18 ? 'Registra cómo fue tu clase de hoy' : 'Reflexiona sobre tu día de danza'
+              })()}
+            </p>
           </div>
         </div>
         <button
@@ -222,7 +228,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
           <div className="text-center py-14 px-4">
             <DiaryIcon className="w-20 h-20 mx-auto mb-4 opacity-60" />
             <p className="text-base font-semibold text-gray-700 mb-1">Tu historia comienza aquí</p>
-            <p className="text-xs text-gray-400 mb-5">Cada clase es un paso adelante.<br />Registra cómo te sentiste y mira tu progreso.</p>
+            <p className="text-xs text-gray-400 mb-5">Escribe sobre tu primera plié, tu primer giro, tu primer momento de libertad.</p>
             <button
               onClick={openNew}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 active:scale-95 transition-all shadow-sm"

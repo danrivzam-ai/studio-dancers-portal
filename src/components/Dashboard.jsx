@@ -1038,6 +1038,13 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                     <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
                   </div>
                 )}
+                {hasClassInfo && !cycleMode && classesUsed > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {classesUsed >= 8 ? '¡Excelente constancia este mes!' :
+                     classesUsed >= 4 ? 'Buen ritmo, sigue así' :
+                     'Cada clase cuenta, ¡vamos por más!'}
+                  </p>
+                )}
 
                 {/* Pending requests */}
                 {pendingReqs.length > 0 && (

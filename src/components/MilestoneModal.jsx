@@ -153,8 +153,11 @@ export default function MilestoneModal({ tier, studentName, onClose }) {
           >
             Nivel {cfg.label}
           </h2>
-          <p className="text-sm mb-5" style={{ color: cfg.subtitleColor }}>
+          <p className="text-sm" style={{ color: cfg.subtitleColor }}>
             {firstName}, llevas {cfg.months} meses de puntualidad impecable.
+          </p>
+          <p className="text-sm mb-5" style={{ color: `${cfg.subtitleColor}cc` }}>
+            {firstName}, esto es tuyo
           </p>
 
           {/* Discount pill */}

@@ -146,6 +146,12 @@ export default function CalendarTab({ students: initial, onLogout }) {
           <div className="min-w-0 flex-1 mr-3">
             <h1 className="text-white font-bold text-lg leading-tight">Mi Calendario</h1>
             <p className="text-white/80 text-xs mt-0.5 truncate">{courseName}{schedule ? ` · ${schedule}` : ''}</p>
+            <p className="text-xs text-white/50 mt-0.5">
+              {(() => {
+                const h = new Date().getHours()
+                return h < 12 ? 'Revisa tus próximas clases' : h < 18 ? '¿Cómo va tu semana?' : 'Planifica tu siguiente clase'
+              })()}
+            </p>
           </div>
           <button onClick={onLogout} className="p-2 bg-white/20 rounded-full shrink-0">
             <LogOut size={16} className="text-white" />
@@ -251,6 +257,21 @@ export default function CalendarTab({ students: initial, onLogout }) {
             </p>
           </div>
         </div>
+
+        {/* ── Streak celebration ── */}
+        {(total - upcoming) >= 5 && (
+          <p className="text-xs text-emerald-600 font-medium mt-1">
+            🔥 {total - upcoming} clases este mes — tu compromiso brilla
+          </p>
+        )}
+
+        {/* ── No classes message ── */}
+        {total === 0 && (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+            <p className="text-sm text-gray-500">No hay clases programadas este mes</p>
+            <p className="text-xs text-gray-400 mt-0.5">¿Lista para retomar? Tu próxima clase te espera.</p>
+          </div>
+        )}
 
         {/* ── Consistency message ── */}
         {total > 0 && upcoming === 0 && (

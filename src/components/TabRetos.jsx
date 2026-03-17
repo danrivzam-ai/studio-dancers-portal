@@ -43,6 +43,12 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
       <div className="bg-purple-700 px-4 py-4 text-white">
         <h1 className="font-bold text-lg leading-tight">Retos semanales</h1>
         <p className="text-purple-200 text-xs mt-0.5">Un nuevo reto cada lunes</p>
+        <p className="text-xs text-white/50 mt-0.5">
+          {(() => {
+            const h = new Date().getHours()
+            return h < 12 ? 'Un nuevo día, un nuevo desafío' : h < 18 ? '¿Ya completaste tu reto de hoy?' : 'Cierra el día con un reto cumplido'
+          })()}
+        </p>
       </div>
 
       <div className="px-4 pt-5 pb-20 max-w-lg mx-auto space-y-5">
@@ -88,6 +94,7 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
                 <Target size={32} className="mx-auto mb-2 opacity-30" />
                 <p className="text-sm font-medium text-gray-500">Nuevo reto disponible el lunes</p>
                 <p className="text-xs text-gray-400 mt-1">Mientras tanto, sigue practicando lo aprendido.</p>
+                <p className="text-xs text-gray-400 mt-1">Tu constancia en clases es el mayor desafío ganado.</p>
               </div>
             )}
 
