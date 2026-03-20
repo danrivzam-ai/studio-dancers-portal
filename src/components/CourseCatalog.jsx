@@ -182,7 +182,7 @@ function CourseLoader() {
     <div className="flex flex-col items-center justify-center py-16">
       <div className="relative mb-6">
         <div
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e8b4cc] to-pink-200 flex items-center justify-center"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e8b4cc] to-[#ffcfe0] flex items-center justify-center"
           style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}
         >
           <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
@@ -196,7 +196,7 @@ function CourseLoader() {
           </svg>
         </div>
         <div
-          className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-[#9e4a72] border-r-pink-300"
+          className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-[#9e4a72] border-r-[#ffcfe0]"
           style={{ animation: 'pirouette 1.2s linear infinite' }}
         />
       </div>

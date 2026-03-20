@@ -78,7 +78,7 @@ const CATEGORIES = ['Todos', ...Array.from(new Set(GLOSSARY.map(t => t.category)
 
 const CATEGORY_CFG = {
   'Posiciones de pies':     { bg: 'bg-[#fdf2f7]',  text: 'text-[#551735]',  border: 'border-[#e8b4cc]',  dot: 'bg-[#7e2d55]',  activeBg: 'bg-[#6b2145]'  },
-  'Posiciones de brazos':   { bg: 'bg-pink-50',    text: 'text-pink-700',    border: 'border-pink-200',    dot: 'bg-pink-500',    activeBg: 'bg-pink-600'    },
+  'Posiciones de brazos':   { bg: 'bg-[#fff0f5]',  text: 'text-[#8b3a62]',  border: 'border-[#ffcfe0]',   dot: 'bg-[#e8b4cc]',  activeBg: 'bg-[#9e4a72]'  },
   'Pliés':                  { bg: 'bg-orange-50',  text: 'text-orange-700',  border: 'border-orange-200',  dot: 'bg-orange-400',  activeBg: 'bg-orange-500'  },
   'Battements':             { bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200',   dot: 'bg-amber-500',   activeBg: 'bg-amber-600'   },
   'Ports de bras':          { bg: 'bg-rose-50',    text: 'text-rose-700',    border: 'border-rose-200',    dot: 'bg-rose-400',    activeBg: 'bg-rose-600'    },

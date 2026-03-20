@@ -17,8 +17,8 @@ const BALLET_TIPS = [
     id: 'attire',
     icon: Shirt,
     title: 'Indumentaria y Disciplina',
-    accent: 'border-pink-400',
-    iconColor: 'bg-pink-100 text-pink-500',
+    accent: 'border-[#ffcfe0]',
+    iconColor: 'bg-[#fff0f5] text-[#9e4a72]',
     tips: [
       { heading: 'El uniforme tiene un propósito', body: 'La ropa ajustada permite a tus maestros ver y corregir tu alineación ósea.' },
       { heading: 'Cabello impecable', body: 'Un moño firme te da equilibrio en los giros y despeja tu línea del cuello.' },
@@ -98,8 +98,8 @@ const PLAYLISTS = [
     icon: Sparkles,
     title: 'Pop para Ballet · Baby & Kids',
     description: 'Canciones pop adaptadas para clases de Baby Ballet y primeros pasos.',
-    accent: 'border-pink-400',
-    iconColor: 'bg-pink-100 text-pink-500',
+    accent: 'border-[#ffcfe0]',
+    iconColor: 'bg-[#fff0f5] text-[#9e4a72]',
     url: 'https://open.spotify.com/playlist/1FpiHW7i8qoJ9wLMfEqOmU',
   },
 ]

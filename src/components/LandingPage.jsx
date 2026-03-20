@@ -144,7 +144,7 @@ const FEATURES = [
     Icon: IconGrandJete,
     title: 'Evolución sin límites',
     desc: 'Desde la iniciación a los 3 años hasta adultos. Un programa que crece contigo.',
-    color: 'from-pink-500 to-rose-500'
+    color: 'from-[#9e4a72] to-[#6b2145]'
   },
   {
     Icon: IconDancerDuo,
@@ -306,7 +306,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
       <div className="relative min-h-[70vh] bg-gradient-to-br from-[#551735] via-[#6b2145] to-[#ffcfe0] flex flex-col items-center justify-center p-6 overflow-hidden">
         <div className="absolute top-10 left-[-40px] w-32 h-32 bg-white/5 rounded-full" />
         <div className="absolute bottom-20 right-[-20px] w-24 h-24 bg-white/5 rounded-full" />
-        <div className="absolute top-1/3 right-8 w-16 h-16 bg-pink-400/10 rounded-full" />
+        <div className="absolute top-1/3 right-8 w-16 h-16 bg-[#ffcfe0]/10 rounded-full" />
 
         {/* Link discreto portal — esquina superior derecha */}
         <button

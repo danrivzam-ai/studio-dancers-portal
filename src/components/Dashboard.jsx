@@ -171,7 +171,7 @@ function DanceLoader() {
     <div className="min-h-screen bg-gradient-to-br from-[#fdf2f7] via-white to-[#fff0f5] flex flex-col items-center justify-center p-6">
       {/* Ballet dancer silhouette animation */}
       <div className="relative mb-8">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#e8b4cc] to-pink-200 flex items-center justify-center"
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#e8b4cc] to-[#ffcfe0] flex items-center justify-center"
           style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}>
           <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Head */}
@@ -203,7 +203,7 @@ function DanceLoader() {
           </svg>
         </div>
         {/* Rotating ring */}
-        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-transparent border-t-[#9e4a72] border-r-pink-300"
+        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-transparent border-t-[#9e4a72] border-r-[#ffcfe0]"
           style={{ animation: 'pirouette 1.2s linear infinite' }} />
       </div>
 
