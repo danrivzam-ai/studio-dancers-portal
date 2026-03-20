@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, MessageCircle, LogOut } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import ErrorBoundary from './components/ErrorBoundary'
 import LandingPage from './components/LandingPage'
@@ -281,6 +281,60 @@ export default function App() {
     }
     // Login is now the default home view
     return <Login onLogin={handleLogin} onBack={null} />
+  }
+
+  // --- INACTIVE CHECK (soft block) ---
+  // If ALL students have next_payment_date older than 60 days, block access
+  const INACTIVE_DAYS = 60
+  const isInactive = (() => {
+    if (!session.students || session.students.length === 0) return false
+    const now = new Date()
+    return session.students.every(s => {
+      if (s.is_courtesy) return false // Courtesy students are never inactive
+      if (s.is_paused) return false   // Paused students are not "inactive" — just on hold
+      if (!s.next_payment_date) return true // No payment date = likely inactive
+      const nextPay = new Date(s.next_payment_date + 'T12:00:00')
+      const diffDays = Math.floor((now - nextPay) / (1000 * 60 * 60 * 24))
+      return diffDays > INACTIVE_DAYS
+    })
+  })()
+
+  if (isInactive) {
+    return (
+      <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center p-6">
+        <div className="bg-white rounded-2xl shadow-lg max-w-sm w-full overflow-hidden">
+          <div className="bg-[#551735] px-6 py-8 text-center">
+            <img src="/logo-white.png" alt="Studio Dancers" className="w-28 mx-auto mb-3 opacity-90" />
+            <h2 className="text-white text-lg font-bold">Cuenta inactiva</h2>
+          </div>
+          <div className="px-6 py-6 text-center space-y-4">
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Tu cuenta no tiene pagos registrados en los últimos {INACTIVE_DAYS} días.
+              Para reactivar tu acceso, comunícate con nosotros.
+            </p>
+            <p className="text-gray-400 text-xs">
+              ¡Te esperamos de vuelta!
+            </p>
+            <a
+              href="https://wa.me/593991741741?text=Hola%2C%20quisiera%20reactivar%20mi%20cuenta%20en%20Mi%20Studio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors text-base"
+            >
+              <MessageCircle size={18} />
+              Escríbenos por WhatsApp
+            </a>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 w-full py-3 border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-50 transition-colors text-sm"
+            >
+              <LogOut size={14} />
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // --- AUTHENTICATED VIEWS ---
