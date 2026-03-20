@@ -131,6 +131,62 @@ function LoyaltyCard({ consecutiveMonths, onShowRules }) {
   )
 }
 
+// ═══════ MODAL INTRO FIDELIDAD (primera vez) ═══════
+const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v1'
+
+function LoyaltyIntroModal({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+      <div className="w-full max-w-sm rounded-t-3xl bg-white pb-10 pt-5 px-5 shadow-2xl">
+        {/* Handle */}
+        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+
+        {/* Header */}
+        <div className="text-center mb-5">
+          <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg,#fdf2f7,#f9e8f0)', border: '1px solid #e8b4cc' }}>
+            <Zap size={26} className="text-[#9e4a72]" />
+          </div>
+          <h2 className="text-base font-bold text-gray-800">¡Nuevo programa de fidelidad!</h2>
+          <p className="text-xs text-gray-500 mt-1">Renueva a tiempo y gana descuentos exclusivos</p>
+        </div>
+
+        {/* Tiers compactos */}
+        <div className="flex gap-2 mb-5">
+          {[
+            { label: 'Bronce', months: '3 meses', pct: '5%', bg: '#ffedd5', border: '#fdba74', color: '#c2410c' },
+            { label: 'Plata',  months: '6 meses', pct: '10%', bg: '#f1f5f9', border: '#cbd5e1', color: '#334155' },
+            { label: 'Oro',    months: '12 meses', pct: '15%', bg: '#fef3c7', border: '#fcd34d', color: '#92400e' },
+          ].map(t => (
+            <div key={t.label} className="flex-1 rounded-xl py-2.5 px-1.5 text-center"
+              style={{ background: t.bg, border: `1px solid ${t.border}` }}>
+              <p className="text-[10px] font-bold mb-0.5" style={{ color: t.color }}>{t.label}</p>
+              <p className="text-lg font-extrabold leading-none" style={{ color: t.color }}>{t.pct}</p>
+              <p className="text-[9px] mt-0.5 opacity-70" style={{ color: t.color }}>{t.months}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Regla clave */}
+        <div className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 flex items-start gap-2 mb-5">
+          <Clock size={14} className="text-amber-600 mt-0.5 shrink-0" />
+          <p className="text-xs text-amber-800 leading-snug">
+            <span className="font-semibold">Renueva antes o en tu fecha límite</span> para mantener tu racha activa. Si pagas tarde, la racha vuelve a cero.
+          </p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-3 rounded-2xl text-sm font-bold text-white"
+          style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
+        >
+          ¡Entendido, empiezo a acumular! 🎯
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ═══════ MODAL REGLAS DE FIDELIDAD ═══════
 function LoyaltyRulesModal({ onClose }) {
   const tiers = [
@@ -582,6 +638,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [milestone, setMilestone] = useState(null)
   // Reglas de fidelidad modal
   const [showLoyaltyRules, setShowLoyaltyRules] = useState(false)
+  // Intro fidelidad — mostrar una sola vez por dispositivo
+  const [showLoyaltyIntro, setShowLoyaltyIntro] = useState(false)
   // Calendar modal
   const [calendarStudent, setCalendarStudent] = useState(null)
   // Track which modal is open — used by back-button handler to close modals natively
@@ -656,6 +714,16 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     const interval = setInterval(refreshStudents, 30000)
     return () => clearInterval(interval)
   }, [cedula, phoneLast4, refreshKey])
+
+  // ─── Loyalty intro (primera vez) ───
+  // Muestra el popup explicativo una sola vez por dispositivo, solo a alumnos
+  // con precio mensual (adultas). Se guarda en localStorage para no repetir.
+  useEffect(() => {
+    if (!liveStudents?.length) return
+    if (localStorage.getItem(LOYALTY_INTRO_KEY)) return
+    const hasMensual = liveStudents.some(s => s.price_type === 'mes')
+    if (hasMensual) setShowLoyaltyIntro(true)
+  }, [liveStudents])
 
   // ─── Milestone detection ───
   // After every live-student refresh, check if any student just reached a tier
@@ -828,6 +896,14 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
       {/* Reglas de fidelidad modal */}
       {showLoyaltyRules && <LoyaltyRulesModal onClose={() => setShowLoyaltyRules(false)} />}
+
+      {/* Intro fidelidad — primera vez */}
+      {showLoyaltyIntro && (
+        <LoyaltyIntroModal onClose={() => {
+          localStorage.setItem(LOYALTY_INTRO_KEY, '1')
+          setShowLoyaltyIntro(false)
+        }} />
+      )}
 
       {/* Header */}
       <div className="bg-[#551735] text-white px-4 py-4">
