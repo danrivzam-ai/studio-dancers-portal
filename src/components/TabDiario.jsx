@@ -27,20 +27,20 @@ function DiaryIcon({ className = '' }) {
   return (
     <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Tapa del diario */}
-      <rect x="10" y="6" width="38" height="52" rx="4" fill="#7C3AED" opacity="0.15" />
-      <rect x="13" y="6" width="35" height="52" rx="4" fill="#7C3AED" opacity="0.25" />
+      <rect x="10" y="6" width="38" height="52" rx="4" fill="white" opacity="0.15" />
+      <rect x="13" y="6" width="35" height="52" rx="4" fill="white" opacity="0.25" />
       {/* Lomo */}
-      <rect x="10" y="6" width="7" height="52" rx="3" fill="#6D28D9" />
+      <rect x="10" y="6" width="7" height="52" rx="3" fill="#ffcfe0" />
       {/* Líneas de contenido */}
-      <line x1="22" y1="22" x2="42" y2="22" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" />
-      <line x1="22" y1="29" x2="42" y2="29" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" />
-      <line x1="22" y1="36" x2="36" y2="36" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" />
+      <line x1="22" y1="22" x2="42" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      <line x1="22" y1="29" x2="42" y2="29" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      <line x1="22" y1="36" x2="36" y2="36" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
       {/* Pluma */}
-      <path d="M44 14 L54 8 L56 12 L46 22 Z" fill="#A78BFA" />
-      <path d="M44 14 L46 22 L42 20 Z" fill="#7C3AED" />
-      <line x1="46" y1="22" x2="44" y2="26" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M44 14 L54 8 L56 12 L46 22 Z" fill="#ffcfe0" />
+      <path d="M44 14 L46 22 L42 20 Z" fill="#e8b4cc" />
+      <line x1="46" y1="22" x2="44" y2="26" stroke="#e8b4cc" strokeWidth="1.5" strokeLinecap="round" />
       {/* Corazón pequeño */}
-      <path d="M30 44 C30 44 26 41 26 38.5 C26 37 27.5 36 29 37 L30 38 L31 37 C32.5 36 34 37 34 38.5 C34 41 30 44 30 44Z" fill="#A78BFA" />
+      <path d="M30 44 C30 44 26 41 26 38.5 C26 37 27.5 36 29 37 L30 38 L31 37 C32.5 36 34 37 34 38.5 C34 41 30 44 30 44Z" fill="#ffcfe0" />
     </svg>
   )
 }
