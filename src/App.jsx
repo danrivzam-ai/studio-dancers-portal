@@ -271,15 +271,16 @@ export default function App() {
     if (publicView === 'catalog') {
       return <CourseCatalog onBack={() => navigatePublic('home')} initialCategory={catalogCategory} initialCourseName={catalogCourseName} />
     }
-    if (publicView === 'login') {
-      return <Login onLogin={handleLogin} onBack={() => navigatePublic('home')} />
+    if (publicView === 'landing') {
+      return (
+        <LandingPage
+          onGoToCatalog={(category, courseName) => navigatePublic('catalog', category || null, courseName || null)}
+          onGoToLogin={() => navigatePublic('home')}
+        />
+      )
     }
-    return (
-      <LandingPage
-        onGoToCatalog={(category, courseName) => navigatePublic('catalog', category || null, courseName || null)}
-        onGoToLogin={() => navigatePublic('login')}
-      />
-    )
+    // Login is now the default home view
+    return <Login onLogin={handleLogin} onBack={null} />
   }
 
   // --- AUTHENTICATED VIEWS ---
