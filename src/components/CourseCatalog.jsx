@@ -186,13 +186,13 @@ function CourseLoader() {
           style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}
         >
           <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
-            <circle cx="32" cy="12" r="6" fill="#7e22ce" />
-            <path d="M32 18 C32 18 28 24 26 30 C24 36 20 42 16 46" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M32 18 C32 18 34 26 34 32 C34 38 32 44 32 50" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M32 24 C32 24 40 20 46 18" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M32 24 C32 24 22 22 18 24" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M32 50 C32 50 28 54 24 56" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M32 50 C32 50 36 54 40 52" stroke="#7e22ce" strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx="32" cy="12" r="6" fill="#6b2145" />
+            <path d="M32 18 C32 18 28 24 26 30 C24 36 20 42 16 46" stroke="#6b2145" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 18 C32 18 34 26 34 32 C34 38 32 44 32 50" stroke="#6b2145" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 24 C32 24 40 20 46 18" stroke="#6b2145" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 24 C32 24 22 22 18 24" stroke="#6b2145" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 50 C32 50 28 54 24 56" stroke="#6b2145" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 50 C32 50 36 54 40 52" stroke="#6b2145" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         </div>
         <div

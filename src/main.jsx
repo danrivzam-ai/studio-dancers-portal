@@ -72,7 +72,7 @@ try {
       <button onclick="
         if('caches' in window){caches.keys().then(function(n){return Promise.all(n.map(function(c){return caches.delete(c)}))}).then(function(){location.reload()}).catch(function(){location.reload()})}
         else{location.reload()}
-      " style="margin-top:20px;padding:12px 32px;background:#7e22ce;color:white;border:none;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer">
+      " style="margin-top:20px;padding:12px 32px;background:#6b2145;color:white;border:none;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer">
         Limpiar y Recargar
       </button>
     </div>

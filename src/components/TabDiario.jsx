@@ -23,24 +23,26 @@ function formatFecha(dateStr) {
   })
 }
 
-function DiaryIcon({ className = '' }) {
+function DiaryIcon({ className = '', onDark = false }) {
+  const cover = onDark ? 'white' : '#551735'
+  const lomo = onDark ? '#ffcfe0' : '#6b2145'
+  const lines = onDark ? 'white' : '#9e4a72'
+  const linesOpacity = onDark ? 0.6 : 0.4
+  const feather1 = onDark ? '#ffcfe0' : '#9e4a72'
+  const feather2 = onDark ? '#e8b4cc' : '#6b2145'
+  const heart = onDark ? '#ffcfe0' : '#e8b4cc'
   return (
     <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Tapa del diario */}
-      <rect x="10" y="6" width="38" height="52" rx="4" fill="white" opacity="0.15" />
-      <rect x="13" y="6" width="35" height="52" rx="4" fill="white" opacity="0.25" />
-      {/* Lomo */}
-      <rect x="10" y="6" width="7" height="52" rx="3" fill="#ffcfe0" />
-      {/* Líneas de contenido */}
-      <line x1="22" y1="22" x2="42" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-      <line x1="22" y1="29" x2="42" y2="29" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-      <line x1="22" y1="36" x2="36" y2="36" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-      {/* Pluma */}
-      <path d="M44 14 L54 8 L56 12 L46 22 Z" fill="#ffcfe0" />
-      <path d="M44 14 L46 22 L42 20 Z" fill="#e8b4cc" />
-      <line x1="46" y1="22" x2="44" y2="26" stroke="#e8b4cc" strokeWidth="1.5" strokeLinecap="round" />
-      {/* Corazón pequeño */}
-      <path d="M30 44 C30 44 26 41 26 38.5 C26 37 27.5 36 29 37 L30 38 L31 37 C32.5 36 34 37 34 38.5 C34 41 30 44 30 44Z" fill="#ffcfe0" />
+      <rect x="10" y="6" width="38" height="52" rx="4" fill={cover} opacity="0.15" />
+      <rect x="13" y="6" width="35" height="52" rx="4" fill={cover} opacity="0.25" />
+      <rect x="10" y="6" width="7" height="52" rx="3" fill={lomo} />
+      <line x1="22" y1="22" x2="42" y2="22" stroke={lines} strokeWidth="2" strokeLinecap="round" opacity={linesOpacity} />
+      <line x1="22" y1="29" x2="42" y2="29" stroke={lines} strokeWidth="2" strokeLinecap="round" opacity={linesOpacity} />
+      <line x1="22" y1="36" x2="36" y2="36" stroke={lines} strokeWidth="2" strokeLinecap="round" opacity={linesOpacity} />
+      <path d="M44 14 L54 8 L56 12 L46 22 Z" fill={feather1} />
+      <path d="M44 14 L46 22 L42 20 Z" fill={feather2} />
+      <line x1="46" y1="22" x2="44" y2="26" stroke={feather2} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M30 44 C30 44 26 41 26 38.5 C26 37 27.5 36 29 37 L30 38 L31 37 C32.5 36 34 37 34 38.5 C34 41 30 44 30 44Z" fill={heart} />
     </svg>
   )
 }
@@ -129,7 +131,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
       {/* Header */}
       <div className="bg-[#551735] px-4 py-4 text-white flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <DiaryIcon className="w-9 h-9 shrink-0" />
+          <DiaryIcon className="w-9 h-9 shrink-0" onDark />
           <div>
             <h1 className="font-bold text-lg leading-tight">Mi diario</h1>
             <p className="text-[#e8b4cc] text-xs mt-0.5">Solo tú puedes ver esto</p>

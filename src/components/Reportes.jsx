@@ -46,7 +46,7 @@ export default function Reportes({ students, onLogout }) {
   })
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #6b21a8 0%, #7e22ce 50%, #be185d 100%)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #551735 0%, #6b2145 50%, #7e2d55 100%)' }}>
 
       {/* Header */}
       <div className="shrink-0 px-4 pt-12 pb-6">

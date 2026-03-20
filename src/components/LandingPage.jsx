@@ -384,7 +384,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
                   className="w-full flex flex-col border rounded-xl overflow-hidden text-left hover:shadow-md active:scale-[0.98] transition-all"
                   style={{
                     borderColor: course.borderColor,
-                    background: course.bgStyle?.background || '#f5f3ff',
+                    background: course.bgStyle?.background || '#fdf2f7',
                     animation: `fadeIn 0.3s ease-out ${idx * 0.08}s both`
                   }}
                 >
