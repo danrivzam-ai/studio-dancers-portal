@@ -141,7 +141,7 @@ export default function CalendarTab({ students: initial, onLogout }) {
     <div className="min-h-screen bg-gray-50 pb-20">
 
       {/* ── Header ── */}
-      <div className="bg-purple-700 px-4 pt-10 pb-4 safe-top">
+      <div className="bg-[#551735] px-4 pt-10 pb-4 safe-top">
         <div className="flex items-center justify-between mb-1">
           <div className="min-w-0 flex-1 mr-3">
             <h1 className="text-white font-bold text-lg leading-tight">Mi Calendario</h1>
@@ -166,7 +166,7 @@ export default function CalendarTab({ students: initial, onLogout }) {
                 key={s.id}
                 onClick={() => setSelIdx(i)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                  i === selIdx ? 'bg-white text-purple-700' : 'bg-white/20 text-white'
+                  i === selIdx ? 'bg-white text-[#551735]' : 'bg-white/20 text-white'
                 }`}
               >
                 {s.name.split(' ')[0]}
@@ -211,9 +211,9 @@ export default function CalendarTab({ students: initial, onLogout }) {
                   key={day}
                   className={`
                     relative flex items-center justify-center mx-auto w-9 h-9 rounded-full text-[13px] font-semibold
-                    ${cls && tod  ? 'bg-purple-700 text-white ring-2 ring-amber-400 ring-offset-1' : ''}
-                    ${cls && !tod && past  ? 'bg-purple-100 text-purple-600' : ''}
-                    ${cls && !tod && !past ? 'bg-purple-600 text-white' : ''}
+                    ${cls && tod  ? 'bg-[#551735] text-white ring-2 ring-amber-400 ring-offset-1' : ''}
+                    ${cls && !tod && past  ? 'bg-[#f9e8f0] text-[#6b2145]' : ''}
+                    ${cls && !tod && !past ? 'bg-[#6b2145] text-white' : ''}
                     ${!cls && tod  ? 'ring-2 ring-amber-400 ring-offset-1 text-gray-700' : ''}
                     ${!cls && !tod ? 'text-gray-400' : ''}
                   `}
@@ -227,10 +227,10 @@ export default function CalendarTab({ students: initial, onLogout }) {
           {/* Legend */}
           <div className="px-4 pb-4 flex gap-4 flex-wrap text-[11px] text-gray-500 border-t border-gray-50 pt-3">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-purple-600 inline-block shrink-0" />Próxima clase
+              <span className="w-3 h-3 rounded-full bg-[#6b2145] inline-block shrink-0" />Próxima clase
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-purple-100 inline-block shrink-0" />Clase pasada
+              <span className="w-3 h-3 rounded-full bg-[#f9e8f0] inline-block shrink-0" />Clase pasada
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full border-2 border-amber-400 inline-block shrink-0" />Hoy
@@ -242,11 +242,11 @@ export default function CalendarTab({ students: initial, onLogout }) {
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
             <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider leading-tight">Clases<br/>este mes</p>
-            <p className="text-2xl font-bold text-purple-700 mt-1">{total}</p>
+            <p className="text-2xl font-bold text-[#551735] mt-1">{total}</p>
           </div>
           <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
             <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider leading-tight">Clases<br/>restantes</p>
-            <p className="text-2xl font-bold text-purple-500 mt-1">{upcoming}</p>
+            <p className="text-2xl font-bold text-[#7e2d55] mt-1">{upcoming}</p>
           </div>
           <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
             <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider leading-tight">Próximo<br/>pago</p>
@@ -281,8 +281,8 @@ export default function CalendarTab({ students: initial, onLogout }) {
           </div>
         )}
         {total > 0 && upcoming > 0 && (total - upcoming) / total >= 0.7 && (
-          <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-3 text-center">
-            <p className="text-xs text-purple-600">Llevas {total - upcoming} de {total} clases. Vas muy bien.</p>
+          <div className="bg-[#fdf2f7] border border-[#e8b4cc] rounded-xl px-4 py-3 text-center">
+            <p className="text-xs text-[#6b2145]">Llevas {total - upcoming} de {total} clases. Vas muy bien.</p>
           </div>
         )}
 
@@ -290,10 +290,10 @@ export default function CalendarTab({ students: initial, onLogout }) {
         {(() => {
           const tip = getDailyTip(student?.is_minor)
           return (
-            <div className="bg-white rounded-2xl shadow-sm border border-purple-100 p-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-[#f9e8f0] p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles size={14} className="text-purple-500 shrink-0" />
-                <p className="text-[11px] font-bold text-purple-500 uppercase tracking-wider">Tip del día</p>
+                <Sparkles size={14} className="text-[#7e2d55] shrink-0" />
+                <p className="text-[11px] font-bold text-[#7e2d55] uppercase tracking-wider">Tip del día</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-2xl leading-none mt-0.5">{tip.icon}</span>

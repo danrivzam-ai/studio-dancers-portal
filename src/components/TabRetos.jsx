@@ -7,7 +7,7 @@ const CATEGORIA_CFG = {
   flexibilidad:        { Icon: MoveVertical,  label: 'Flexibilidad',        iconBg: 'bg-blue-100',   iconColor: 'text-blue-600'   },
   equilibrio:          { Icon: Scale,         label: 'Equilibrio',          iconBg: 'bg-amber-100',  iconColor: 'text-amber-600'  },
   musicalidad:         { Icon: Music,         label: 'Musicalidad',         iconBg: 'bg-rose-100',   iconColor: 'text-rose-500'   },
-  conciencia_corporal: { Icon: Eye,           label: 'Conciencia corporal', iconBg: 'bg-purple-100', iconColor: 'text-purple-600' },
+  conciencia_corporal: { Icon: Eye,           label: 'Conciencia corporal', iconBg: 'bg-[#f9e8f0]', iconColor: 'text-[#6b2145]' },
 }
 
 function formatSemana(dateStr) {
@@ -40,9 +40,9 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-purple-700 px-4 py-4 text-white">
+      <div className="bg-[#551735] px-4 py-4 text-white">
         <h1 className="font-bold text-lg leading-tight">Retos semanales</h1>
-        <p className="text-purple-200 text-xs mt-0.5">Un nuevo reto cada lunes</p>
+        <p className="text-[#e8b4cc] text-xs mt-0.5">Un nuevo reto cada lunes</p>
         <p className="text-xs text-white/50 mt-0.5">
           {(() => {
             const h = new Date().getHours()
@@ -54,7 +54,7 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
       <div className="px-4 pt-5 pb-20 max-w-lg mx-auto space-y-5">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="w-6 h-6 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#e8b4cc] border-t-[#6b2145] rounded-full animate-spin" />
           </div>
         ) : (
           <>
@@ -63,11 +63,11 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
               const cfg = CATEGORIA_CFG[activo.categoria] || CATEGORIA_CFG.fuerza
               const Icon = cfg.Icon
               return (
-                <div className="bg-white rounded-2xl shadow-sm border border-purple-100 overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-sm border border-[#f9e8f0] overflow-hidden">
                   {/* Card header — sólido para buen contraste */}
-                  <div className="bg-purple-700 px-4 py-3 flex items-center justify-between">
+                  <div className="bg-[#551735] px-4 py-3 flex items-center justify-between">
                     <span className="text-xs font-bold text-white uppercase tracking-wide">Reto de esta semana</span>
-                    <span className="text-[10px] text-purple-200">{formatSemana(activo.semana_inicio)}</span>
+                    <span className="text-[10px] text-[#e8b4cc]">{formatSemana(activo.semana_inicio)}</span>
                   </div>
                   <div className="p-4">
                     <div className="flex items-start gap-3">
@@ -75,13 +75,13 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
                         <Icon size={20} className={cfg.iconColor} />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs font-semibold text-purple-600 mb-0.5">{cfg.label}</p>
+                        <p className="text-xs font-semibold text-[#6b2145] mb-0.5">{cfg.label}</p>
                         <p className="font-bold text-gray-800 text-base leading-snug">{activo.titulo}</p>
                         <p className="text-sm text-gray-600 mt-2 leading-relaxed">{activo.descripcion}</p>
                         {activo.tip_extra && (
-                          <div className="mt-3 bg-purple-50 rounded-xl px-3 py-2.5 flex gap-2">
-                            <Target size={14} className="text-purple-500 shrink-0 mt-0.5" />
-                            <p className="text-xs text-purple-700 leading-relaxed">{activo.tip_extra}</p>
+                          <div className="mt-3 bg-[#fdf2f7] rounded-xl px-3 py-2.5 flex gap-2">
+                            <Target size={14} className="text-[#7e2d55] shrink-0 mt-0.5" />
+                            <p className="text-xs text-[#551735] leading-relaxed">{activo.tip_extra}</p>
                           </div>
                         )}
                       </div>
@@ -129,9 +129,9 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
                           <div className="px-4 pb-3 border-t border-gray-50 pt-2 text-sm text-gray-600 leading-relaxed">
                             {r.descripcion}
                             {r.tip_extra && (
-                              <div className="mt-2 flex gap-2 bg-purple-50 rounded-lg px-3 py-1.5">
-                                <Target size={12} className="text-purple-500 shrink-0 mt-0.5" />
-                                <p className="text-xs text-purple-700">{r.tip_extra}</p>
+                              <div className="mt-2 flex gap-2 bg-[#fdf2f7] rounded-lg px-3 py-1.5">
+                                <Target size={12} className="text-[#7e2d55] shrink-0 mt-0.5" />
+                                <p className="text-xs text-[#551735]">{r.tip_extra}</p>
                               </div>
                             )}
                           </div>

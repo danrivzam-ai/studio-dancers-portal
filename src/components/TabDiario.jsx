@@ -127,12 +127,12 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
     <div className="min-h-screen bg-gray-50" ref={containerRef}>
 
       {/* Header */}
-      <div className="bg-purple-700 px-4 py-4 text-white flex items-center justify-between">
+      <div className="bg-[#551735] px-4 py-4 text-white flex items-center justify-between">
         <div className="flex items-center gap-3">
           <DiaryIcon className="w-9 h-9 shrink-0" />
           <div>
             <h1 className="font-bold text-lg leading-tight">Mi diario</h1>
-            <p className="text-purple-200 text-xs mt-0.5">Solo tú puedes ver esto</p>
+            <p className="text-[#e8b4cc] text-xs mt-0.5">Solo tú puedes ver esto</p>
             <p className="text-xs text-white/50 mt-0.5">
               {(() => {
                 const h = new Date().getHours()
@@ -154,7 +154,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
 
         {/* Formulario nueva / editar entrada */}
         {showForm && (
-          <div ref={formRef} className="bg-white rounded-2xl shadow-sm border border-purple-100 p-4 mb-4">
+          <div ref={formRef} className="bg-white rounded-2xl shadow-sm border border-[#f9e8f0] p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-gray-700">
                 {editing ? 'Editar entrada' : 'Nueva entrada'}
@@ -172,7 +172,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
                   value={form.fecha}
                   onChange={e => setForm(f => ({ ...f, fecha: e.target.value }))}
                   max={todayEC()}
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9e4a72]"
                 />
               </div>
             )}
@@ -186,8 +186,8 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
                     onClick={() => setForm(f => ({ ...f, estado_animo: f.estado_animo === a.id ? null : a.id }))}
                     className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs border transition-all ${
                       form.estado_animo === a.id
-                        ? 'border-purple-400 bg-purple-50 text-purple-700 font-semibold'
-                        : 'border-gray-200 text-gray-600 hover:border-purple-200'
+                        ? 'border-[#9e4a72] bg-[#fdf2f7] text-[#551735] font-semibold'
+                        : 'border-gray-200 text-gray-600 hover:border-[#e8b4cc]'
                     }`}
                   >
                     {a.emoji} {a.label}
@@ -201,14 +201,14 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
               onChange={e => setForm(f => ({ ...f, contenido: e.target.value }))}
               rows={5}
               placeholder="¿Cómo estuvo tu clase? ¿Qué sentiste? ¿Qué te gustó? ¿Qué te costó?"
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#9e4a72] resize-none"
               autoFocus
             />
 
             <button
               onClick={handleSave}
               disabled={saving || !form.contenido.trim()}
-              className="w-full mt-3 py-2.5 bg-purple-600 text-white font-semibold text-sm rounded-xl hover:bg-purple-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              className="w-full mt-3 py-2.5 bg-[#6b2145] text-white font-semibold text-sm rounded-xl hover:bg-[#551735] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
               {saving ? (
                 <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -222,7 +222,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
         {/* Estados: cargando / vacío / lista */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="w-6 h-6 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#e8b4cc] border-t-[#6b2145] rounded-full animate-spin" />
           </div>
         ) : entradas.length === 0 && !showForm ? (
           <div className="text-center py-14 px-4">
@@ -231,7 +231,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
             <p className="text-xs text-gray-400 mb-5">Escribe sobre tu primera plié, tu primer giro, tu primer momento de libertad.</p>
             <button
               onClick={openNew}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 active:scale-95 transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6b2145] text-white text-sm font-semibold rounded-xl hover:bg-[#551735] active:scale-95 transition-all shadow-sm"
             >
               <Plus size={15} />
               Escribe tu primera entrada
@@ -251,7 +251,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openEdit(e)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-purple-600 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-[#6b2145] transition-colors"
                     >
                       <Edit2 size={13} />
                     </button>

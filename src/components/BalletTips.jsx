@@ -29,8 +29,8 @@ const BALLET_TIPS = [
     id: 'posture',
     icon: Star,
     title: 'Presencia Escénica',
-    accent: 'border-purple-400',
-    iconColor: 'bg-purple-100 text-purple-500',
+    accent: 'border-[#9e4a72]',
+    iconColor: 'bg-[#f9e8f0] text-[#7e2d55]',
     tips: [
       { heading: 'Proyecta elegancia', body: 'Mantén los hombros relajados, presionando suavemente hacia abajo y atrás.' },
       { heading: 'El hilo invisible', body: 'Imagina que una cuerda tira de tu coronilla hacia el techo, alargando tu columna.' },
@@ -80,8 +80,8 @@ const PLAYLISTS = [
     icon: Music,
     title: 'Classical Ballet · Spotify',
     description: 'Tchaikovsky, Delibes, Minkus. Curada por Spotify con más de 338 000 seguidores.',
-    accent: 'border-purple-400',
-    iconColor: 'bg-purple-100 text-purple-600',
+    accent: 'border-[#9e4a72]',
+    iconColor: 'bg-[#f9e8f0] text-[#6b2145]',
     url: 'https://open.spotify.com/playlist/37i9dQZF1DXabrEiRjQMgs',
   },
   {
@@ -108,7 +108,7 @@ export default function BalletTips({ onLogout }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <div className="bg-purple-700 text-white px-4 py-4">
+      <div className="bg-[#551735] text-white px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div>
             <h1 className="font-bold text-lg">Secretos del Bailarín</h1>
@@ -142,7 +142,7 @@ export default function BalletTips({ onLogout }) {
               <div className="px-4 pb-4 space-y-3">
                 {category.tips.map((tip, i) => (
                   <div key={i} className="flex gap-2.5">
-                    <span className="text-purple-300 font-bold text-xs mt-0.5 shrink-0">✦</span>
+                    <span className="text-[#c07a9a] font-bold text-xs mt-0.5 shrink-0">✦</span>
                     <div>
                       <span className="text-[12px] font-semibold text-gray-800">{tip.heading}: </span>
                       <span className="text-[12px] text-gray-500 leading-snug">{tip.body}</span>

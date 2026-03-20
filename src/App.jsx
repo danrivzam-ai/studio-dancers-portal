@@ -258,7 +258,7 @@ export default function App() {
         <p className="text-gray-500 text-sm mt-1">Toque el botón para limpiar caché y reiniciar</p>
         <button
           onClick={handleReload}
-          className="mt-5 px-8 py-3 bg-purple-600 text-white rounded-xl font-semibold text-base"
+          className="mt-5 px-8 py-3 bg-[#6b2145] text-white rounded-xl font-semibold text-base"
         >
           Limpiar y Recargar
         </button>

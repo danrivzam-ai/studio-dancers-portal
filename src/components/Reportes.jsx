@@ -72,12 +72,12 @@ export default function Reportes({ students, onLogout }) {
       <div className="flex-1 bg-gray-50 rounded-t-3xl px-4 pt-6 pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="w-6 h-6 border-2 border-purple-300 border-t-purple-700 rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#c07a9a] border-t-[#551735] rounded-full animate-spin" />
           </div>
         ) : reportes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-            <div className="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mb-4">
-              <FileText size={28} className="text-purple-400" />
+            <div className="w-16 h-16 rounded-2xl bg-[#f9e8f0] flex items-center justify-center mb-4">
+              <FileText size={28} className="text-[#9e4a72]" />
             </div>
             <p className="font-semibold text-gray-700">Sin reportes disponibles</p>
             <p className="text-sm text-gray-400 mt-1 leading-relaxed">
@@ -90,8 +90,8 @@ export default function Reportes({ students, onLogout }) {
               <div key={student.id}>
                 {/* Student header */}
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-                    <User size={13} className="text-purple-600" />
+                  <div className="w-7 h-7 rounded-full bg-[#f9e8f0] flex items-center justify-center shrink-0">
+                    <User size={13} className="text-[#6b2145]" />
                   </div>
                   <p className="font-bold text-gray-800 text-sm">{student.name}</p>
                 </div>
@@ -105,8 +105,8 @@ export default function Reportes({ students, onLogout }) {
                     >
                       <div className="flex items-center gap-3 px-4 py-3">
                         {/* Icon */}
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-                          <FileText size={18} className="text-purple-500" />
+                        <div className="w-10 h-10 rounded-xl bg-[#fdf2f7] flex items-center justify-center shrink-0">
+                          <FileText size={18} className="text-[#7e2d55]" />
                         </div>
 
                         {/* Info */}
@@ -131,7 +131,7 @@ export default function Reportes({ students, onLogout }) {
                         <button
                           onClick={() => handleDownload(r)}
                           disabled={downloading[r.id]}
-                          className="shrink-0 flex items-center gap-1.5 bg-purple-600 text-white rounded-xl px-3 py-2 text-xs font-semibold disabled:opacity-60 hover:bg-purple-700 active:scale-95 transition-all"
+                          className="shrink-0 flex items-center gap-1.5 bg-[#6b2145] text-white rounded-xl px-3 py-2 text-xs font-semibold disabled:opacity-60 hover:bg-[#551735] active:scale-95 transition-all"
                         >
                           {downloading[r.id] ? (
                             <div className="w-3 h-3 border border-white/50 border-t-white rounded-full animate-spin" />

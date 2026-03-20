@@ -77,7 +77,7 @@ const GLOSSARY = [
 const CATEGORIES = ['Todos', ...Array.from(new Set(GLOSSARY.map(t => t.category)))]
 
 const CATEGORY_CFG = {
-  'Posiciones de pies':     { bg: 'bg-purple-50',  text: 'text-purple-700',  border: 'border-purple-200',  dot: 'bg-purple-500',  activeBg: 'bg-purple-600'  },
+  'Posiciones de pies':     { bg: 'bg-[#fdf2f7]',  text: 'text-[#551735]',  border: 'border-[#e8b4cc]',  dot: 'bg-[#7e2d55]',  activeBg: 'bg-[#6b2145]'  },
   'Posiciones de brazos':   { bg: 'bg-pink-50',    text: 'text-pink-700',    border: 'border-pink-200',    dot: 'bg-pink-500',    activeBg: 'bg-pink-600'    },
   'Pliés':                  { bg: 'bg-orange-50',  text: 'text-orange-700',  border: 'border-orange-200',  dot: 'bg-orange-400',  activeBg: 'bg-orange-500'  },
   'Battements':             { bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200',   dot: 'bg-amber-500',   activeBg: 'bg-amber-600'   },
@@ -195,7 +195,7 @@ export default function BalletGlossary() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ── Header ── */}
-      <div className="bg-purple-700 text-white px-4 pt-5 pb-4">
+      <div className="bg-[#551735] text-white px-4 pt-5 pb-4">
         <div className="max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
@@ -219,7 +219,7 @@ export default function BalletGlossary() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar término, definición..."
-              className="w-full bg-white border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 text-sm text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent"
+              className="w-full bg-white border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 text-sm text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#e8b4cc] focus:border-transparent"
             />
             {search && (
               <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -237,7 +237,7 @@ export default function BalletGlossary() {
           onClick={() => setActiveCategory('Todos')}
           className={`w-full mb-2 py-2 rounded-xl text-[11px] font-bold border transition-all ${
             activeCategory === 'Todos'
-              ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+              ? 'bg-[#6b2145] text-white border-[#6b2145] shadow-sm'
               : 'bg-white text-gray-500 border-gray-200'
           }`}
         >

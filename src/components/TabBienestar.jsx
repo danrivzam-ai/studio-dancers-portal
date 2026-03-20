@@ -6,7 +6,7 @@ export const CATEGORIA_CFG = {
   fortalecimiento:  { label: 'Fortalecimiento', Icon: Dumbbell,   badgeBg: 'bg-teal-100',    badgeText: 'text-teal-700',   iconColor: 'text-teal-600'   },
   estiramiento:     { label: 'Estiramiento',     Icon: Zap,        badgeBg: 'bg-blue-100',    badgeText: 'text-blue-700',   iconColor: 'text-blue-600'   },
   salud:            { label: 'Salud',            Icon: HeartPulse, badgeBg: 'bg-orange-100',  badgeText: 'text-orange-700', iconColor: 'text-orange-500' },
-  bienestar_mental: { label: 'Bienestar mental', Icon: Brain,      badgeBg: 'bg-purple-100',  badgeText: 'text-purple-700', iconColor: 'text-purple-600' },
+  bienestar_mental: { label: 'Bienestar mental', Icon: Brain,      badgeBg: 'bg-[#f9e8f0]',  badgeText: 'text-[#551735]', iconColor: 'text-[#6b2145]' },
   cultura_ballet:   { label: 'Cultura ballet',   Icon: Music,      badgeBg: 'bg-yellow-100',  badgeText: 'text-yellow-700', iconColor: 'text-yellow-600' },
 }
 
@@ -113,9 +113,9 @@ export default function TabBienestar({ students, cedula, phoneLast4 }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-purple-700 px-4 py-4 text-white">
+      <div className="bg-[#551735] px-4 py-4 text-white">
         <h1 className="font-bold text-lg leading-tight">Bienestar</h1>
-        <p className="text-purple-200 text-xs mt-0.5">Contenido nuevo cada lunes y jueves</p>
+        <p className="text-[#e8b4cc] text-xs mt-0.5">Contenido nuevo cada lunes y jueves</p>
       </div>
 
       <div className="px-4 pt-4 pb-20 max-w-lg mx-auto">
@@ -130,7 +130,7 @@ export default function TabBienestar({ students, cedula, phoneLast4 }) {
                 onClick={() => setFiltro(f.id)}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
                   active
-                    ? 'bg-purple-600 text-white shadow-sm'
+                    ? 'bg-[#6b2145] text-white shadow-sm'
                     : 'bg-white border border-gray-200 text-gray-600'
                 }`}
               >
@@ -143,7 +143,7 @@ export default function TabBienestar({ students, cedula, phoneLast4 }) {
 
         {loading && items.length === 0 ? (
           <div className="flex justify-center py-12">
-            <div className="w-6 h-6 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#e8b4cc] border-t-[#6b2145] rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
@@ -168,7 +168,7 @@ export default function TabBienestar({ students, cedula, phoneLast4 }) {
                   load(next * PAGE)
                 }}
                 disabled={loading}
-                className="w-full py-3 text-sm text-purple-600 font-medium disabled:opacity-50"
+                className="w-full py-3 text-sm text-[#6b2145] font-medium disabled:opacity-50"
               >
                 {loading ? 'Cargando…' : 'Ver más'}
               </button>

@@ -120,7 +120,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
           </p>
           <button
             onClick={onClose}
-            className="w-full px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 font-medium"
+            className="w-full px-4 py-3 bg-[#6b2145] text-white rounded-xl hover:bg-[#551735] font-medium"
           >
             Entendido
           </button>
@@ -157,7 +157,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
                 min="0.01"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg"
+                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55] text-lg"
                 placeholder="0.00"
                 autoFocus
               />
@@ -172,7 +172,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
             <select
               value={bankName}
               onChange={(e) => setBankName(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55]"
             >
               <option value="">Seleccionar banco...</option>
               {BANKS.map(b => (
@@ -192,7 +192,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
                 type="text"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55] text-sm"
                 placeholder="Ej: 123456789"
               />
             </div>
@@ -216,7 +216,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-purple-400 hover:bg-purple-50/30 transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#9e4a72] hover:bg-[#fdf2f7]/30 transition-colors">
                 <Camera size={28} className="text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">Toque para subir foto</span>
                 <input
@@ -238,7 +238,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55] text-sm"
               placeholder="Ej: Pago de febrero"
             />
           </div>
@@ -250,7 +250,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-3.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full px-4 py-3.5 bg-[#6b2145] text-white rounded-xl hover:bg-[#551735] transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
               <span className="animate-pulse">Enviando...</span>

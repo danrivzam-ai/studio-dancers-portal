@@ -182,7 +182,7 @@ function CourseLoader() {
     <div className="flex flex-col items-center justify-center py-16">
       <div className="relative mb-6">
         <div
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e8b4cc] to-pink-200 flex items-center justify-center"
           style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}
         >
           <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
@@ -196,16 +196,16 @@ function CourseLoader() {
           </svg>
         </div>
         <div
-          className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-purple-400 border-r-pink-300"
+          className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-[#9e4a72] border-r-pink-300"
           style={{ animation: 'pirouette 1.2s linear infinite' }}
         />
       </div>
-      <p className="text-purple-700 font-medium text-sm">Cargando cursos</p>
+      <p className="text-[#551735] font-medium text-sm">Cargando cursos</p>
       <div className="flex items-center gap-1.5 mt-1">
         {[0, 1, 2].map(i => (
           <div
             key={i}
-            className="w-1.5 h-1.5 rounded-full bg-purple-400"
+            className="w-1.5 h-1.5 rounded-full bg-[#9e4a72]"
             style={{ animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }}
           />
         ))}
@@ -636,7 +636,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
           <p className="text-gray-400 text-sm mt-1">Verifica tu conexión a internet</p>
           <button
             onClick={fetchCourses}
-            className="mt-4 px-6 py-2.5 bg-purple-600 text-white rounded-xl font-medium text-sm flex items-center gap-2 mx-auto hover:bg-purple-700 transition-colors"
+            className="mt-4 px-6 py-2.5 bg-[#6b2145] text-white rounded-xl font-medium text-sm flex items-center gap-2 mx-auto hover:bg-[#551735] transition-colors"
           >
             <RefreshCw size={16} /> Reintentar
           </button>
@@ -751,7 +751,7 @@ export default function CourseCatalog({ onBack, isAuthenticated, onLogout, initi
                 )}
                 <div className="flex items-center justify-between mt-1.5">
                   {formatAge(course.age_min, course.age_max) ? (
-                    <span className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">
+                    <span className="text-[10px] px-2 py-0.5 bg-[#f9e8f0] text-[#551735] rounded-full font-medium">
                       {formatAge(course.age_min, course.age_max)}
                     </span>
                   ) : <span />}

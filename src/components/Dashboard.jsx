@@ -131,7 +131,7 @@ function SkeletonCard() {
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
       {/* Header skeleton */}
-      <div className="bg-purple-600 px-4 py-3.5">
+      <div className="bg-[#6b2145] px-4 py-3.5">
         <div className="flex items-center justify-between">
           <div className="flex-1 mr-3">
             <div className="h-4 w-32 bg-white/20 rounded-md" />
@@ -143,7 +143,7 @@ function SkeletonCard() {
       <div className="p-4 space-y-3">
         {/* Financial skeleton */}
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="bg-purple-50 rounded-xl p-3 flex flex-col items-center">
+          <div className="bg-[#fdf2f7] rounded-xl p-3 flex flex-col items-center">
             <div className="skeleton h-2.5 w-16 mb-2" />
             <div className="skeleton h-6 w-20" />
           </div>
@@ -168,10 +168,10 @@ function SkeletonCard() {
 // ═══════ DANCE LOADING SCREEN ═══════
 function DanceLoader() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#fdf2f7] via-white to-[#fff0f5] flex flex-col items-center justify-center p-6">
       {/* Ballet dancer silhouette animation */}
       <div className="relative mb-8">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center"
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#e8b4cc] to-pink-200 flex items-center justify-center"
           style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}>
           <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Head */}
@@ -203,16 +203,16 @@ function DanceLoader() {
           </svg>
         </div>
         {/* Rotating ring */}
-        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-transparent border-t-purple-400 border-r-pink-300"
+        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-transparent border-t-[#9e4a72] border-r-pink-300"
           style={{ animation: 'pirouette 1.2s linear infinite' }} />
       </div>
 
-      <p className="text-purple-800 font-semibold text-base mb-1">Cargando tu portal</p>
+      <p className="text-[#551735] font-semibold text-base mb-1">Cargando tu portal</p>
       <div className="flex items-center gap-1.5">
         {[0, 1, 2].map(i => (
           <div
             key={i}
-            className="w-1.5 h-1.5 rounded-full bg-purple-400"
+            className="w-1.5 h-1.5 rounded-full bg-[#9e4a72]"
             style={{ animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }}
           />
         ))}
@@ -366,7 +366,7 @@ function ClassCalendar({ student, onClose }) {
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
       <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="bg-purple-700 px-4 py-3.5 flex items-center justify-between">
+        <div className="bg-[#551735] px-4 py-3.5 flex items-center justify-between">
           <div>
             <p className="text-white font-bold text-sm">{student.name.split(' ')[0]} · Días de clase</p>
             <p className="text-white/70 text-xs">{student.course_name}</p>
@@ -411,15 +411,15 @@ function ClassCalendar({ student, onClose }) {
                 key={day}
                 className={`
                   relative flex items-center justify-center aspect-square rounded-full text-xs font-semibold
-                  ${cls && !today ? (past ? 'bg-purple-700 text-white' : 'bg-purple-100 text-purple-800 border-2 border-purple-500') : ''}
-                  ${today && cls ? 'bg-purple-700 text-white ring-2 ring-amber-400 ring-offset-1' : ''}
+                  ${cls && !today ? (past ? 'bg-[#551735] text-white' : 'bg-[#f9e8f0] text-[#551735] border-2 border-[#7e2d55]') : ''}
+                  ${today && cls ? 'bg-[#551735] text-white ring-2 ring-amber-400 ring-offset-1' : ''}
                   ${today && !cls ? 'ring-2 ring-amber-400 ring-offset-1 text-gray-700' : ''}
                   ${!cls && !today ? 'text-gray-500' : ''}
                 `}
               >
                 {day}
                 {cls && !today && !past && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-purple-600" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#6b2145]" />
                 )}
               </div>
             )
@@ -427,20 +427,20 @@ function ClassCalendar({ student, onClose }) {
         </div>
 
         {/* Legend + stats */}
-        <div className="px-4 py-3 bg-purple-50 border-t border-purple-100 space-y-2">
+        <div className="px-4 py-3 bg-[#fdf2f7] border-t border-[#f9e8f0] space-y-2">
           <div className="flex gap-3 flex-wrap text-[10px] text-gray-500">
             <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded-full bg-purple-700 inline-block" />Clase pasada
+              <span className="w-3.5 h-3.5 rounded-full bg-[#551735] inline-block" />Clase pasada
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3.5 h-3.5 rounded-full bg-purple-100 border-2 border-purple-500 inline-block" />Próxima clase
+              <span className="w-3.5 h-3.5 rounded-full bg-[#f9e8f0] border-2 border-[#7e2d55] inline-block" />Próxima clase
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-3.5 h-3.5 rounded-full ring-2 ring-amber-400 inline-block bg-white" />Hoy
             </span>
           </div>
           {upcomingClasses > 0 && (
-            <p className="text-xs font-semibold text-purple-700">
+            <p className="text-xs font-semibold text-[#551735]">
               📅 {upcomingClasses} {upcomingClasses === 1 ? 'clase próxima' : 'clases próximas'} este mes
             </p>
           )}
@@ -746,7 +746,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
       )}
 
       {/* Header */}
-      <div className="bg-purple-700 text-white px-4 py-4">
+      <div className="bg-[#551735] text-white px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div>
             <h1 className="font-bold text-lg">{bankInfo?.school_name || 'Studio Dancers'}</h1>
@@ -861,7 +861,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
               style={{ animation: `fadeIn 0.4s ease-out ${idx * 0.1}s both` }}
             >
               {/* ───── Student Identity + Status ───── */}
-              <div className="bg-purple-600 px-4 py-3.5">
+              <div className="bg-[#6b2145] px-4 py-3.5">
                 <div className="flex items-center justify-between gap-2">
 
                   {/* Avatar + name */}
@@ -900,8 +900,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                         )}
                       </div>
                       {/* Camera badge */}
-                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-purple-200">
-                        <Camera size={9} className="text-purple-600" />
+                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-[#e8b4cc]">
+                        <Camera size={9} className="text-[#6b2145]" />
                       </div>
                     </button>
 
@@ -951,11 +951,11 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
                 {/* ───── Financial Summary ───── */}
                 <div className="grid grid-cols-2 gap-2.5">
-                  <div className="bg-purple-50 rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-purple-600 uppercase font-medium tracking-wider">
+                  <div className="bg-[#fdf2f7] rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-[#6b2145] uppercase font-medium tracking-wider">
                       {cycleMode ? 'Inversión' : 'Mensualidad'}
                     </p>
-                    <p className="text-xl font-bold text-purple-800 mt-0.5">
+                    <p className="text-xl font-bold text-[#551735] mt-0.5">
                       ${parseFloat(student.monthly_fee || 0).toFixed(2)}
                     </p>
                   </div>
@@ -1030,12 +1030,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
                 {/* Classes Info — solo para alumnas con mensualidad recurrente */}
                 {hasClassInfo && !cycleMode && (
-                  <div className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
-                    <span className="text-[10px] text-purple-600 uppercase font-medium tracking-wider flex items-center gap-1.5">
+                  <div className="flex items-center justify-between bg-[#fdf2f7] rounded-lg px-3 py-2">
+                    <span className="text-[10px] text-[#6b2145] uppercase font-medium tracking-wider flex items-center gap-1.5">
                       <BookOpen size={10} className="shrink-0" />
                       {scheduleLabel ? `${scheduleLabel} · Clase` : 'Clases del mes'}
                     </span>
-                    <span className="text-xs font-semibold text-purple-700">{classesUsed}/{classesTotal}</span>
+                    <span className="text-xs font-semibold text-[#551735]">{classesUsed}/{classesTotal}</span>
                   </div>
                 )}
                 {hasClassInfo && !cycleMode && classesUsed > 0 && (
@@ -1065,16 +1065,16 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                       onClick={() => togglePaymentMethod(student.id, 'transfer')}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
                         activeMethod === 'transfer'
-                          ? 'border-purple-500 bg-purple-50 shadow-sm'
-                          : 'border-gray-200 bg-white hover:border-purple-300 hover:bg-purple-50/50'
+                          ? 'border-[#7e2d55] bg-[#fdf2f7] shadow-sm'
+                          : 'border-gray-200 bg-white hover:border-[#c07a9a] hover:bg-[#fdf2f7]/50'
                       }`}
                     >
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
-                        activeMethod === 'transfer' ? 'bg-purple-600' : 'bg-purple-100'
+                        activeMethod === 'transfer' ? 'bg-[#6b2145]' : 'bg-[#f9e8f0]'
                       }`}>
-                        <Banknote size={18} className={activeMethod === 'transfer' ? 'text-white' : 'text-purple-600'} />
+                        <Banknote size={18} className={activeMethod === 'transfer' ? 'text-white' : 'text-[#6b2145]'} />
                       </div>
-                      <span className={`text-xs font-semibold ${activeMethod === 'transfer' ? 'text-purple-700' : 'text-gray-700'}`}>
+                      <span className={`text-xs font-semibold ${activeMethod === 'transfer' ? 'text-[#551735]' : 'text-gray-700'}`}>
                         Transferencia
                       </span>
                     </button>
@@ -1095,7 +1095,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
                   {/* ── Transfer Expanded ── */}
                   {activeMethod === 'transfer' && (
-                    <div className="mt-3 bg-purple-50 rounded-xl border border-purple-200 overflow-hidden animate-slideDown">
+                    <div className="mt-3 bg-[#fdf2f7] rounded-xl border border-[#e8b4cc] overflow-hidden animate-slideDown">
                       {bankInfo?.bank_account_number && (() => {
                         const allBanks = [
                           { short: bankInfo.bank_name, name: bankInfo.bank_name, account: bankInfo.bank_account_number, type: bankInfo.bank_account_type, holder: bankInfo.bank_account_holder },
@@ -1106,7 +1106,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                         const bank = allBanks[bIdx]
                         return (
                           <div className="p-3 space-y-2">
-                            <p className="text-[10px] text-purple-600 uppercase font-semibold tracking-wider">Datos bancarios</p>
+                            <p className="text-[10px] text-[#6b2145] uppercase font-semibold tracking-wider">Datos bancarios</p>
                             {/* Bank selector chips */}
                             <div className="flex gap-1.5">
                               {allBanks.map((b, i) => (
@@ -1115,8 +1115,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                                   onClick={() => setSelectedBankIdx(prev => ({ ...prev, [student.id]: i }))}
                                   className={`flex-1 py-1.5 rounded-lg text-[10px] font-semibold transition-colors truncate px-1 ${
                                     bIdx === i
-                                      ? 'bg-purple-600 text-white'
-                                      : 'bg-white text-purple-600 border border-purple-200 hover:bg-purple-100 active:bg-purple-200'
+                                      ? 'bg-[#6b2145] text-white'
+                                      : 'bg-white text-[#6b2145] border border-[#e8b4cc] hover:bg-[#f9e8f0] active:bg-[#e8b4cc]'
                                   }`}
                                 >
                                   {b.short}
@@ -1135,7 +1135,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                                 <button
                                   key={key}
                                   onClick={() => copyToClipboard(value, key)}
-                                  className="w-full bg-white hover:bg-purple-100 active:bg-purple-200 rounded-lg px-3 py-2 transition-colors text-left"
+                                  className="w-full bg-white hover:bg-[#f9e8f0] active:bg-[#e8b4cc] rounded-lg px-3 py-2 transition-colors text-left"
                                 >
                                   <div className="flex items-center justify-between">
                                     <div className="min-w-0 flex-1 mr-2">
@@ -1156,14 +1156,14 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                                   </div>
                                 </button>
                               ))}
-                              <p className="text-[9px] text-purple-400 text-center mt-1">Toque para copiar</p>
+                              <p className="text-[9px] text-[#9e4a72] text-center mt-1">Toque para copiar</p>
                             </div>
                           </div>
                         )
                       })()}
                       <button
                         onClick={() => openUpload(student.id)}
-                        className="w-full flex items-center justify-center gap-2 py-3.5 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-semibold text-sm transition-colors"
+                        className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#6b2145] hover:bg-[#551735] active:bg-[#551735] text-white font-semibold text-sm transition-colors"
                       >
                         <Upload size={16} />
                         Ya transferí — Subir comprobante
@@ -1230,7 +1230,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
         {/* Tablón de anuncios */}
         {(() => {
           const COLOR_MAP = {
-            purple: { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-800', body: 'text-purple-700', pin: 'text-purple-400', dismiss: 'text-purple-300 hover:text-purple-600' },
+            purple: { bg: 'bg-[#fdf2f7]', border: 'border-[#e8b4cc]', title: 'text-[#551735]', body: 'text-[#551735]', pin: 'text-[#9e4a72]', dismiss: 'text-[#c07a9a] hover:text-[#6b2145]' },
             blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   title: 'text-blue-800',   body: 'text-blue-700',   pin: 'text-blue-400',   dismiss: 'text-blue-300 hover:text-blue-600' },
             green:  { bg: 'bg-green-50',  border: 'border-green-200',  title: 'text-green-800',  body: 'text-green-700',  pin: 'text-green-400',  dismiss: 'text-green-300 hover:text-green-600' },
             amber:  { bg: 'bg-amber-50',  border: 'border-amber-200',  title: 'text-amber-800',  body: 'text-amber-700',  pin: 'text-amber-400',  dismiss: 'text-amber-300 hover:text-amber-600' },

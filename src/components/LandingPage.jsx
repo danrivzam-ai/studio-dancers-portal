@@ -138,7 +138,7 @@ const FEATURES = [
     Icon: IconArabesque,
     title: 'Excelencia y Técnica',
     desc: 'Dominarás la disciplina del método clásico, garantizando una base sólida.',
-    color: 'from-purple-500 to-purple-600'
+    color: 'from-[#7e2d55] to-[#6b2145]'
   },
   {
     Icon: IconGrandJete,
@@ -303,7 +303,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
   return (
     <div className="min-h-screen bg-white">
       {/* ═══════ HERO SECTION ═══════ */}
-      <div className="relative min-h-[70vh] bg-gradient-to-br from-purple-800 via-purple-600 to-pink-500 flex flex-col items-center justify-center p-6 overflow-hidden">
+      <div className="relative min-h-[70vh] bg-gradient-to-br from-[#551735] via-[#6b2145] to-[#ffcfe0] flex flex-col items-center justify-center p-6 overflow-hidden">
         <div className="absolute top-10 left-[-40px] w-32 h-32 bg-white/5 rounded-full" />
         <div className="absolute bottom-20 right-[-20px] w-24 h-24 bg-white/5 rounded-full" />
         <div className="absolute top-1/3 right-8 w-16 h-16 bg-pink-400/10 rounded-full" />
@@ -327,7 +327,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
 
           <button
             onClick={() => onGoToCatalog()}
-            className="w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-white text-purple-700 rounded-2xl font-bold hover:bg-white/95 active:bg-purple-50 transition-all text-base shadow-xl shadow-purple-900/30"
+            className="w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-white text-[#551735] rounded-2xl font-bold hover:bg-white/95 active:bg-[#fdf2f7] transition-all text-base shadow-xl shadow-[#551735]/30"
           >
             <BookOpen size={20} />
             Ver Cursos Disponibles
@@ -339,7 +339,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
       <div id="features" className="bg-white px-5 py-12">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <p className="text-purple-600 text-xs font-semibold uppercase tracking-widest mb-1">TU CRECIMIENTO ES NUESTRA PRIORIDAD</p>
+            <p className="text-[#6b2145] text-xs font-semibold uppercase tracking-widest mb-1">TU CRECIMIENTO ES NUESTRA PRIORIDAD</p>
             <h2 className="text-2xl font-bold text-gray-900">Formación de excelencia para verdaderos resultados escénicos.</h2>
           </div>
 
@@ -367,10 +367,10 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
       </div>
 
       {/* ═══════ QUICK COURSES ═══════ */}
-      <div className="bg-gradient-to-b from-purple-50 to-white px-5 py-12">
+      <div className="bg-gradient-to-b from-[#fdf2f7] to-white px-5 py-12">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-6">
-            <p className="text-purple-600 text-xs font-semibold uppercase tracking-widest mb-1">Nuestros Cursos</p>
+            <p className="text-[#6b2145] text-xs font-semibold uppercase tracking-widest mb-1">Nuestros Cursos</p>
             <h2 className="text-xl font-bold text-gray-900">Encuentra tu clase ideal</h2>
           </div>
 
@@ -429,7 +429,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
 
           <button
             onClick={() => onGoToCatalog()}
-            className="w-full mt-4 py-3 text-purple-600 font-semibold text-sm hover:text-purple-700 transition-colors flex items-center justify-center gap-1.5"
+            className="w-full mt-4 py-3 text-[#6b2145] font-semibold text-sm hover:text-[#551735] transition-colors flex items-center justify-center gap-1.5"
           >
             <BookOpen size={16} />
             Ver todos los cursos y precios
@@ -441,7 +441,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
       <div className="bg-white px-5 py-12 border-t border-gray-100">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-7">
-            <p className="text-purple-600 text-xs font-semibold uppercase tracking-widest mb-1">Testimonios</p>
+            <p className="text-[#6b2145] text-xs font-semibold uppercase tracking-widest mb-1">Testimonios</p>
             <h2 className="text-xl font-bold text-gray-900">Lo que dicen nuestras familias</h2>
           </div>
 
@@ -472,7 +472,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
       <div className="bg-white px-5 py-10 border-t border-gray-100">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-6">
-            <p className="text-purple-600 text-xs font-semibold uppercase tracking-widest mb-1">Contáctanos</p>
+            <p className="text-[#6b2145] text-xs font-semibold uppercase tracking-widest mb-1">Contáctanos</p>
             <h2 className="text-xl font-bold text-gray-900">Estamos para ayudarte</h2>
           </div>
 
@@ -510,8 +510,8 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 transition-colors"
               >
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
-                  <MapPin size={15} className="text-purple-600" />
+                <div className="w-8 h-8 bg-[#f9e8f0] rounded-full flex items-center justify-center shrink-0">
+                  <MapPin size={15} className="text-[#6b2145]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-gray-800 text-sm">Ver en Google Maps</p>
@@ -530,8 +530,8 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
           <div className="max-w-md mx-auto">
             {/* Header */}
             <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
-                <Images size={16} className="text-purple-600" />
+              <div className="w-8 h-8 bg-[#f9e8f0] rounded-full flex items-center justify-center shrink-0">
+                <Images size={16} className="text-[#6b2145]" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-800 leading-tight">Nuestro estudio</h2>
@@ -776,7 +776,7 @@ export default function LandingPage({ onGoToCatalog, onGoToLogin }) {
       </a>
 
       {/* ═══════ FOOTER ═══════ */}
-      <div className="bg-gradient-to-br from-purple-800 to-purple-900 px-5 py-8">
+      <div className="bg-gradient-to-br from-[#551735] to-[#3d1027] px-5 py-8">
         <div className="max-w-md mx-auto text-center">
           <img src="/logo-landing.png" alt="Studio Dancers" className="w-28 mx-auto mb-3 opacity-80" />
 

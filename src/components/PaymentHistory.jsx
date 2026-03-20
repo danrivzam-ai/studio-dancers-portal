@@ -37,7 +37,7 @@ export default function PaymentHistory({ studentId, studentName, cedula, phoneLa
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <History size={18} className="text-purple-600" />
+            <History size={18} className="text-[#6b2145]" />
             <div>
               <h3 className="font-semibold text-gray-800 text-sm">Historial de Pagos</h3>
               <p className="text-xs text-gray-500">{studentName}</p>

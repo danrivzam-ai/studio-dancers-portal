@@ -36,7 +36,7 @@ export default function BottomNav({ activeTab, onChangeTab, isAdultas }) {
               onClick={() => onChangeTab(tab.id)}
               className={`flex-1 flex flex-col items-center transition-colors ${
                 compact ? 'py-2 pt-2.5' : 'py-2 pt-2.5'
-              } ${isActive ? 'text-purple-600' : 'text-gray-400'}`}
+              } ${isActive ? 'text-[#6b2145]' : 'text-gray-400'}`}
             >
               <Icon size={compact ? 19 : 22} strokeWidth={isActive ? 2.5 : 2} />
               <span className={`mt-0.5 ${compact ? 'text-[9px]' : 'text-[10px]'} ${isActive ? 'font-bold' : 'font-medium'}`}>

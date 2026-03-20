@@ -96,7 +96,7 @@ export default function AdminPanel({ onBack }) {
           )}
           <button
             onClick={() => { setResult(null); setResetTarget(null); setPin('') }}
-            className={`mt-6 w-full py-3 rounded-xl font-semibold text-sm ${ok ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`mt-6 w-full py-3 rounded-xl font-semibold text-sm ${ok ? 'bg-[#6b2145] text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             {ok ? 'Continuar' : 'Reintentar'}
           </button>
@@ -110,12 +110,12 @@ export default function AdminPanel({ onBack }) {
     return (
       <div className="min-h-screen bg-gray-900/95 flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" style={{ animation: 'fadeIn 0.25s ease-out both' }}>
-          <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mx-auto mb-3">
-            <Lock size={22} className="text-purple-700" />
+          <div className="flex items-center justify-center w-12 h-12 bg-[#f9e8f0] rounded-full mx-auto mb-3">
+            <Lock size={22} className="text-[#551735]" />
           </div>
           <h3 className="font-bold text-gray-900 text-center text-lg mb-0.5">PIN de Administrador</h3>
           <p className="text-[12px] text-gray-400 text-center mb-1">Extender ciclo de:</p>
-          <p className="text-sm font-bold text-purple-700 text-center mb-1 px-2 truncate">{resetTarget.name}</p>
+          <p className="text-sm font-bold text-[#551735] text-center mb-1 px-2 truncate">{resetTarget.name}</p>
           <p className="text-[11px] text-gray-400 text-center mb-5">
             <CalendarClock size={11} className="inline mr-1" />
             Vence: {formatDate(resetTarget.next_payment_date)}
@@ -140,7 +140,7 @@ export default function AdminPanel({ onBack }) {
             placeholder="••••"
             value={pin}
             onChange={e => setPin(e.target.value.replace(/\D/g, ''))}
-            className="w-full text-center text-2xl tracking-[0.6em] border-2 border-gray-200 rounded-xl py-3 mb-5 focus:border-purple-400 focus:outline-none transition-colors"
+            className="w-full text-center text-2xl tracking-[0.6em] border-2 border-gray-200 rounded-xl py-3 mb-5 focus:border-[#9e4a72] focus:outline-none transition-colors"
             autoFocus
           />
 
@@ -154,7 +154,7 @@ export default function AdminPanel({ onBack }) {
             <button
               onClick={handleReset}
               disabled={pin.length < 4 || resetting}
-              className="py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center justify-center gap-2 transition-colors"
+              className="py-3 bg-[#6b2145] hover:bg-[#551735] text-white rounded-xl font-semibold text-sm disabled:opacity-40 flex items-center justify-center gap-2 transition-colors"
             >
               {resetting && <RefreshCw size={14} className="animate-spin" />}
               Confirmar
@@ -169,7 +169,7 @@ export default function AdminPanel({ onBack }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-purple-800 px-4 pt-safe-top pb-4">
+      <div className="bg-[#551735] px-4 pt-safe-top pb-4">
         <div className="flex items-center gap-3 pt-3">
           <button
             onClick={onBack}
@@ -197,7 +197,7 @@ export default function AdminPanel({ onBack }) {
             placeholder="Buscar alumna..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-purple-400 transition-colors"
+            className="w-full pl-8 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#9e4a72] transition-colors"
           />
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function AdminPanel({ onBack }) {
       <div className="p-4 space-y-2 pb-8">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <RefreshCw size={20} className="text-purple-400 animate-spin" />
+            <RefreshCw size={20} className="text-[#9e4a72] animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <p className="text-center text-gray-400 text-sm py-10">Sin resultados</p>

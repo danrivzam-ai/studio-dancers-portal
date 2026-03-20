@@ -23,7 +23,7 @@ export default class ErrorBoundary extends Component {
           <p className="text-gray-500 text-sm mb-6">Ocurrio un error inesperado. Intenta recargar la pagina.</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-8 py-3 bg-purple-600 text-white rounded-xl font-semibold text-base hover:bg-purple-700 transition-colors"
+            className="px-8 py-3 bg-[#6b2145] text-white rounded-xl font-semibold text-base hover:bg-[#551735] transition-colors"
           >
             Recargar
           </button>
