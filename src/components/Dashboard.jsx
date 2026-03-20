@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, BookOpen, RefreshCw, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck, Megaphone, Pin, X as XIcon } from 'lucide-react'
+import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, BookOpen, RefreshCw, Banknote, AlertCircle, Bell, MessageCircle, Camera, CalendarDays, Zap, Award, Trophy, TrendingUp, CalendarCheck, Megaphone, Pin, X as XIcon, Info } from 'lucide-react'
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 import MilestoneModal from './MilestoneModal'
@@ -14,7 +14,7 @@ function getLoyaltyTier(consecutiveMonths) {
   return               { tier: null,     label: null,     discount: 0,  next: 'Bronce', nextMonths: 3 - months, months }
 }
 
-function LoyaltyCard({ consecutiveMonths }) {
+function LoyaltyCard({ consecutiveMonths, onShowRules }) {
   const loyalty = getLoyaltyTier(consecutiveMonths)
   const months = loyalty.months
 
@@ -82,23 +82,28 @@ function LoyaltyCard({ consecutiveMonths }) {
 
   return (
     <div className="rounded-xl p-3" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-      {/* Top row: icon + title + pill */}
+      {/* Top row: icon + title + pill + info */}
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-1 min-w-0">
           <div className="w-[22px] h-[22px] flex items-center justify-center rounded-full flex-shrink-0"
             style={{ background: cfg.pillBg, border: `1px solid ${cfg.pillBorder}` }}>
             <Icon />
           </div>
-          <span className="text-[11px] font-bold tracking-wide" style={{ color: cfg.label }}>
+          <span className="text-[11px] font-bold tracking-wide truncate" style={{ color: cfg.label }}>
             {cfg.title}
           </span>
         </div>
-        {months > 0 && (
-          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ml-1"
-            style={{ background: cfg.pillBg, color: cfg.pillText, border: `1px solid ${cfg.pillBorder}` }}>
-            {months} {months === 1 ? 'mes' : 'meses'}
-          </span>
-        )}
+        <div className="flex items-center gap-1.5 shrink-0 ml-1">
+          {months > 0 && (
+            <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: cfg.pillBg, color: cfg.pillText, border: `1px solid ${cfg.pillBorder}` }}>
+              {months} {months === 1 ? 'mes' : 'meses'}
+            </span>
+          )}
+          <button onClick={onShowRules} className="opacity-50 hover:opacity-90 transition-opacity" aria-label="Ver reglas">
+            <Info size={13} color={cfg.label} />
+          </button>
+        </div>
       </div>
 
       {/* Progress bar */}
@@ -121,6 +126,80 @@ function LoyaltyCard({ consecutiveMonths }) {
         <span className="text-[9px] font-semibold tabular-nums flex-shrink-0" style={{ color: cfg.sub }}>
           {cfg.progressVal}/{cfg.progressMax}
         </span>
+      </div>
+    </div>
+  )
+}
+
+// ═══════ MODAL REGLAS DE FIDELIDAD ═══════
+function LoyaltyRulesModal({ onClose }) {
+  const tiers = [
+    { months: 3,  label: 'Bronce', discount: '5%',  color: '#c2410c', bg: '#ffedd5', border: '#fdba74', icon: <Award size={15} /> },
+    { months: 6,  label: 'Plata',  discount: '10%', color: '#334155', bg: '#f1f5f9', border: '#cbd5e1', icon: <Award size={15} /> },
+    { months: 12, label: 'Oro',    discount: '15%', color: '#92400e', bg: '#fef3c7', border: '#fcd34d', icon: <Trophy size={15} /> },
+  ]
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onClose}>
+      <div
+        className="w-full max-w-sm rounded-t-3xl bg-white pb-10 pt-5 px-5 shadow-2xl"
+        style={{ maxHeight: '90vh', overflowY: 'auto' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+
+        {/* Título */}
+        <div className="flex items-center gap-2 mb-1">
+          <Zap size={18} className="text-[#9e4a72]" />
+          <h2 className="text-base font-bold text-gray-800">Programa de fidelidad</h2>
+        </div>
+        <p className="text-xs text-gray-500 mb-5">Renueva a tiempo y acumula meses para desbloquear descuentos.</p>
+
+        {/* Tiers */}
+        <div className="space-y-2.5 mb-5">
+          {tiers.map(t => (
+            <div key={t.label} className="flex items-center gap-3 rounded-xl px-3 py-2.5"
+              style={{ background: t.bg, border: `1px solid ${t.border}` }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: t.border, color: t.color }}>
+                {t.icon}
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-bold" style={{ color: t.color }}>{t.label}</p>
+                <p className="text-[11px]" style={{ color: t.color, opacity: 0.75 }}>{t.months} meses consecutivos</p>
+              </div>
+              <span className="text-sm font-extrabold" style={{ color: t.color }}>{t.discount}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Reglas */}
+        <div className="rounded-xl overflow-hidden border border-gray-100 mb-4">
+          <div className="flex items-start gap-2.5 px-3 py-3 bg-green-50 border-b border-gray-100">
+            <CheckCircle size={15} className="text-green-600 mt-0.5 shrink-0" />
+            <p className="text-xs text-green-800 leading-snug">
+              <span className="font-semibold">Paga antes o en tu fecha de renovación</span> y tu racha continúa acumulando.
+            </p>
+          </div>
+          <div className="flex items-start gap-2.5 px-3 py-3 bg-red-50">
+            <XCircle size={15} className="text-red-500 mt-0.5 shrink-0" />
+            <p className="text-xs text-red-800 leading-snug">
+              <span className="font-semibold">Si pagas después de tu fecha de renovación</span>, la racha vuelve a 1 y debes empezar a acumular de nuevo.
+            </p>
+          </div>
+        </div>
+
+        <p className="text-[10px] text-gray-400 text-center leading-relaxed">
+          El descuento se aplica automáticamente cuando alcanzas un nivel.<br />No es acumulable con otras promociones.
+        </p>
+
+        <button
+          onClick={onClose}
+          className="mt-5 w-full py-3 rounded-2xl text-sm font-semibold text-white"
+          style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
+        >
+          Entendido
+        </button>
       </div>
     </div>
   )
@@ -501,6 +580,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const avatarInputRefs = useRef({})                          // hidden file inputs per student
   // Milestone celebration modal — { tier, studentName } or null
   const [milestone, setMilestone] = useState(null)
+  // Reglas de fidelidad modal
+  const [showLoyaltyRules, setShowLoyaltyRules] = useState(false)
   // Calendar modal
   const [calendarStudent, setCalendarStudent] = useState(null)
   // Track which modal is open — used by back-button handler to close modals natively
@@ -745,6 +826,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
         />
       )}
 
+      {/* Reglas de fidelidad modal */}
+      {showLoyaltyRules && <LoyaltyRulesModal onClose={() => setShowLoyaltyRules(false)} />}
+
       {/* Header */}
       <div className="bg-[#551735] text-white px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
@@ -985,7 +1069,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                 )}
 
                 {/* Fidelidad badge — solo para alumnas con mensualidad recurrente */}
-                {!cycleMode && <LoyaltyCard consecutiveMonths={student.consecutive_months || 0} />}
+                {!cycleMode && (
+                  <LoyaltyCard
+                    consecutiveMonths={student.consecutive_months || 0}
+                    onShowRules={() => setShowLoyaltyRules(true)}
+                  />
+                )}
 
                 {/* Balance Alert */}
                 {student.balance > 0 && (
