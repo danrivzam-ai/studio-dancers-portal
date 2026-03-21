@@ -16,7 +16,7 @@ const TABS_NINAS = [
   { id: 'reportes',   label: 'Reportes',   icon: FileText     },
 ]
 
-export default function BottomNav({ activeTab, onChangeTab, isAdultas }) {
+export default function BottomNav({ activeTab, onChangeTab, isAdultas, hasNewTips }) {
   const tabs   = isAdultas ? TABS_ADULTAS : TABS_NINAS
   // Con 6 tabs usamos iconos e interlineado más compactos
   const compact = tabs.length >= 6
@@ -38,7 +38,12 @@ export default function BottomNav({ activeTab, onChangeTab, isAdultas }) {
                 compact ? 'py-2 pt-2.5' : 'py-2 pt-2.5'
               } ${isActive ? 'text-[#6b2145]' : 'text-gray-400'}`}
             >
-              <Icon size={compact ? 19 : 22} strokeWidth={isActive ? 2.5 : 2} />
+              <span className="relative">
+                <Icon size={compact ? 19 : 22} strokeWidth={isActive ? 2.5 : 2} />
+                {tab.id === 'recursos' && hasNewTips && !isActive && (
+                  <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
+                )}
+              </span>
               <span className={`mt-0.5 ${compact ? 'text-[9px]' : 'text-[10px]'} ${isActive ? 'font-bold' : 'font-medium'}`}>
                 {tab.label}
               </span>

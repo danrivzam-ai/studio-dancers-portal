@@ -352,6 +352,33 @@ export default function App() {
     (s.course_name || '').toLowerCase().includes('adult')
   )
 
+  // Check for new tips (badge on Recursos tab)
+  const [hasNewTips, setHasNewTips] = useState(false)
+  useEffect(() => {
+    if (!isAdultas || !session.students?.[0]?.course_id) return
+    const checkNewTips = async () => {
+      try {
+        const { data } = await supabase.rpc('rpc_client_get_tips', {
+          p_cedula: session.cedula, p_phone_last4: session.phoneLast4,
+          p_course_id: session.students[0].course_id, p_limit: 1
+        })
+        if (data?.[0]?.week_start) {
+          const lastSeen = localStorage.getItem('tips_last_seen_' + session.cedula)
+          setHasNewTips(!lastSeen || data[0].week_start > lastSeen)
+        }
+      } catch { /* silent */ }
+    }
+    checkNewTips()
+  }, [isAdultas, session.students, session.cedula, session.phoneLast4])
+
+  // Clear badge when entering Recursos tab
+  useEffect(() => {
+    if (authTab === 'recursos' && hasNewTips && session.students?.[0]) {
+      localStorage.setItem('tips_last_seen_' + session.cedula, new Date().toISOString().slice(0, 10))
+      setHasNewTips(false)
+    }
+  }, [authTab, hasNewTips, session.cedula])
+
   // Si el tab activo no corresponde al tipo de alumna, redirigir a pagos
   const ADULTAS_TABS = ['payments', 'bienestar', 'retos', 'diario', 'calendario', 'recursos']
   const NINAS_TABS   = ['payments', 'calendario', 'glosario', 'reportes']
@@ -414,7 +441,7 @@ export default function App() {
       {currentTab === 'reportes' && (
         <Reportes students={session.students} onLogout={handleLogout} />
       )}
-      <BottomNav activeTab={currentTab} onChangeTab={navigateTab} isAdultas={isAdultas} />
+      <BottomNav activeTab={currentTab} onChangeTab={navigateTab} isAdultas={isAdultas} hasNewTips={hasNewTips} />
     </div>
     </ErrorBoundary>
   )
