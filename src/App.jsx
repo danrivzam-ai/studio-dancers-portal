@@ -304,7 +304,7 @@ export default function App() {
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-lg max-w-sm w-full overflow-hidden">
           <div className="bg-[#551735] px-6 py-8 text-center">
-            <img src="/logo-white.png" alt="Studio Dancers" className="w-28 mx-auto mb-3 opacity-90" />
+            <img src="/logo.png" alt="Studio Dancers" className="w-28 mx-auto mb-3 opacity-90" style={{ filter: 'brightness(0) invert(1)' }} />
             <h2 className="text-white text-lg font-bold">Cuenta inactiva</h2>
           </div>
           <div className="px-6 py-6 text-center space-y-4">
