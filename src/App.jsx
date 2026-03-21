@@ -341,12 +341,14 @@ export default function App() {
   }
 
   // --- AUTHENTICATED VIEWS ---
-  // Determinar si es alumna adulta (is_minor no existe en el RPC — siempre undefined).
-  // Se detecta por course_id (código) y fallback por course_name que contenga "adulto".
+  // Determinar si es alumna adulta:
+  // 1. Prefer is_minor field from RPC (v23+)
+  // 2. Fallback: course_id codes or course_name containing "adult" (matches adulto/adultos/adultas)
   const ADULTAS_IDS = new Set(['ballet-adultos-semana', 'ballet-adultos-sabados'])
   const isAdultas = session.students.some(s =>
+    s.is_minor === false ||
     ADULTAS_IDS.has(s.course_id) ||
-    (s.course_name || '').toLowerCase().includes('adulto')
+    (s.course_name || '').toLowerCase().includes('adult')
   )
 
   // Si el tab activo no corresponde al tipo de alumna, redirigir a pagos
