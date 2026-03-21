@@ -46,3 +46,17 @@ export async function deleteDiarioEntry(cedula, phone4, studentId, entradaId) {
   })
   return { data, error }
 }
+
+export async function getTips(cedula, phone4, courseId, limit = 20) {
+  const { data, error } = await supabase.rpc('rpc_client_get_tips', {
+    p_cedula: cedula, p_phone_last4: phone4, p_course_id: courseId, p_limit: limit
+  })
+  return { data: data || [], error }
+}
+
+export async function toggleReaction(cedula, phone4, tipId, emoji) {
+  const { data, error } = await supabase.rpc('rpc_client_toggle_reaction', {
+    p_cedula: cedula, p_phone_last4: phone4, p_tip_id: tipId, p_emoji: emoji
+  })
+  return { data, error }
+}
