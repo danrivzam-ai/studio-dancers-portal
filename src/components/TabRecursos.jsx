@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Lightbulb, Calendar } from 'lucide-react'
+import { Lightbulb, Calendar, BookOpen } from 'lucide-react'
 import { getTips, toggleReaction } from '../lib/adultas'
+import BalletGlossary from './BalletGlossary'
 
 const EMOJIS = ['👏', '❤️', '💪', '🩰']
 
@@ -8,6 +9,7 @@ export default function TabRecursos({ students, cedula, phoneLast4 }) {
   const student = students?.[0]
   const [tips, setTips] = useState([])
   const [loading, setLoading] = useState(true)
+  const [section, setSection] = useState('tips') // 'tips' | 'glosario'
 
   useEffect(() => {
     if (!student?.course_id) return
@@ -21,17 +23,14 @@ export default function TabRecursos({ students, cedula, phoneLast4 }) {
   }, [student?.course_id, cedula, phoneLast4])
 
   const handleReaction = async (tipId, emoji) => {
-    // Optimistic update
     setTips(prev => prev.map(t => {
       if (t.id !== tipId) return t
       const wasSelected = t.my_reaction === emoji
       const counts = { ...t }
-      // Decrement old reaction if exists
       if (t.my_reaction === '👏') counts.reaction_applause = Math.max(0, (counts.reaction_applause || 0) - 1)
       if (t.my_reaction === '❤️') counts.reaction_heart = Math.max(0, (counts.reaction_heart || 0) - 1)
       if (t.my_reaction === '💪') counts.reaction_strong = Math.max(0, (counts.reaction_strong || 0) - 1)
       if (t.my_reaction === '🩰') counts.reaction_ballet = Math.max(0, (counts.reaction_ballet || 0) - 1)
-      // Increment new reaction (unless toggling off)
       if (!wasSelected) {
         if (emoji === '👏') counts.reaction_applause = (counts.reaction_applause || 0) + 1
         if (emoji === '❤️') counts.reaction_heart = (counts.reaction_heart || 0) + 1
@@ -40,7 +39,6 @@ export default function TabRecursos({ students, cedula, phoneLast4 }) {
       }
       return { ...counts, my_reaction: wasSelected ? null : emoji }
     }))
-    // Fire and forget
     await toggleReaction(cedula, phoneLast4, tipId, emoji)
   }
 
@@ -59,10 +57,28 @@ export default function TabRecursos({ students, cedula, phoneLast4 }) {
     })
   }
 
-  // Time greeting
   const h = new Date().getHours()
   const greeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
   const firstName = student?.name?.split(' ')[0] || ''
+
+  // If showing glossary, render it directly (it has its own header)
+  if (section === 'glosario') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Mini header with back */}
+        <div className="bg-[#551735] px-4 py-3 text-white flex items-center gap-3">
+          <button onClick={() => setSection('tips')} className="text-white/70 hover:text-white text-sm font-medium">
+            ← Recursos
+          </button>
+          <div className="flex items-center gap-2">
+            <BookOpen size={16} />
+            <h1 className="font-bold text-base">Glosario de Ballet</h1>
+          </div>
+        </div>
+        <BalletGlossary />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,21 +97,40 @@ export default function TabRecursos({ students, cedula, phoneLast4 }) {
         </div>
       </div>
 
+      {/* Glossary access card */}
+      <div className="px-4 pt-4">
+        <button
+          onClick={() => setSection('glosario')}
+          className="w-full flex items-center gap-3 bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3 text-left hover:bg-gray-50 active:scale-[0.98] transition-all"
+        >
+          <div className="w-10 h-10 rounded-xl bg-[#f9e8f0] flex items-center justify-center shrink-0">
+            <BookOpen size={18} className="text-[#6b2145]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-gray-800">Glosario de Ballet</p>
+            <p className="text-xs text-gray-400">Términos, posiciones y técnica</p>
+          </div>
+          <span className="text-gray-300 text-lg">›</span>
+        </button>
+      </div>
+
+      {/* Tips section */}
       <div className="px-4 py-4 space-y-4">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tips de tu instructora</p>
+
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="w-6 h-6 border-2 border-[#e8b4cc] border-t-[#6b2145] rounded-full animate-spin" />
           </div>
         ) : tips.length === 0 ? (
-          <div className="text-center py-14 px-4">
-            <Lightbulb size={48} className="mx-auto mb-4 text-gray-300" />
-            <p className="text-base font-semibold text-gray-700 mb-1">Próximamente</p>
+          <div className="text-center py-10 px-4">
+            <Lightbulb size={40} className="mx-auto mb-3 text-gray-300" />
+            <p className="text-sm font-semibold text-gray-700 mb-1">Próximamente</p>
             <p className="text-xs text-gray-400">Tu instructora compartirá tips y recursos aquí.</p>
           </div>
         ) : (
           tips.map(tip => (
             <div key={tip.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {/* Tip header */}
               <div className="px-4 pt-4 pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold text-gray-800 text-sm leading-snug">{tip.title}</h3>
@@ -108,13 +143,9 @@ export default function TabRecursos({ students, cedula, phoneLast4 }) {
                   <p className="text-xs text-[#7e2d55] mt-1">Por {tip.instructor_name}</p>
                 )}
               </div>
-
-              {/* Tip body */}
               <div className="px-4 pb-3">
                 <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{tip.body}</p>
               </div>
-
-              {/* Emoji reactions */}
               <div className="px-4 pb-3 flex items-center gap-2">
                 {EMOJIS.map(emoji => {
                   const count = getCount(tip, emoji)
