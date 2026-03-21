@@ -183,29 +183,7 @@ function WelcomeModal({ name, onClose }) {
 const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v2'
 
 function LoyaltyIntroModal({ onClose }) {
-  const [step, setStep] = useState(1)
 
-  if (step === 2) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.5)' }}>
-        <div className="w-full max-w-sm rounded-3xl bg-white px-6 py-8 shadow-2xl text-center">
-          <div className="text-5xl mb-4">🎯</div>
-          <h2 className="text-lg font-bold text-gray-800 mb-2">¡Tu racha empieza hoy!</h2>
-          <p className="text-sm text-gray-500 leading-relaxed mb-6">
-            Cada mes que renueves a tiempo suma un paso más hacia tu descuento.<br />
-            <span className="font-semibold text-[#9e4a72]">¡Tú puedes lograrlo!</span>
-          </p>
-          <button
-            onClick={onClose}
-            className="w-full py-3 rounded-2xl text-sm font-bold text-white"
-            style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
-          >
-            ¡Vamos! 🚀
-          </button>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
@@ -250,11 +228,11 @@ function LoyaltyIntroModal({ onClose }) {
           </div>
 
           <button
-            onClick={() => setStep(2)}
+            onClick={onClose}
             className="w-full py-3 rounded-2xl text-sm font-bold text-white"
             style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
           >
-            ¡Entendido, empiezo a acumular! 🎯
+            Entendido
           </button>
         </div>
       </div>
