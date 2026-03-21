@@ -72,12 +72,10 @@ export default function CalendarTab({ students: initial, onLogout }) {
     const enrich = async () => {
       try {
         const courseIds = [...new Set(initial.map(s => s.course_id).filter(Boolean))]
-        const [infoRes, pubRes] = await Promise.all([
-          courseIds.length
-            ? supabase.rpc('rpc_get_course_info', { p_course_ids: courseIds })
-            : Promise.resolve({ data: [] }),
+        const [pubRes] = await Promise.all([
           supabase.rpc('rpc_public_courses')
         ])
+        const infoRes = { data: [] }
         const byId = {}, byName = {}
         ;(pubRes.data || []).forEach(c => {
           if (c.id) byId[c.id] = c
@@ -95,7 +93,8 @@ export default function CalendarTab({ students: initial, onLogout }) {
       } catch { /* silent */ }
     }
     if (initial.some(s => !normalizeClassDays(s.class_days).length)) enrich()
-  }, [])
+    else setStudents(initial)
+  }, [initial])
 
   const student   = students[selIdx] || students[0]
   const classDays = normalizeClassDays(student?.class_days)
@@ -103,10 +102,11 @@ export default function CalendarTab({ students: initial, onLogout }) {
 
   // Active payment window: [last_payment_date, next_payment_date)
   // Classes outside this window are shown as inactive (not highlighted)
+  // Use T12:00:00 to avoid timezone boundary issues (matches nowGYE pattern)
   const cycleStart = student?.last_payment_date
-    ? new Date(student.last_payment_date + 'T00:00:00') : null
+    ? new Date(student.last_payment_date + 'T12:00:00') : null
   const cycleEnd   = student?.next_payment_date
-    ? new Date(student.next_payment_date + 'T00:00:00') : null
+    ? new Date(student.next_payment_date + 'T12:00:00') : null
 
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
   const offset      = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7

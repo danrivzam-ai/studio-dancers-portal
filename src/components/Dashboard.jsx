@@ -725,12 +725,11 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           // Load ALL public courses — index by id AND by base name for robust matching
           // (rpc_client_login may not return course_id, so name match is essential fallback)
           const courseIds = [...new Set(data.map(s => s.course_id).filter(Boolean))]
-          const [infoRes, pubRes] = await Promise.all([
-            courseIds.length
-              ? supabase.rpc('rpc_get_course_info', { p_course_ids: courseIds })
-              : Promise.resolve({ data: [] }),
+          const [pubRes] = await Promise.all([
             supabase.rpc('rpc_public_courses')
           ])
+          // rpc_get_course_info removed — data comes from rpc_public_courses
+          const infoRes = { data: [] }
 
           const courseById = {}
           const courseByName = {}
@@ -765,8 +764,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     }
     // Refresh immediately (get latest status)
     refreshStudents()
-    // Then every 30 seconds
-    const interval = setInterval(refreshStudents, 30000)
+    // Then every 90 seconds (payment status doesn't change that frequently)
+    const interval = setInterval(refreshStudents, 90000)
     return () => clearInterval(interval)
   }, [cedula, phoneLast4, refreshKey])
 
@@ -812,15 +811,16 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     const safetyTimer = setTimeout(() => setLoading(false), 8000)
     const fetchRequests = async () => {
       try {
-        const allReqs = {}
-        for (const s of students) {
-          const { data } = await supabase.rpc('rpc_client_get_requests', {
-            p_cedula: cedula,
-            p_phone_last4: phoneLast4,
-            p_student_id: s.id
-          })
-          allReqs[s.id] = data || []
-        }
+        const results = await Promise.all(
+          students.map(s =>
+            supabase.rpc('rpc_client_get_requests', {
+              p_cedula: cedula,
+              p_phone_last4: phoneLast4,
+              p_student_id: s.id
+            }).then(({ data }) => [s.id, data || []])
+          )
+        )
+        const allReqs = Object.fromEntries(results)
         setRequests(allReqs)
       } catch { /* silent — requests are optional display info */ }
       finally { clearTimeout(safetyTimer); setLoading(false) }
