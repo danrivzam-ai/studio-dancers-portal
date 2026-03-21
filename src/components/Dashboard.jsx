@@ -693,8 +693,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [showLoyaltyRules, setShowLoyaltyRules] = useState(false)
   // Intro fidelidad — mostrar una sola vez por dispositivo
   const [showLoyaltyIntro, setShowLoyaltyIntro] = useState(false)
-  // Bienvenida — mostrar una sola vez, antes del intro de fidelidad
-  const [showWelcome, setShowWelcome] = useState(false)
+  // Bienvenida — se evalúa en el primer render, sin esperar efectos asíncronos
+  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem(WELCOME_KEY))
   // Calendar modal
   const [calendarStudent, setCalendarStudent] = useState(null)
   // Track which modal is open — used by back-button handler to close modals natively
@@ -770,17 +770,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     return () => clearInterval(interval)
   }, [cedula, phoneLast4, refreshKey])
 
-  // ─── Bienvenida + Loyalty intro (primera vez, en secuencia) ───
+  // ─── Loyalty intro (primera vez, solo si no hay bienvenida pendiente) ───
   useEffect(() => {
     if (!liveStudents?.length) return
-    const isFirstVisit = !localStorage.getItem(WELCOME_KEY)
-    const hasMensual   = liveStudents.some(s => s.price_type === 'mes')
-    const showFidelidad = !localStorage.getItem(LOYALTY_INTRO_KEY) && hasMensual
-
-    if (isFirstVisit) {
-      setShowWelcome(true)   // bienvenida primero; fidelidad se encadena al cerrar
-    } else if (showFidelidad) {
-      setShowLoyaltyIntro(true)
+    if (localStorage.getItem(WELCOME_KEY) && !localStorage.getItem(LOYALTY_INTRO_KEY)) {
+      const hasMensual = liveStudents.some(s => s.price_type === 'mes')
+      if (hasMensual) setShowLoyaltyIntro(true)
     }
   }, [liveStudents])
 
