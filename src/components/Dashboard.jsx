@@ -135,53 +135,80 @@ function LoyaltyCard({ consecutiveMonths, onShowRules }) {
 const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v1'
 
 function LoyaltyIntroModal({ onClose }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
-      <div className="w-full max-w-sm rounded-t-3xl bg-white pb-10 pt-5 px-5 shadow-2xl">
-        {/* Handle */}
-        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+  const [step, setStep] = useState(1)
 
-        {/* Header */}
-        <div className="text-center mb-5">
-          <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg,#fdf2f7,#f9e8f0)', border: '1px solid #e8b4cc' }}>
-            <Zap size={26} className="text-[#9e4a72]" />
-          </div>
-          <h2 className="text-base font-bold text-gray-800">¡Nuevo programa de fidelidad!</h2>
-          <p className="text-xs text-gray-500 mt-1">Renueva a tiempo y gana descuentos exclusivos</p>
-        </div>
-
-        {/* Tiers compactos */}
-        <div className="flex gap-2 mb-5">
-          {[
-            { label: 'Bronce', months: '3 meses', pct: '5%', bg: '#ffedd5', border: '#fdba74', color: '#c2410c' },
-            { label: 'Plata',  months: '6 meses', pct: '10%', bg: '#f1f5f9', border: '#cbd5e1', color: '#334155' },
-            { label: 'Oro',    months: '12 meses', pct: '15%', bg: '#fef3c7', border: '#fcd34d', color: '#92400e' },
-          ].map(t => (
-            <div key={t.label} className="flex-1 rounded-xl py-2.5 px-1.5 text-center"
-              style={{ background: t.bg, border: `1px solid ${t.border}` }}>
-              <p className="text-[10px] font-bold mb-0.5" style={{ color: t.color }}>{t.label}</p>
-              <p className="text-lg font-extrabold leading-none" style={{ color: t.color }}>{t.pct}</p>
-              <p className="text-[9px] mt-0.5 opacity-70" style={{ color: t.color }}>{t.months}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Regla clave */}
-        <div className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 flex items-start gap-2 mb-5">
-          <Clock size={14} className="text-amber-600 mt-0.5 shrink-0" />
-          <p className="text-xs text-amber-800 leading-snug">
-            <span className="font-semibold">Renueva antes o en tu fecha límite</span> para mantener tu racha activa. Si pagas tarde, la racha vuelve a cero.
+  if (step === 2) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-5" style={{ background: 'rgba(0,0,0,0.5)' }}>
+        <div className="w-full max-w-sm rounded-3xl bg-white px-6 py-8 shadow-2xl text-center">
+          <div className="text-5xl mb-4">🎯</div>
+          <h2 className="text-lg font-bold text-gray-800 mb-2">¡Tu racha empieza hoy!</h2>
+          <p className="text-sm text-gray-500 leading-relaxed mb-6">
+            Cada mes que renueves a tiempo suma un paso más hacia tu descuento.<br />
+            <span className="font-semibold text-[#9e4a72]">¡Tú puedes lograrlo!</span>
           </p>
+          <button
+            onClick={onClose}
+            className="w-full py-3 rounded-2xl text-sm font-bold text-white"
+            style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
+          >
+            ¡Vamos! 🚀
+          </button>
         </div>
+      </div>
+    )
+  }
 
-        <button
-          onClick={onClose}
-          className="w-full py-3 rounded-2xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
-        >
-          ¡Entendido, empiezo a acumular! 🎯
-        </button>
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+      <div className="w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden"
+        style={{ maxHeight: '90dvh', overflowY: 'auto' }}>
+        <div className="px-5 pt-6 pb-5">
+
+          {/* Header compacto */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: 'linear-gradient(135deg,#fdf2f7,#f9e8f0)', border: '1px solid #e8b4cc' }}>
+              <Zap size={20} className="text-[#9e4a72]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-gray-800 leading-tight">¡Nuevo programa de fidelidad!</h2>
+              <p className="text-[11px] text-gray-500">Renueva a tiempo y gana descuentos</p>
+            </div>
+          </div>
+
+          {/* Tiers compactos */}
+          <div className="flex gap-2 mb-4">
+            {[
+              { label: 'Bronce', months: '3 meses', pct: '5%',  bg: '#ffedd5', border: '#fdba74', color: '#c2410c' },
+              { label: 'Plata',  months: '6 meses', pct: '10%', bg: '#f1f5f9', border: '#cbd5e1', color: '#334155' },
+              { label: 'Oro',    months: '12 meses',pct: '15%', bg: '#fef3c7', border: '#fcd34d', color: '#92400e' },
+            ].map(t => (
+              <div key={t.label} className="flex-1 rounded-xl py-2 px-1 text-center"
+                style={{ background: t.bg, border: `1px solid ${t.border}` }}>
+                <p className="text-[10px] font-bold" style={{ color: t.color }}>{t.label}</p>
+                <p className="text-base font-extrabold leading-tight" style={{ color: t.color }}>{t.pct}</p>
+                <p className="text-[9px] opacity-70" style={{ color: t.color }}>{t.months}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Regla clave */}
+          <div className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 flex items-start gap-2 mb-4">
+            <Clock size={13} className="text-amber-600 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-amber-800 leading-snug">
+              <span className="font-semibold">Renueva antes o en tu fecha límite</span> para mantener tu racha. Si pagas tarde, la racha vuelve a cero.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setStep(2)}
+            className="w-full py-3 rounded-2xl text-sm font-bold text-white"
+            style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
+          >
+            ¡Entendido, empiezo a acumular! 🎯
+          </button>
+        </div>
       </div>
     </div>
   )
