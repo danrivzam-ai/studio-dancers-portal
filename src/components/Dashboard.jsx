@@ -132,7 +132,7 @@ function LoyaltyCard({ consecutiveMonths, onShowRules }) {
 }
 
 // ═══════ MODAL INTRO FIDELIDAD (primera vez) ═══════
-const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v1'
+const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v2'
 
 function LoyaltyIntroModal({ onClose }) {
   const [step, setStep] = useState(1)
