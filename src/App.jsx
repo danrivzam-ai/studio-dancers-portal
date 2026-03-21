@@ -289,10 +289,13 @@ export default function App() {
   const isInactive = (() => {
     if (!session.students || session.students.length === 0) return false
     const now = new Date()
-    return session.students.every(s => {
-      if (s.is_courtesy) return false // Courtesy students are never inactive
-      if (s.is_paused) return false   // Paused students are not "inactive" — just on hold
-      if (!s.next_payment_date) return true // No payment date = likely inactive
+    // Block ONLY if every student with a payment date is overdue by 60+ days
+    // Students without next_payment_date are skipped (not counted as inactive)
+    const studentsWithDate = session.students.filter(s =>
+      !s.is_courtesy && !s.is_paused && s.next_payment_date
+    )
+    if (studentsWithDate.length === 0) return false // No payment dates → don't block
+    return studentsWithDate.every(s => {
       const nextPay = new Date(s.next_payment_date + 'T12:00:00')
       const diffDays = Math.floor((now - nextPay) / (1000 * 60 * 60 * 24))
       return diffDays > INACTIVE_DAYS
