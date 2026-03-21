@@ -131,6 +131,54 @@ function LoyaltyCard({ consecutiveMonths, onShowRules }) {
   )
 }
 
+// ═══════ MODAL BIENVENIDA (primera vez, antes del intro de fidelidad) ═══════
+const WELCOME_KEY = 'sd_welcome_v1'
+
+function WelcomeModal({ name, onClose }) {
+  const firstName = name?.split(' ')[0] || ''
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: 'rgba(0,0,0,0.45)' }}>
+      <div className="w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden">
+        {/* Franja superior */}
+        <div className="px-6 py-7 text-center" style={{ background: 'linear-gradient(135deg,#551735,#6b2145)' }}>
+          <img src="/logo.png" alt="Studio Dancers" className="h-10 mx-auto mb-4" style={{ filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+          <h2 className="text-white text-lg font-bold leading-snug">
+            Bienvenida{firstName ? `, ${firstName}` : ''}
+          </h2>
+          <p className="text-white/70 text-xs mt-1">Nos alegra tenerte aquí</p>
+        </div>
+
+        {/* Cuerpo */}
+        <div className="px-6 py-6 space-y-3">
+          <p className="text-gray-700 text-sm leading-relaxed">
+            Este es tu espacio personal en Studio Dancers. Desde aquí puedes:
+          </p>
+          <ul className="space-y-2">
+            {[
+              'Ver el estado de tu cuenta y próximas clases',
+              'Subir tus comprobantes de pago',
+              'Consultar tu historial de pagos',
+            ].map(item => (
+              <li key={item} className="flex items-start gap-2.5">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#9e4a72' }} />
+                <span className="text-sm text-gray-600">{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            onClick={onClose}
+            className="w-full mt-4 py-3 rounded-2xl text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg,#9e4a72,#6b2145)' }}
+          >
+            Comenzar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ═══════ MODAL INTRO FIDELIDAD (primera vez) ═══════
 const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v2'
 
@@ -667,6 +715,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [showLoyaltyRules, setShowLoyaltyRules] = useState(false)
   // Intro fidelidad — mostrar una sola vez por dispositivo
   const [showLoyaltyIntro, setShowLoyaltyIntro] = useState(false)
+  // Bienvenida — mostrar una sola vez, antes del intro de fidelidad
+  const [showWelcome, setShowWelcome] = useState(false)
   // Calendar modal
   const [calendarStudent, setCalendarStudent] = useState(null)
   // Track which modal is open — used by back-button handler to close modals natively
@@ -742,14 +792,18 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     return () => clearInterval(interval)
   }, [cedula, phoneLast4, refreshKey])
 
-  // ─── Loyalty intro (primera vez) ───
-  // Muestra el popup explicativo una sola vez por dispositivo, solo a alumnos
-  // con precio mensual (adultas). Se guarda en localStorage para no repetir.
+  // ─── Bienvenida + Loyalty intro (primera vez, en secuencia) ───
   useEffect(() => {
     if (!liveStudents?.length) return
-    if (localStorage.getItem(LOYALTY_INTRO_KEY)) return
-    const hasMensual = liveStudents.some(s => s.price_type === 'mes')
-    if (hasMensual) setShowLoyaltyIntro(true)
+    const isFirstVisit = !localStorage.getItem(WELCOME_KEY)
+    const hasMensual   = liveStudents.some(s => s.price_type === 'mes')
+    const showFidelidad = !localStorage.getItem(LOYALTY_INTRO_KEY) && hasMensual
+
+    if (isFirstVisit) {
+      setShowWelcome(true)   // bienvenida primero; fidelidad se encadena al cerrar
+    } else if (showFidelidad) {
+      setShowLoyaltyIntro(true)
+    }
   }, [liveStudents])
 
   // ─── Milestone detection ───
@@ -923,6 +977,22 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
       {/* Reglas de fidelidad modal */}
       {showLoyaltyRules && <LoyaltyRulesModal onClose={() => setShowLoyaltyRules(false)} />}
+
+      {/* Bienvenida — primera vez (antes del intro de fidelidad) */}
+      {showWelcome && (
+        <WelcomeModal
+          name={liveStudents?.[0]?.name}
+          onClose={() => {
+            localStorage.setItem(WELCOME_KEY, '1')
+            setShowWelcome(false)
+            // Si además aplica fidelidad, mostrarla a continuación
+            const hasMensual = liveStudents.some(s => s.price_type === 'mes')
+            if (!localStorage.getItem(LOYALTY_INTRO_KEY) && hasMensual) {
+              setShowLoyaltyIntro(true)
+            }
+          }}
+        />
+      )}
 
       {/* Intro fidelidad — primera vez */}
       {showLoyaltyIntro && (
