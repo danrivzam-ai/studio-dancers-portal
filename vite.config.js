@@ -21,7 +21,7 @@ export default defineConfig({
         description: 'Portal de pagos para alumnos y representantes',
         start_url: '/',
         display: 'standalone',
-        background_color: '#551735',
+        background_color: '#ffffff',
         theme_color: '#551735',
         orientation: 'portrait',
         icons: [
