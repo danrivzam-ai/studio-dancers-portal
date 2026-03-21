@@ -132,7 +132,7 @@ function LoyaltyCard({ consecutiveMonths, onShowRules }) {
 }
 
 // ═══════ MODAL BIENVENIDA (primera vez, antes del intro de fidelidad) ═══════
-const WELCOME_KEY = 'sd_welcome_v1'
+const WELCOME_KEY = 'sd_welcome_v3'
 
 function WelcomeModal({ name, onClose }) {
   const firstName = name?.split(' ')[0] || ''
@@ -180,7 +180,7 @@ function WelcomeModal({ name, onClose }) {
 }
 
 // ═══════ MODAL INTRO FIDELIDAD (primera vez) ═══════
-const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v2'
+const LOYALTY_INTRO_KEY = 'sd_loyalty_intro_v3'
 
 function LoyaltyIntroModal({ onClose }) {
 
@@ -958,10 +958,10 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           onClose={() => {
             localStorage.setItem(WELCOME_KEY, '1')
             setShowWelcome(false)
-            // Si además aplica fidelidad, mostrarla a continuación
-            const hasMensual = liveStudents.some(s => s.price_type === 'mes')
-            if (!localStorage.getItem(LOYALTY_INTRO_KEY) && hasMensual) {
-              setShowLoyaltyIntro(true)
+            // Mostrar fidelidad a continuación si no la ha visto aún
+            // (no dependemos de price_type aquí — el intro es para adultas pero no perjudica mostrarlo)
+            if (!localStorage.getItem(LOYALTY_INTRO_KEY)) {
+              setTimeout(() => setShowLoyaltyIntro(true), 300)
             }
           }}
         />
