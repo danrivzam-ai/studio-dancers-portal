@@ -85,6 +85,7 @@ export default function App() {
   const [catalogCourseName, setCatalogCourseName] = useState(null)
   const [authTab, setAuthTab] = useState(getInitialAuthTab)
   const [error, setError] = useState(null)
+  const [hasNewTips, setHasNewTips] = useState(false)
   const isHandlingPopState = useRef(false)
 
   // --- SERVICE WORKER: force update + auto-reload when new SW takes control ---
@@ -352,10 +353,15 @@ export default function App() {
     (s.course_name || '').toLowerCase().includes('adult')
   )
 
-  // Check for new tips (badge on Recursos tab)
-  const [hasNewTips, setHasNewTips] = useState(false)
+  // Check for new tips (badge on Recursos tab) — guarded: only runs when session+isAdultas
   useEffect(() => {
-    if (!isAdultas || !session.students?.[0]?.course_id) return
+    if (!session || !session.students?.[0]?.course_id) return
+    const ADULTAS_IDS = new Set(['ballet-adultos-semana', 'ballet-adultos-sabados'])
+    const adultas = session.students.some(s =>
+      s.is_minor === false || ADULTAS_IDS.has(s.course_id) ||
+      (s.course_name || '').toLowerCase().includes('adult')
+    )
+    if (!adultas) return
     const checkNewTips = async () => {
       try {
         const { data } = await supabase.rpc('rpc_client_get_tips', {
@@ -369,15 +375,14 @@ export default function App() {
       } catch { /* silent */ }
     }
     checkNewTips()
-  }, [isAdultas, session.students, session.cedula, session.phoneLast4])
+  }, [session])
 
   // Clear badge when entering Recursos tab
   useEffect(() => {
-    if (authTab === 'recursos' && hasNewTips && session.students?.[0]) {
-      localStorage.setItem('tips_last_seen_' + session.cedula, new Date().toISOString().slice(0, 10))
-      setHasNewTips(false)
-    }
-  }, [authTab, hasNewTips, session.cedula])
+    if (!session?.cedula || authTab !== 'recursos' || !hasNewTips) return
+    localStorage.setItem('tips_last_seen_' + session.cedula, new Date().toISOString().slice(0, 10))
+    setHasNewTips(false)
+  }, [authTab, hasNewTips, session])
 
   // Si el tab activo no corresponde al tipo de alumna, redirigir a pagos
   const ADULTAS_TABS = ['payments', 'bienestar', 'retos', 'diario', 'calendario', 'recursos']
