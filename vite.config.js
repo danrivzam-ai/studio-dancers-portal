@@ -17,7 +17,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: {
         name: 'Studio Dancers - Portal de Pagos',
-        short_name: 'Studio Dancers',
+        short_name: 'Mi Studio',
         description: 'Portal de pagos para alumnos y representantes',
         start_url: '/',
         display: 'standalone',
