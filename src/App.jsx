@@ -213,6 +213,36 @@ export default function App() {
     } catch { localStorage.removeItem('studio_device_token') }
   }, [])
 
+  // Tips badge — hooks declarados aquí para no violar reglas de React (no después de returns condicionales)
+  useEffect(() => {
+    if (!session || !session.students?.[0]?.course_id) return
+    const ADULTAS_IDS = new Set(['ballet-adultos-semana', 'ballet-adultos-sabados'])
+    const adultas = session.students.some(s =>
+      s.is_minor === false || ADULTAS_IDS.has(s.course_id) ||
+      (s.course_name || '').toLowerCase().includes('adult')
+    )
+    if (!adultas) return
+    const checkNewTips = async () => {
+      try {
+        const { data } = await supabase.rpc('rpc_client_get_tips', {
+          p_cedula: session.cedula, p_phone_last4: session.phoneLast4,
+          p_course_id: session.students[0].course_id, p_limit: 1
+        })
+        if (data?.[0]?.week_start) {
+          const lastSeen = localStorage.getItem('tips_last_seen_' + session.cedula)
+          setHasNewTips(!lastSeen || data[0].week_start > lastSeen)
+        }
+      } catch { /* silent */ }
+    }
+    checkNewTips()
+  }, [session])
+
+  useEffect(() => {
+    if (!session?.cedula || authTab !== 'recursos' || !hasNewTips) return
+    localStorage.setItem('tips_last_seen_' + session.cedula, new Date().toISOString().slice(0, 10))
+    setHasNewTips(false)
+  }, [authTab, hasNewTips, session])
+
   // --- LOGIN / LOGOUT ---
   const handleLogin = (data) => {
     try {
@@ -352,37 +382,6 @@ export default function App() {
     ADULTAS_IDS.has(s.course_id) ||
     (s.course_name || '').toLowerCase().includes('adult')
   )
-
-  // Check for new tips (badge on Recursos tab) — guarded: only runs when session+isAdultas
-  useEffect(() => {
-    if (!session || !session.students?.[0]?.course_id) return
-    const ADULTAS_IDS = new Set(['ballet-adultos-semana', 'ballet-adultos-sabados'])
-    const adultas = session.students.some(s =>
-      s.is_minor === false || ADULTAS_IDS.has(s.course_id) ||
-      (s.course_name || '').toLowerCase().includes('adult')
-    )
-    if (!adultas) return
-    const checkNewTips = async () => {
-      try {
-        const { data } = await supabase.rpc('rpc_client_get_tips', {
-          p_cedula: session.cedula, p_phone_last4: session.phoneLast4,
-          p_course_id: session.students[0].course_id, p_limit: 1
-        })
-        if (data?.[0]?.week_start) {
-          const lastSeen = localStorage.getItem('tips_last_seen_' + session.cedula)
-          setHasNewTips(!lastSeen || data[0].week_start > lastSeen)
-        }
-      } catch { /* silent */ }
-    }
-    checkNewTips()
-  }, [session])
-
-  // Clear badge when entering Recursos tab
-  useEffect(() => {
-    if (!session?.cedula || authTab !== 'recursos' || !hasNewTips) return
-    localStorage.setItem('tips_last_seen_' + session.cedula, new Date().toISOString().slice(0, 10))
-    setHasNewTips(false)
-  }, [authTab, hasNewTips, session])
 
   // Si el tab activo no corresponde al tipo de alumna, redirigir a pagos
   const ADULTAS_TABS = ['payments', 'bienestar', 'retos', 'diario', 'calendario', 'recursos']
