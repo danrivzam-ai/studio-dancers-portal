@@ -134,31 +134,46 @@ function LoyaltyCard({ consecutiveMonths, onShowRules }) {
 // ═══════ MODAL BIENVENIDA (primera vez, antes del intro de fidelidad) ═══════
 const WELCOME_KEY = 'sd_welcome_v3'
 
-function WelcomeModal({ name, onClose }) {
+function WelcomeModal({ name, isParent, onClose }) {
   const firstName = name?.split(' ')[0] || ''
+
+  const parentItems = [
+    'Ver el estado de cuenta de tu hijo/a',
+    'Subir comprobantes de pago',
+    'Consultar próximas clases y horarios',
+    'Revisar historial de pagos y recibos',
+  ]
+  const adultItems = [
+    'Ver el estado de tu cuenta y próximas clases',
+    'Subir tus comprobantes de pago',
+    'Consultar tu historial de pagos',
+  ]
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: 'rgba(0,0,0,0.45)' }}>
       <div className="w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden">
-        {/* Franja superior */}
         <div className="px-6 py-7 text-center" style={{ background: 'linear-gradient(135deg,#551735,#6b2145)' }}>
           <img src="/logo.png" alt="Studio Dancers" className="h-10 mx-auto mb-4" style={{ filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
           <h2 className="text-white text-lg font-bold leading-snug">
-            Bienvenida{firstName ? `, ${firstName}` : ''}
+            {isParent
+              ? `Bienvenido/a${firstName ? `, ${firstName}` : ''}`
+              : `Bienvenida${firstName ? `, ${firstName}` : ''}`
+            }
           </h2>
-          <p className="text-white/70 text-xs mt-1">Nos alegra tenerte aquí</p>
+          <p className="text-white/70 text-xs mt-1">
+            {isParent ? 'Gracias por confiar en nosotros' : 'Nos alegra tenerte aquí'}
+          </p>
         </div>
 
-        {/* Cuerpo */}
         <div className="px-6 py-6 space-y-3">
           <p className="text-gray-700 text-sm leading-relaxed">
-            Este es tu espacio personal en Studio Dancers. Desde aquí puedes:
+            {isParent
+              ? 'Este es el portal de seguimiento de Studio Dancers. Desde aquí puedes:'
+              : 'Este es tu espacio personal en Studio Dancers. Desde aquí puedes:'
+            }
           </p>
           <ul className="space-y-2">
-            {[
-              'Ver el estado de tu cuenta y próximas clases',
-              'Subir tus comprobantes de pago',
-              'Consultar tu historial de pagos',
-            ].map(item => (
+            {(isParent ? parentItems : adultItems).map(item => (
               <li key={item} className="flex items-start gap-2.5">
                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#9e4a72' }} />
                 <span className="text-sm text-gray-600">{item}</span>
@@ -670,7 +685,7 @@ function getAvatarUrl(studentId, ts) {
 }
 
 // ═══════ MAIN DASHBOARD ═══════
-export default function Dashboard({ students: initialStudents, cedula, phoneLast4, onLogout, onSessionUpdate }) {
+export default function Dashboard({ students: initialStudents, cedula, phoneLast4, isAdultas = false, onLogout, onSessionUpdate }) {
   const [liveStudents, setLiveStudents] = useState(initialStudents)
   const students = liveStudents
   const [bankInfo, setBankInfo] = useState(null)
@@ -951,16 +966,16 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
       {/* Reglas de fidelidad modal */}
       {showLoyaltyRules && <LoyaltyRulesModal onClose={() => setShowLoyaltyRules(false)} />}
 
-      {/* Bienvenida — primera vez (antes del intro de fidelidad) */}
+      {/* Bienvenida — primera vez (mensaje diferente para representantes vs adultas) */}
       {showWelcome && (
         <WelcomeModal
           name={liveStudents?.[0]?.name}
+          isParent={!isAdultas}
           onClose={() => {
             localStorage.setItem(WELCOME_KEY, '1')
             setShowWelcome(false)
-            // Mostrar fidelidad a continuación si no la ha visto aún
-            // (no dependemos de price_type aquí — el intro es para adultas pero no perjudica mostrarlo)
-            if (!localStorage.getItem(LOYALTY_INTRO_KEY)) {
+            // Fidelidad solo para adultas
+            if (isAdultas && !localStorage.getItem(LOYALTY_INTRO_KEY)) {
               setTimeout(() => setShowLoyaltyIntro(true), 300)
             }
           }}
@@ -1214,8 +1229,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   </div>
                 )}
 
-                {/* Fidelidad badge — solo para alumnas con mensualidad recurrente */}
-                {!cycleMode && (
+                {/* Fidelidad badge — solo para alumnas adultas con mensualidad recurrente */}
+                {isAdultas && !cycleMode && (
                   <LoyaltyCard
                     consecutiveMonths={student.consecutive_months || 0}
                     onShowRules={() => setShowLoyaltyRules(true)}

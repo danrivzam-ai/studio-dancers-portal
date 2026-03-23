@@ -397,6 +397,7 @@ export default function App() {
           students={session.students}
           cedula={session.cedula}
           phoneLast4={session.phoneLast4}
+          isAdultas={isAdultas}
           onLogout={handleLogout}
           onSessionUpdate={(newStudents) => {
             const updated = { ...session, students: newStudents }
