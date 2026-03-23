@@ -156,7 +156,7 @@ function WelcomeModal({ name, isParent, onClose }) {
           <img src="/logo.png" alt="Studio Dancers" className="h-10 mx-auto mb-4" style={{ filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
           <h2 className="text-white text-lg font-bold leading-snug">
             {isParent
-              ? `Bienvenido/a${firstName ? `, ${firstName}` : ''}`
+              ? 'Bienvenido/a a Mi Studio'
               : `Bienvenida${firstName ? `, ${firstName}` : ''}`
             }
           </h2>
