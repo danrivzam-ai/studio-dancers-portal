@@ -12,7 +12,7 @@ const CONTENT = {
         items: [
           { title: 'Juego de las estatuas bailarinas', body: 'Pon música y cuando pare, tu hija debe quedarse quieta en una pose de ballet. Ayuda a trabajar el equilibrio y la escucha musical.' },
           { title: 'Caminata de puntas por la casa', body: 'Practica caminar en relevé (puntitas) desde la cocina hasta su cuarto. Cuenta los pasos juntas. Fortalece los pies y tobillos de forma divertida.' },
-          { title: 'Estiramiento con peluches', body: 'Siéntense en el piso con las piernas abiertas y coloquen un peluche al frente. El objetivo es alcanzarlo estirándose. Mejora la flexibilidad jugando.' },
+          { title: 'Estiramiento de "teléfono"', body: 'Sentados, intenten llevar un pie hacia la nariz y luego moverlo hacia la oreja como si fuera un teléfono, sosteniendo la posición unos segundos. Mejora la flexibilidad jugando.' },
           { title: 'Círculos con los brazos', body: 'Como si fueran alas de mariposa: brazos arriba, al lado, abajo. Repetir 5 veces despacio. Desarrolla coordinación y conciencia corporal.' },
         ]
       },
