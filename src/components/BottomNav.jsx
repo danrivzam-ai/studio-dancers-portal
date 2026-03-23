@@ -10,10 +10,11 @@ const TABS_ADULTAS = [
 ]
 
 const TABS_NINAS = [
-  { id: 'payments',   label: 'Pagos',      icon: CreditCard   },
-  { id: 'calendario', label: 'Calendario', icon: CalendarDays },
-  { id: 'glosario',   label: 'Glosario',   icon: BookOpen     },
-  { id: 'reportes',   label: 'Reportes',   icon: FileText     },
+  { id: 'payments',     label: 'Pagos',        icon: CreditCard   },
+  { id: 'calendario',   label: 'Calendario',   icon: CalendarDays },
+  { id: 'actividades',  label: 'Actividades',  icon: Sparkles     },
+  { id: 'glosario',     label: 'Glosario',     icon: BookOpen     },
+  { id: 'reportes',     label: 'Reportes',     icon: FileText     },
 ]
 
 export default function BottomNav({ activeTab, onChangeTab, isAdultas, hasNewTips }) {

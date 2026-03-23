@@ -13,6 +13,7 @@ import TabDiario from './components/TabDiario'
 import CalendarTab from './components/CalendarTab'
 import TabRecursos from './components/TabRecursos'
 import BalletGlossary from './components/BalletGlossary'
+import TabActividades from './components/TabActividades'
 import BottomNav from './components/BottomNav'
 import './index.css'
 
@@ -385,7 +386,7 @@ export default function App() {
 
   // Si el tab activo no corresponde al tipo de alumna, redirigir a pagos
   const ADULTAS_TABS = ['payments', 'bienestar', 'retos', 'diario', 'calendario', 'recursos']
-  const NINAS_TABS   = ['payments', 'calendario', 'glosario', 'reportes']
+  const NINAS_TABS   = ['payments', 'calendario', 'actividades', 'glosario', 'reportes']
   const validTabs    = isAdultas ? ADULTAS_TABS : NINAS_TABS
   const currentTab   = validTabs.includes(authTab) ? authTab : 'payments'
 
@@ -432,6 +433,9 @@ export default function App() {
           students={session.students}
           onLogout={handleLogout}
         />
+      )}
+      {currentTab === 'actividades' && !isAdultas && (
+        <TabActividades students={session.students} />
       )}
       {currentTab === 'glosario' && !isAdultas && (
         <BalletGlossary />
