@@ -138,7 +138,7 @@ function WelcomeModal({ name, isParent, onClose }) {
   const firstName = name?.split(' ')[0] || ''
 
   const parentItems = [
-    'Ver el estado de cuenta de tu hijo/a',
+    'Ver el estado de cuenta de tu hija',
     'Subir comprobantes de pago',
     'Consultar próximas clases y horarios',
     'Revisar historial de pagos y recibos',
