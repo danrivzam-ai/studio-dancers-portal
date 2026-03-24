@@ -197,7 +197,7 @@ export default function AdminPanel({ onBack }) {
             placeholder="Buscar alumna..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#9e4a72] transition-colors"
+            className="w-full pl-8 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base focus:outline-none focus:border-[#9e4a72] transition-colors"
           />
         </div>
       </div>

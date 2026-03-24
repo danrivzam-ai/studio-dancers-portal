@@ -219,7 +219,7 @@ export default function BalletGlossary() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar término, definición..."
-              className="w-full bg-white border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 text-sm text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#e8b4cc] focus:border-transparent"
+              className="w-full bg-white border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 text-base text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#e8b4cc] focus:border-transparent"
             />
             {search && (
               <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">

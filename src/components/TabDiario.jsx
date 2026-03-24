@@ -174,7 +174,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
                   value={form.fecha}
                   onChange={e => setForm(f => ({ ...f, fecha: e.target.value }))}
                   max={todayEC()}
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9e4a72]"
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-[#9e4a72]"
                 />
               </div>
             )}
@@ -203,7 +203,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
               onChange={e => setForm(f => ({ ...f, contenido: e.target.value }))}
               rows={5}
               placeholder="¿Cómo estuvo tu clase? ¿Qué sentiste? ¿Qué te gustó? ¿Qué te costó?"
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#9e4a72] resize-none"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-[#9e4a72] resize-none"
               autoFocus
             />
 

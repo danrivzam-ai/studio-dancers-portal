@@ -192,7 +192,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
                 type="text"
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55] text-sm"
+                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55] text-base"
                 placeholder="Ej: 123456789"
               />
             </div>
@@ -238,7 +238,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55] text-sm"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7e2d55] focus:border-[#7e2d55] text-base"
               placeholder="Ej: Pago de febrero"
             />
           </div>
@@ -253,7 +253,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
             className="w-full px-4 py-3.5 bg-[#6b2145] text-white rounded-xl hover:bg-[#551735] transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
-              <span className="animate-pulse">Enviando...</span>
+              <span>Enviando...</span>
             ) : (
               <>
                 <Upload size={18} />
