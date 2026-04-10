@@ -98,6 +98,35 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
 
       if (rpcError) throw rpcError
 
+      // Notificar a Telegram
+      try {
+        const botToken = import.meta.env.VITE_TELEGRAM_TRANSFERS_BOT_TOKEN
+        const chatId   = import.meta.env.VITE_TELEGRAM_TRANSFERS_CHAT_ID
+        if (botToken && chatId) {
+          const hora  = new Date().toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Guayaquil' })
+          const fecha = new Date().toLocaleDateString('es-EC', { day: '2-digit', month: 'short', timeZone: 'America/Guayaquil' })
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              parse_mode: 'Markdown',
+              text:
+                `💸 *Nueva transferencia recibida*\n\n` +
+                `👤 *Alumna:* ${studentName}\n` +
+                `🏦 *Banco:* ${bankName}\n` +
+                `💰 *Monto:* $${parseFloat(amount).toFixed(2)}` +
+                (receiptNumber.trim() ? `\n🔢 *Comprobante:* ${receiptNumber.trim()}` : '') +
+                (notes.trim() ? `\n📝 *Nota:* ${notes.trim()}` : '') +
+                `\n\n🕐 ${fecha} · ${hora}\n` +
+                `_Revisa la sección de Transferencias en el sistema._`,
+            }),
+          })
+        }
+      } catch {
+        // Silencioso — no bloquea el flujo
+      }
+
       setSuccess(true)
     } catch (err) {
       console.error('Submit error:', err)
