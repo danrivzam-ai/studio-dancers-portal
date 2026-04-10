@@ -7,6 +7,8 @@ export const BANKS = [
   { id: 'internacional', name: 'Banco Internacional' },
   { id: 'solidario', name: 'Banco Solidario' },
   { id: 'produbanco', name: 'Produbanco' },
+  { id: 'banecuador', name: 'BanEcuador' },
   { id: 'jep', name: 'Cooperativa JEP' },
   { id: 'jardin-azuayo', name: 'Cooperativa Jardín Azuayo' },
+  { id: 'otro', name: 'Otro' },
 ]
