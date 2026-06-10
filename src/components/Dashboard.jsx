@@ -478,12 +478,20 @@ function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
 
 // Counts how many class days fall within 1 month from lastPaymentDate
 // Used as fallback total when classes_per_cycle is not set in the DB
-function computeMonthlyTotal(lastPaymentDate, classDays) {
+function computeMonthlyTotal(lastPaymentDate, classDays, cicloInicio = null, cicloFin = null) {
   const days = normalizeClassDays(classDays)
   if (!lastPaymentDate || !days.length) return 0
-  const start = new Date(lastPaymentDate + 'T00:00:00')
+  // Si la alumna pagó antes del inicio del ciclo escolar, el conteo de clases
+  // del mes debe empezar desde cicloInicio (no desde la fecha de pago).
+  const startStr = (cicloInicio && lastPaymentDate < cicloInicio) ? cicloInicio : lastPaymentDate
+  const start = new Date(startStr + 'T00:00:00')
   const end = new Date(start)
   end.setMonth(end.getMonth() + 1)
+  // Si el ciclo escolar termina antes del fin natural del mes, clampear.
+  if (cicloFin) {
+    const finDate = new Date(cicloFin + 'T00:00:00')
+    if (finDate < end) end.setTime(finDate.getTime())
+  }
   let count = 0
   const d = new Date(start)
   while (d < end) {
@@ -1103,9 +1111,10 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const cycleMode = isCycleBased(student)
           const classesUsed = student.classes_used || 0
           // If classes_per_cycle is not stored, compute it from the monthly calendar
+          // (respeta ciclo escolar — descarta clases anteriores a ciclo_inicio).
           const classesTotal = student.classes_per_cycle > 0
             ? student.classes_per_cycle
-            : computeMonthlyTotal(student.last_payment_date, student.class_days)
+            : computeMonthlyTotal(student.last_payment_date, student.class_days, student.ciclo_inicio, student.ciclo_fin)
           // Ciclo escolar finalizado / aún no iniciado — afecta estado y contadores.
           const todayECStr = new Intl.DateTimeFormat('en-CA', {
             timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit'
