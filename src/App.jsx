@@ -431,6 +431,8 @@ export default function App() {
       {currentTab === 'calendario' && (
         <CalendarTab
           students={session.students}
+          cedula={session.cedula}
+          phoneLast4={session.phoneLast4}
           onLogout={handleLogout}
         />
       )}

@@ -568,8 +568,20 @@ function ClassCalendar({ student, onClose }) {
   const firstDayJS = new Date(viewYear, viewMonth, 1).getDay()
   const offset = (firstDayJS + 6) % 7 // how many blanks before day 1
 
+  // Ventana activa: intersección de [last_payment_date, next_payment_date)
+  // con [ciclo_inicio, ciclo_fin]. Coherente con CalendarTab.
+  const _lastPay = student.last_payment_date ? new Date(student.last_payment_date + 'T12:00:00') : null
+  const _nextPay = student.next_payment_date ? new Date(student.next_payment_date + 'T12:00:00') : null
+  const _cicloIni = student.ciclo_inicio ? new Date(student.ciclo_inicio + 'T12:00:00') : null
+  const _cicloFin = student.ciclo_fin ? new Date(student.ciclo_fin + 'T12:00:00') : null
+  const _winStart = (_lastPay && _cicloIni) ? (_lastPay > _cicloIni ? _lastPay : _cicloIni) : (_lastPay || _cicloIni)
+  const _cicloFinPlus1 = _cicloFin ? new Date(_cicloFin.getTime() + 24*60*60*1000) : null
+  const _winEnd = (_nextPay && _cicloFinPlus1) ? (_nextPay < _cicloFinPlus1 ? _nextPay : _cicloFinPlus1) : (_nextPay || _cicloFinPlus1)
+
   const isClassDay = (day) => {
     const d = new Date(viewYear, viewMonth, day)
+    if (_winStart && d < _winStart) return false
+    if (_winEnd && d >= _winEnd) return false
     const jsDay = d.getDay() // 0=Sun..6=Sat
     const isoDay = jsDay === 0 ? 7 : jsDay
     return classDays.includes(isoDay)

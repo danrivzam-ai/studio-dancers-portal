@@ -58,7 +58,7 @@ const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto
 const DAY_LABELS = ['L','M','X','J','V','S','D']
 
 // ── component ────────────────────────────────────────────────────────────────
-export default function CalendarTab({ students: initial, onLogout }) {
+export default function CalendarTab({ students: initial, cedula, phoneLast4, onLogout }) {
   const nowGYE = () => new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
 
   const now = nowGYE()
@@ -67,46 +67,77 @@ export default function CalendarTab({ students: initial, onLogout }) {
   const [students, setStudents]   = useState(initial)
   const [selIdx, setSelIdx]       = useState(0)
 
-  // Enrich with class_days if not already present
+  // Refresca students con datos vivos de la BD + enriquece con datos del curso
+  // (class_days, ciclo_inicio, ciclo_fin). Sin esto el calendario pinta
+  // clases fuera del ciclo escolar y la fecha de próximo pago queda vieja.
   useEffect(() => {
-    const enrich = async () => {
+    let cancelled = false
+    const fetchFresh = async () => {
       try {
-        const courseIds = [...new Set(initial.map(s => s.course_id).filter(Boolean))]
-        const [pubRes] = await Promise.all([
-          supabase.rpc('rpc_public_courses')
-        ])
-        const infoRes = { data: [] }
+        const tasks = [supabase.rpc('rpc_public_courses')]
+        // Si tenemos credenciales de sesión, también refresca el student vivo
+        if (cedula && phoneLast4) {
+          tasks.push(supabase.rpc('rpc_client_login', { p_cedula: cedula, p_phone_last4: phoneLast4 }))
+        }
+        const [pubRes, liveRes] = await Promise.all(tasks)
+        if (cancelled) return
+
         const byId = {}, byName = {}
-        ;(pubRes.data || []).forEach(c => {
+        ;(pubRes?.data || []).forEach(c => {
           if (c.id) byId[c.id] = c
           const base = (c.name || '').split('|')[0].trim().toLowerCase()
           if (base) byName[base] = c
         })
-        ;(infoRes.data || []).forEach(c => { if (c.id) byId[c.id] = { ...byId[c.id], ...c } })
-        setStudents(initial.map(s => {
+
+        // Source: live students if available, sino el initial cacheado
+        const source = (liveRes?.data?.length ? liveRes.data : initial) || []
+        const enriched = source.map(s => {
           const base = (s.course_name || '').split('|')[0].trim().toLowerCase()
           const course = byId[s.course_id] || byName[base] || null
           let days = normalizeClassDays(course?.class_days ?? s.class_days)
           if (!days.length) days = parseScheduleToDays(course?.schedule || s.schedule)
-          return { ...s, class_days: days }
-        }))
+          return {
+            ...s,
+            class_days: days,
+            // Ciclo escolar: del curso (rpc_public_courses) o del student (rpc_client_login) como fallback
+            ciclo_inicio: course?.ciclo_inicio ?? s.ciclo_inicio ?? null,
+            ciclo_fin: course?.ciclo_fin ?? s.ciclo_fin ?? null,
+          }
+        })
+        setStudents(enriched)
       } catch { /* silent */ }
     }
-    if (initial.some(s => !normalizeClassDays(s.class_days).length)) enrich()
-    else setStudents(initial)
-  }, [initial])
+    fetchFresh()
+    return () => { cancelled = true }
+  }, [initial, cedula, phoneLast4])
 
   const student   = students[selIdx] || students[0]
   const classDays = normalizeClassDays(student?.class_days)
   const today     = nowGYE()
 
-  // Active payment window: [last_payment_date, next_payment_date)
-  // Classes outside this window are shown as inactive (not highlighted)
-  // Use T12:00:00 to avoid timezone boundary issues (matches nowGYE pattern)
-  const cycleStart = student?.last_payment_date
+  // Active class window respecting:
+  //   1. Pago: [last_payment_date, next_payment_date)
+  //   2. Ciclo escolar: [ciclo_inicio, ciclo_fin + 1 día]
+  // El rango final es la INTERSECCIÓN — solo se cuenta como clase si está
+  // dentro del ciclo escolar Y dentro del periodo pagado.
+  const lastPayDate = student?.last_payment_date
     ? new Date(student.last_payment_date + 'T12:00:00') : null
-  const cycleEnd   = student?.next_payment_date
+  const nextPayDate = student?.next_payment_date
     ? new Date(student.next_payment_date + 'T12:00:00') : null
+  const cicloInicioDate = student?.ciclo_inicio
+    ? new Date(student.ciclo_inicio + 'T12:00:00') : null
+  const cicloFinDate = student?.ciclo_fin
+    ? new Date(student.ciclo_fin + 'T12:00:00') : null
+
+  // Start: el más tardío entre last_payment_date y ciclo_inicio
+  const cycleStart = (lastPayDate && cicloInicioDate)
+    ? (lastPayDate > cicloInicioDate ? lastPayDate : cicloInicioDate)
+    : (lastPayDate || cicloInicioDate)
+  // End: el más temprano entre next_payment_date y (ciclo_fin + 1 día, para que el último día del ciclo cuente)
+  const cicloFinInclusive = cicloFinDate ? new Date(cicloFinDate.getTime() + 24*60*60*1000) : null
+  const cycleEnd = (nextPayDate && cicloFinInclusive)
+    ? (nextPayDate < cicloFinInclusive ? nextPayDate : cicloFinInclusive)
+    : (nextPayDate || cicloFinInclusive)
 
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
   const offset      = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7
