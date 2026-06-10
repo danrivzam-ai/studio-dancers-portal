@@ -496,11 +496,37 @@ function computeMonthlyTotal(lastPaymentDate, classDays) {
 
 // Returns the label for the student's next class day in Guayaquil TZ
 // Returns: 'Hoy', 'Mañana', or e.g. 'lunes 3 de marzo'
-function getNextClassDate(classDays) {
+/**
+ * Próxima clase del alumno respetando el ciclo escolar.
+ * - Si el ciclo aún no empezó (hoy < ciclo_inicio): devuelve "Inicia [fecha]".
+ * - Si el ciclo terminó (hoy > ciclo_fin): null (el banner "Ciclo finalizado" cubre).
+ * - Si estamos dentro del ciclo: busca próximo día de clase como antes.
+ */
+function getNextClassDate(classDays, cicloInicio = null, cicloFin = null) {
   const days = normalizeClassDays(classDays)
   if (!days.length) return null
+
   const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
   todayGYE.setHours(0, 0, 0, 0)
+
+  // Ciclo finalizado → no mostrar nada (banner aparte lo informa)
+  if (cicloFin) {
+    const fin = new Date(cicloFin + 'T00:00:00')
+    if (todayGYE > fin) return null
+  }
+
+  // Ciclo aún no inicia → mostrar fecha de inicio (no "Hoy")
+  if (cicloInicio) {
+    const inicio = new Date(cicloInicio + 'T00:00:00')
+    if (todayGYE < inicio) {
+      const diasFaltan = Math.round((inicio - todayGYE) / (1000 * 60 * 60 * 24))
+      if (diasFaltan === 1) return 'Mañana inicia'
+      const label = inicio.toLocaleDateString('es-EC', { day: 'numeric', month: 'long' })
+      return `Inicia ${label}`
+    }
+  }
+
+  // Dentro del ciclo: buscar próximo día de clase desde hoy
   for (let i = 0; i <= 7; i++) {
     const d = new Date(todayGYE)
     d.setDate(d.getDate() + i)
@@ -1080,13 +1106,15 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const classesTotal = student.classes_per_cycle > 0
             ? student.classes_per_cycle
             : computeMonthlyTotal(student.last_payment_date, student.class_days)
-          // Ciclo escolar finalizado — si hoy > ciclo_fin, override del estado y oculta clases del mes.
+          // Ciclo escolar finalizado / aún no iniciado — afecta estado y contadores.
           const todayECStr = new Intl.DateTimeFormat('en-CA', {
             timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit'
           }).format(new Date())
           const cicloFinalizado = student.ciclo_fin && todayECStr > student.ciclo_fin
+          const cicloAunNoInicia = student.ciclo_inicio && todayECStr < student.ciclo_inicio
           // Show counter/calendar for any course that has a schedule (class_days) defined
-          const hasClassInfo = student.class_days?.length > 0 && !cicloFinalizado
+          // y solo si el ciclo está activo (ya empezó y no terminó).
+          const hasClassInfo = student.class_days?.length > 0 && !cicloFinalizado && !cicloAunNoInicia
           const activeMethod = expandedPayment[student.id]
           // Parse schedule suffix from course_name (e.g. "Ballet Adultas | L - M" → "L - M")
           const scheduleLabel = (() => {
@@ -1094,8 +1122,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             return parts.length > 1 ? parts[parts.length - 1].trim() : null
           })()
           // Next class date label (only for monthly students with class_days)
-          const nextClassLabel = (!cycleMode && hasClassInfo)
-            ? getNextClassDate(student.class_days)
+          // Próxima clase: respeta ciclo_inicio (no muestra "Hoy" si el ciclo aún
+          // no empezó) y ciclo_fin (no muestra nada si ya terminó).
+          // Si el ciclo no empezó, igual mostramos "Inicia [fecha]" aunque
+          // hasClassInfo sea false (se ve más informativo).
+          const nextClassLabel = !cycleMode && student.class_days?.length > 0 && !cicloFinalizado
+            ? getNextClassDate(student.class_days, student.ciclo_inicio, student.ciclo_fin)
             : null
           // Payment reminder: days until next payment (negative = overdue)
           const daysUntilPayment = (() => {
@@ -1182,25 +1214,34 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
               <div className="p-4 space-y-3">
                 {/* ───── Tu próxima clase ───── */}
-                {nextClassLabel && (
-                  <div className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 ${
-                    nextClassLabel === 'Hoy'
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
-                      : nextClassLabel === 'Mañana'
-                        ? 'bg-gradient-to-r from-teal-400 to-cyan-500'
-                        : 'bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-100'
-                  }`}>
-                    <div className="flex items-center gap-2">
-                      <CalendarCheck size={14} className={nextClassLabel === 'Hoy' || nextClassLabel === 'Mañana' ? 'text-white' : 'text-teal-600'} />
-                      <span className={`text-[10px] uppercase font-semibold tracking-wider ${nextClassLabel === 'Hoy' || nextClassLabel === 'Mañana' ? 'text-white/80' : 'text-teal-600'}`}>
-                        Tu próxima clase
+                {nextClassLabel && (() => {
+                  // Tres estilos: "Hoy" (verde fuerte), "Mañana" (cyan), futuro/inicio (cyan claro)
+                  const esHoyOManana = nextClassLabel === 'Hoy' || nextClassLabel === 'Mañana' || nextClassLabel === 'Mañana inicia'
+                  const esInicio = nextClassLabel.startsWith('Inicia') || nextClassLabel === 'Mañana inicia'
+                  const titulo = esInicio ? 'El ciclo empieza' : 'Tu próxima clase'
+                  // Quitar "Inicia " del label para no repetir cuando ya lo decimos en el título
+                  const valor = nextClassLabel.startsWith('Inicia ')
+                    ? nextClassLabel.replace('Inicia ', '')
+                    : nextClassLabel === 'Mañana inicia' ? 'Mañana' : nextClassLabel
+                  const bg = nextClassLabel === 'Hoy'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                    : (nextClassLabel === 'Mañana' || nextClassLabel === 'Mañana inicia')
+                      ? 'bg-gradient-to-r from-teal-400 to-cyan-500'
+                      : 'bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-100'
+                  return (
+                    <div className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 ${bg}`}>
+                      <div className="flex items-center gap-2">
+                        <CalendarCheck size={14} className={esHoyOManana ? 'text-white' : 'text-teal-600'} />
+                        <span className={`text-[10px] uppercase font-semibold tracking-wider ${esHoyOManana ? 'text-white/80' : 'text-teal-600'}`}>
+                          {titulo}
+                        </span>
+                      </div>
+                      <span className={`text-sm font-bold capitalize ${esHoyOManana ? 'text-white' : 'text-teal-700'}`}>
+                        {valor}
                       </span>
                     </div>
-                    <span className={`text-sm font-bold capitalize ${nextClassLabel === 'Hoy' || nextClassLabel === 'Mañana' ? 'text-white' : 'text-teal-700'}`}>
-                      {nextClassLabel}
-                    </span>
-                  </div>
-                )}
+                  )
+                })()}
 
                 {/* ───── Financial Summary ───── */}
                 <div className="grid grid-cols-2 gap-2.5">
