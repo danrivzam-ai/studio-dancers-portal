@@ -770,7 +770,10 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             const classes_used = (s.classes_used != null && s.classes_used > 0)
               ? s.classes_used
               : computeEstimatedClasses(s.last_payment_date, classDays, classesPer)
-            return { ...s, classes_used, classes_per_cycle: classesPer, class_days: classDays, price_type: priceType }
+            // Ciclo escolar — viene del curso (rpc_public_courses) o del student (rpc_client_login)
+            const ciclo_inicio = course?.ciclo_inicio ?? s.ciclo_inicio ?? null
+            const ciclo_fin = course?.ciclo_fin ?? s.ciclo_fin ?? null
+            return { ...s, classes_used, classes_per_cycle: classesPer, class_days: classDays, price_type: priceType, ciclo_inicio, ciclo_fin }
           })
           setLiveStudents(enriched)
           onSessionUpdate?.(enriched)
@@ -1077,8 +1080,13 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const classesTotal = student.classes_per_cycle > 0
             ? student.classes_per_cycle
             : computeMonthlyTotal(student.last_payment_date, student.class_days)
+          // Ciclo escolar finalizado — si hoy > ciclo_fin, override del estado y oculta clases del mes.
+          const todayECStr = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit'
+          }).format(new Date())
+          const cicloFinalizado = student.ciclo_fin && todayECStr > student.ciclo_fin
           // Show counter/calendar for any course that has a schedule (class_days) defined
-          const hasClassInfo = student.class_days?.length > 0
+          const hasClassInfo = student.class_days?.length > 0 && !cicloFinalizado
           const activeMethod = expandedPayment[student.id]
           // Parse schedule suffix from course_name (e.g. "Ballet Adultas | L - M" → "L - M")
           const scheduleLabel = (() => {
@@ -1226,6 +1234,36 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   <div className="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
                     <span className="text-[10px] text-green-600 uppercase font-medium tracking-wider">Último pago</span>
                     <span className="text-xs font-semibold text-green-700">{formatDate(student.last_payment_date)}</span>
+                  </div>
+                )}
+
+                {/* Ciclo escolar — solo si el curso lo tiene configurado y aún no terminó */}
+                {(student.ciclo_inicio || student.ciclo_fin) && !cicloFinalizado && (
+                  <div className="rounded-xl bg-[#fdf2f7] border border-[#f3d4e2] px-3 py-2.5">
+                    <p className="text-[10px] text-[#6b2145] uppercase font-semibold tracking-wider mb-1.5">Ciclo escolar</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <p className="text-[#a05c7e] text-[10px]">Inicio</p>
+                        <p className="font-semibold text-[#551735]">{formatDate(student.ciclo_inicio)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[#a05c7e] text-[10px]">Fin</p>
+                        <p className="font-semibold text-[#551735]">{formatDate(student.ciclo_fin)}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Banner: ciclo escolar finalizado */}
+                {cicloFinalizado && (
+                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-3.5 py-3 flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                      <CalendarCheck size={15} className="text-slate-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-slate-700">Ciclo escolar finalizado</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">Terminó el {formatDate(student.ciclo_fin)}</p>
+                    </div>
                   </div>
                 )}
 
