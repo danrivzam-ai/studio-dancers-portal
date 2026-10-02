@@ -370,54 +370,35 @@ function SkeletonCard() {
 }
 
 // ═══════ DANCE LOADING SCREEN ═══════
+// Pantalla de carga: fondo vino de marca (igual a index.html y al login), así se
+// ve igual en modo claro y oscuro. Ícono: bailarina crema de la marca.
 function DanceLoader() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fdf2f7] via-white to-[#fff0f5] flex flex-col items-center justify-center p-6">
-      {/* Ballet dancer silhouette animation */}
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-6"
+      style={{ background: 'linear-gradient(135deg, #551735 0%, #6b2145 50%, #7e2d55 100%)' }}
+    >
       <div className="relative mb-8">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#e8b4cc] to-[#ffcfe0] flex items-center justify-center"
-          style={{ animation: 'dancerFloat 2s ease-in-out infinite' }}>
-          <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Head */}
-            <circle cx="35" cy="9" r="4.5" stroke="#6b2145" strokeWidth="2.2"/>
-            {/* Hair bun */}
-            <circle cx="39.5" cy="6.5" r="2.2" stroke="#6b2145" strokeWidth="1.8"/>
-            {/* Ponytail */}
-            <path d="M41 5 C47 1 53 6 49 13" stroke="#6b2145" strokeWidth="1.8" strokeLinecap="round"/>
-            {/* Torso */}
-            <path d="M35 13.5 C34 17 33 21 32 25" stroke="#6b2145" strokeWidth="2.2" strokeLinecap="round"/>
-            {/* Tutu skirt */}
-            <path d="M19 27 C22 21 44 21 47 27 C50 33 44 37 32 36.5 C20 37 14 33 19 27Z" stroke="#6b2145" strokeWidth="2"/>
-            {/* Left arm raised up */}
-            <path d="M31 19 C27 15 22 11 17 9" stroke="#6b2145" strokeWidth="2.2" strokeLinecap="round"/>
-            {/* Right arm extended */}
-            <path d="M38 19 C43 20 50 19 54 17" stroke="#6b2145" strokeWidth="2.2" strokeLinecap="round"/>
-            {/* Left leg down */}
-            <path d="M28 36.5 C26 41 23 47 21 53" stroke="#6b2145" strokeWidth="2.2" strokeLinecap="round"/>
-            {/* Right leg arabesque */}
-            <path d="M36 36.5 C41 39 47 43 53 47" stroke="#6b2145" strokeWidth="2.2" strokeLinecap="round"/>
-            {/* Sparkle ✦ top-left (large) */}
-            <path d="M10 19 L12 25 L10 31 L8 25Z M5.5 25 L10 23.5 L14.5 25 L10 26.5Z" fill="#6b2145"/>
-            {/* Sparkle ✦ top-right (medium) */}
-            <path d="M53 10 L54.5 14.5 L53 19 L51.5 14.5Z M49 14.5 L53 13.2 L57 14.5 L53 15.8Z" fill="#6b2145"/>
-            {/* Sparkle ✦ bottom-left (small) */}
-            <path d="M8 47 L9.2 51 L8 55 L6.8 51Z M5 51 L8 50.2 L11 51 L8 51.8Z" fill="#6b2145"/>
-            {/* Sparkle ✦ bottom-right (medium) */}
-            <path d="M54 43 L55.4 47.5 L54 52 L52.6 47.5Z M51 47.5 L54 46.2 L57 47.5 L54 48.8Z" fill="#6b2145"/>
-          </svg>
+        <div
+          className="w-24 h-24 rounded-full flex items-center justify-center"
+          style={{ background: 'rgba(255,255,255,0.08)', animation: 'dancerFloat 2s ease-in-out infinite' }}
+        >
+          <img src="/brand-dancer-cream.png" alt="" width="64" height="64" className="w-16 h-16 select-none" draggable="false" />
         </div>
-        {/* Rotating ring */}
-        <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-transparent border-t-[#9e4a72] border-r-[#ffcfe0]"
-          style={{ animation: 'pirouette 1.2s linear infinite' }} />
+        {/* Anillo giratorio */}
+        <div
+          className="absolute inset-0 w-24 h-24 rounded-full border-2 border-transparent"
+          style={{ borderTopColor: '#f4ece6', borderRightColor: 'rgba(244,236,230,0.35)', animation: 'pirouette 1.2s linear infinite' }}
+        />
       </div>
 
-      <p className="text-[#551735] font-semibold text-base mb-1">Cargando tu portal</p>
-      <div className="flex items-center gap-1.5">
+      <p className="font-semibold text-base mb-2" style={{ color: '#f4ece6' }}>Cargando tu portal</p>
+      <div className="flex items-center gap-1.5" aria-hidden="true">
         {[0, 1, 2].map(i => (
           <div
             key={i}
-            className="w-1.5 h-1.5 rounded-full bg-[#9e4a72]"
-            style={{ animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }}
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: '#ffcfe0', animation: `dotWave 1.4s ease-in-out ${i * 0.16}s infinite` }}
           />
         ))}
       </div>
