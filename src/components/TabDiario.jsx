@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Plus, Edit2, Trash2, X, Check } from 'lucide-react'
 import { getDiarioList, createDiarioEntry, updateDiarioEntry, deleteDiarioEntry } from '../lib/adultas'
+import { getNowEC, getTodayEC as todayEC } from '../lib/dateUtils'
 
 const ANIMOS = [
   { id: 'feliz',     emoji: '😊', label: 'Feliz'     },
@@ -9,13 +10,6 @@ const ANIMOS = [
   { id: 'frustrada', emoji: '😤', label: 'Frustrada' },
   { id: 'neutral',   emoji: '😐', label: 'Neutral'   },
 ]
-
-function todayEC() {
-  const now = new Date()
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000
-  const ec = new Date(utcMs - 5 * 3600000)
-  return ec.toISOString().slice(0, 10)
-}
 
 function formatFecha(dateStr) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('es-EC', {
@@ -137,7 +131,7 @@ export default function TabDiario({ students, cedula, phoneLast4 }) {
             <p className="text-[#e8b4cc] text-xs mt-0.5">Solo tú puedes ver esto</p>
             <p className="text-xs text-white/50 mt-0.5">
               {(() => {
-                const h = new Date().getHours()
+                const h = getNowEC().getHours()
                 return h < 12 ? 'Escribe sobre tu mañana de práctica' : h < 18 ? 'Registra cómo fue tu clase de hoy' : 'Reflexiona sobre tu día de danza'
               })()}
             </p>

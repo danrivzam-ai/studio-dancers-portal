@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { getNowEC } from '../lib/dateUtils'
 import { LogOut, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 
 // ── Tips del día ──────────────────────────────────────────────────────────────
@@ -12,7 +13,7 @@ const TIPS_ADULT = [
   { icon: '🧘', title: 'Estiramiento', text: 'Estirar después de clase (músculos calientes) es mucho más efectivo y seguro que hacerlo en frío antes.' },
   { icon: '🛌', title: 'Día de descanso', text: 'Un día de reposo completo a la semana no es pereza — es entrenamiento. Permite que el tejido muscular se regenere.' },
   { icon: '🌬️', title: 'Respiración', text: 'En momentos de tensión, inhala profundo por la nariz y exhala largo por la boca. La respiración regula el sistema nervioso.' },
-  { icon: '🩰', title: 'Cuidado de pies', text: 'Hidrata tus pies a diario, mantén las uñas cortas y trata las ampollas a tiempo. Son tu herramienta principal.' },
+  { icon: '👣', title: 'Cuidado de pies', text: 'Hidrata tus pies a diario, mantén las uñas cortas y trata las ampollas a tiempo. Son tu herramienta principal.' },
   { icon: '🧠', title: 'Visualización', text: 'Antes de ejecutar, visualiza el movimiento completo. Los bailarines profesionales usan esta técnica para fijar la memoria muscular.' },
 ]
 
@@ -31,7 +32,7 @@ const TIPS_MINOR = [
 
 function getDailyTip(isMinor) {
   const tips = isMinor ? TIPS_MINOR : TIPS_ADULT
-  const dayIndex = new Date().getDate() % tips.length
+  const dayIndex = getNowEC().getDate() % tips.length
   return tips[dayIndex]
 }
 
@@ -59,7 +60,7 @@ const DAY_LABELS = ['L','M','X','J','V','S','D']
 
 // ── component ────────────────────────────────────────────────────────────────
 export default function CalendarTab({ students: initial, cedula, phoneLast4, onLogout }) {
-  const nowGYE = () => new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+  const nowGYE = getNowEC
 
   const now = nowGYE()
   const [viewYear, setViewYear]   = useState(now.getFullYear())
@@ -179,7 +180,7 @@ export default function CalendarTab({ students: initial, cedula, phoneLast4, onL
             <p className="text-white/80 text-xs mt-0.5 truncate">{courseName}{schedule ? ` · ${schedule}` : ''}</p>
             <p className="text-xs text-white/50 mt-0.5">
               {(() => {
-                const h = new Date().getHours()
+                const h = getNowEC().getHours()
                 return h < 12 ? 'Revisa tus próximas clases' : h < 18 ? '¿Cómo va tu semana?' : 'Planifica tu siguiente clase'
               })()}
             </p>

@@ -3,6 +3,9 @@ import { supabase } from '../lib/supabase'
 import { BANKS } from '../lib/banks'
 import { X, Upload, CheckCircle, Camera, Hash } from 'lucide-react'
 
+// Texto de usuario dentro de mensajes Telegram con parse_mode HTML
+const escapeHtml = (str) => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
 export default function UploadTransfer({ studentId, studentName, cedula, phoneLast4, onClose }) {
   const [amount, setAmount] = useState('')
   const [bankName, setBankName] = useState('')
@@ -70,7 +73,8 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
     setLoading(true)
     try {
       // Upload image to Supabase Storage
-      const fileName = `${cedula}_${studentId}_${Date.now()}.jpg`
+      // El bucket es público: el nombre no debe incluir la cédula
+      const fileName = `portal_${studentId}_${Date.now()}.jpg`
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('transfer-receipts')
         .upload(fileName, image, { contentType: 'image/jpeg' })
@@ -110,16 +114,16 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               chat_id: chatId,
-              parse_mode: 'Markdown',
+              parse_mode: 'HTML',
               text:
-                `💸 *Nueva transferencia recibida*\n\n` +
-                `👤 *Alumna:* ${studentName}\n` +
-                `🏦 *Banco:* ${bankName}\n` +
-                `💰 *Monto:* $${parseFloat(amount).toFixed(2)}` +
-                (receiptNumber.trim() ? `\n🔢 *Comprobante:* ${receiptNumber.trim()}` : '') +
-                (notes.trim() ? `\n📝 *Nota:* ${notes.trim()}` : '') +
+                `💸 <b>Nueva transferencia recibida</b>\n\n` +
+                `👤 <b>Alumna:</b> ${escapeHtml(studentName)}\n` +
+                `🏦 <b>Banco:</b> ${escapeHtml(bankName)}\n` +
+                `💰 <b>Monto:</b> $${parseFloat(amount).toFixed(2)}` +
+                (receiptNumber.trim() ? `\n🔢 <b>Comprobante:</b> ${escapeHtml(receiptNumber.trim())}` : '') +
+                (notes.trim() ? `\n📝 <b>Nota:</b> ${escapeHtml(notes.trim())}` : '') +
                 `\n\n🕐 ${fecha} · ${hora}\n` +
-                `_Revisa la sección de Transferencias en el sistema._`,
+                `<i>Revisa la sección de Transferencias en el sistema.</i>`,
             }),
           })
         }

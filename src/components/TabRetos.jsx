@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronDown, ChevronUp, Dumbbell, MoveVertical, Scale, Music, Eye, Target } from 'lucide-react'
 import { getRetos } from '../lib/adultas'
+import { getNowEC } from '../lib/dateUtils'
 
 const CATEGORIA_CFG = {
   fuerza:              { Icon: Dumbbell,      label: 'Fuerza',              iconBg: 'bg-teal-100',   iconColor: 'text-teal-600'   },
@@ -45,7 +46,7 @@ export default function TabRetos({ students, cedula, phoneLast4 }) {
         <p className="text-[#e8b4cc] text-xs mt-0.5">Un nuevo reto cada lunes</p>
         <p className="text-xs text-white/50 mt-0.5">
           {(() => {
-            const h = new Date().getHours()
+            const h = getNowEC().getHours()
             return h < 12 ? 'Un nuevo día, un nuevo desafío' : h < 18 ? '¿Ya completaste tu reto de hoy?' : 'Cierra el día con un reto cumplido'
           })()}
         </p>

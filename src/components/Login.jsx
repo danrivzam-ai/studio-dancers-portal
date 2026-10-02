@@ -54,7 +54,12 @@ export default function Login({ onLogin, onBack }) {
       })
     } catch (err) {
       console.error('Login error:', err)
-      setError(`Error: ${err?.message || err?.code || 'Intente de nuevo.'}`)
+      // rpc_client_login bloquea 10 min tras 5 intentos fallidos (v46)
+      if (err?.hint === 'rate_limited') {
+        setError('Demasiados intentos. Espera 10 minutos e inténtalo de nuevo.')
+      } else {
+        setError('No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.')
+      }
     } finally {
       setLoading(false)
     }

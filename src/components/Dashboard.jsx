@@ -4,6 +4,7 @@ import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, BookOpen, R
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 import MilestoneModal from './MilestoneModal'
+import { getTodayEC, getNowEC, getDaysUntilDue, getPortalStatus, NEEDS_PAYMENT, IS_OVERDUE } from '../lib/dateUtils'
 
 // ═══════ FIDELIDAD ═══════
 function getLoyaltyTier(consecutiveMonths) {
@@ -464,8 +465,7 @@ function computeEstimatedClasses(lastPaymentDate, classDays, totalPerCycle) {
   const days = normalizeClassDays(classDays)
   if (!lastPaymentDate || !days.length) return 0
   const start = new Date(lastPaymentDate + 'T00:00:00')
-  const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-  todayGYE.setHours(0, 0, 0, 0)
+  const todayGYE = new Date(getTodayEC() + 'T00:00:00')
   let count = 0
   const d = new Date(start)
   while (d <= todayGYE) {
@@ -514,8 +514,7 @@ function getNextClassDate(classDays, cicloInicio = null, cicloFin = null) {
   const days = normalizeClassDays(classDays)
   if (!days.length) return null
 
-  const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-  todayGYE.setHours(0, 0, 0, 0)
+  const todayGYE = new Date(getTodayEC() + 'T00:00:00')
 
   // Ciclo finalizado → no mostrar nada (banner aparte lo informa)
   if (cicloFin) {
@@ -554,11 +553,11 @@ function ClassCalendar({ student, onClose }) {
   const classDays = normalizeClassDays(student.class_days) // ISO: 1=Lun ... 7=Dom
 
   // Current date in Guayaquil timezone
-  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+  const now = getNowEC()
   const [viewYear, setViewYear] = useState(now.getFullYear())
   const [viewMonth, setViewMonth] = useState(now.getMonth()) // 0-indexed
 
-  const todayInGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+  const todayInGYE = getNowEC()
 
   const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
   const dayNames = ['L','M','X','J','V','S','D']
@@ -730,6 +729,19 @@ function getAvatarUrl(studentId, ts) {
   return ts ? `${data.publicUrl}?t=${ts}` : data.publicUrl
 }
 
+// Texto del recordatorio según el estado real de pago (getPaymentStatus)
+function reminderText(student, st) {
+  if (st.status === 'mora') return 'Asistencia suspendida — renueva para retomar tus clases'
+  if (st.status === 'cycle_complete') return 'Completaste tu paquete de clases'
+  const days = getDaysUntilDue(student.next_payment_date)
+  if (st.status === 'adult_renewal' && days >= 0) return 'Completaste las clases de tu ciclo'
+  if (st.status === 'due_today' && days > 0) return 'Hoy es tu última clase del ciclo'
+  if (days < 0) return `Venció hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}`
+  if (days === 0) return 'Vence hoy'
+  if (days === 1) return 'Vence mañana'
+  return `Vence en ${days} días`
+}
+
 // ═══════ MAIN DASHBOARD ═══════
 export default function Dashboard({ students: initialStudents, cedula, phoneLast4, isAdultas = false, onLogout, onSessionUpdate }) {
   const [liveStudents, setLiveStudents] = useState(initialStudents)
@@ -740,6 +752,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [showHistory, setShowHistory] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [loading, setLoading] = useState(true)
+  // El estado de pago necesita los datos del curso (tipo de cobro, días de clase):
+  // no mostrar las tarjetas hasta el primer enriquecimiento (o fallo).
+  const [enriched, setEnriched] = useState(false)
   const [expandedPayment, setExpandedPayment] = useState({})
   const [selectedBankIdx, setSelectedBankIdx] = useState({})
   const [copiedField, setCopiedField] = useState(null)
@@ -819,12 +834,16 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             // Ciclo escolar — viene del curso (rpc_public_courses) o del student (rpc_client_login)
             const ciclo_inicio = course?.ciclo_inicio ?? s.ciclo_inicio ?? null
             const ciclo_fin = course?.ciclo_fin ?? s.ciclo_fin ?? null
-            return { ...s, classes_used, classes_per_cycle: classesPer, class_days: classDays, price_type: priceType, ciclo_inicio, ciclo_fin }
+            // age_min y course_price alimentan getPaymentStatus (cursos de adultas, programas)
+            const age_min = course?.age_min ?? null
+            const course_price = course?.price ?? null
+            return { ...s, classes_used, classes_per_cycle: classesPer, class_days: classDays, price_type: priceType, ciclo_inicio, ciclo_fin, age_min, course_price }
           })
           setLiveStudents(enriched)
           onSessionUpdate?.(enriched)
         }
       } catch { /* silent */ }
+      finally { setEnriched(true) }
     }
     // Refresh immediately (get latest status)
     refreshStudents()
@@ -835,12 +854,13 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
   // ─── Loyalty intro (primera vez, solo si no hay bienvenida pendiente) ───
   useEffect(() => {
-    if (!liveStudents?.length) return
+    // Fidelidad solo aplica a adultas (igual que LoyaltyCard y el cierre de la bienvenida)
+    if (!liveStudents?.length || !isAdultas) return
     if (localStorage.getItem(WELCOME_KEY) && !localStorage.getItem(LOYALTY_INTRO_KEY)) {
       const hasMensual = liveStudents.some(s => s.price_type === 'mes')
       if (hasMensual) setShowLoyaltyIntro(true)
     }
-  }, [liveStudents])
+  }, [liveStudents, isAdultas])
 
   // ─── Milestone detection ───
   // After every live-student refresh, check if any student just reached a tier
@@ -872,7 +892,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   // Fetch transfer requests + end loading (with timeout safety)
   useEffect(() => {
     // Safety: force loading false after 8s to prevent infinite load screens
-    const safetyTimer = setTimeout(() => setLoading(false), 8000)
+    const safetyTimer = setTimeout(() => { setLoading(false); setEnriched(true) }, 8000)
     const fetchRequests = async () => {
       try {
         const results = await Promise.all(
@@ -895,7 +915,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
   // Fetch active announcements
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayEC()
     supabase
       .from('announcements')
       .select('*')
@@ -971,13 +991,6 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     setTimeout(() => setCopiedField(null), 2000)
   }
 
-  const getStatusBadge = (status) => {
-    if (status === 'paid') return { label: 'Al día', color: 'bg-green-100 text-green-700' }
-    if (status === 'partial') return { label: 'Abono parcial', color: 'bg-yellow-100 text-yellow-700' }
-    if (status === 'pending') return { label: 'Pendiente', color: 'bg-red-100 text-red-700' }
-    return { label: status || 'N/A', color: 'bg-gray-100 text-gray-600' }
-  }
-
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Por definir'
     const d = new Date(dateStr + 'T12:00:00')
@@ -997,7 +1010,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   }
 
   // ═══════ LOADING STATE ═══════
-  if (loading) {
+  if (loading || !enriched) {
     return <DanceLoader />
   }
 
@@ -1046,7 +1059,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             <h1 className="font-bold text-lg">{bankInfo?.school_name || 'Studio Dancers'}</h1>
             <p className="text-xs text-white/70">
               {(() => {
-                const h = new Date().getHours()
+                const h = getNowEC().getHours()
                 const greeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
                 const firstName = students.length === 1 ? students[0].name.split(' ')[0] : ''
                 return firstName ? `${greeting}, ${firstName}` : `${greeting} · ${students.length} alumno${students.length > 1 ? 's' : ''}`
@@ -1065,26 +1078,13 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
       <div className="max-w-md mx-auto p-4 space-y-4">
 
-        {/* Prominent payment reminder banner */}
+        {/* Prominent payment reminder banner — basado en getPaymentStatus (igual que el Admin) */}
         {(() => {
-          const urgentStudents = students.filter(s => {
-            if (!s.next_payment_date) return false
-            const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-            todayGYE.setHours(0, 0, 0, 0)
-            const due = new Date(s.next_payment_date + 'T00:00:00')
-            const days = Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
-            // Overdue: siempre mostrar (DB no resetea payment_status al terminar el ciclo)
-            if (days < 0) return true
-            // Próximo ≤5 días: solo si aún no ha pagado este ciclo
-            return days <= 5 && s.payment_status !== 'paid'
-          })
+          const urgentStudents = students
+            .map(s => ({ s, st: getPortalStatus(s) }))
+            .filter(({ st }) => NEEDS_PAYMENT.has(st.status))
           if (!urgentStudents.length) return null
-          const overdue = urgentStudents.filter(s => {
-            const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-            todayGYE.setHours(0, 0, 0, 0)
-            return new Date(s.next_payment_date + 'T00:00:00') < todayGYE
-          })
-          const isOverdue = overdue.length > 0
+          const isOverdue = urgentStudents.some(({ st }) => IS_OVERDUE.has(st.status))
           return (
             <div className={`rounded-2xl p-4 flex items-start gap-3 shadow-sm border ${isOverdue ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isOverdue ? 'bg-rose-100' : 'bg-amber-100'}`}>
@@ -1094,17 +1094,11 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                 <p className={`font-bold text-sm ${isOverdue ? 'text-rose-800' : 'text-amber-800'}`}>
                   {isOverdue ? 'Tu membresía venció' : 'Es momento de renovar'}
                 </p>
-                {urgentStudents.map(s => {
-                  const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-                  todayGYE.setHours(0, 0, 0, 0)
-                  const due = new Date(s.next_payment_date + 'T00:00:00')
-                  const days = Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
-                  return (
-                    <p key={s.id} className={`text-xs mt-0.5 ${isOverdue ? 'text-rose-700' : 'text-amber-700'}`}>
-                      {s.name} · {days < 0 ? `Venció hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}` : days === 0 ? 'Vence hoy' : `Vence en ${days} día${days !== 1 ? 's' : ''}`}
-                    </p>
-                  )
-                })}
+                {urgentStudents.map(({ s, st }) => (
+                  <p key={s.id} className={`text-xs mt-0.5 ${isOverdue ? 'text-rose-700' : 'text-amber-700'}`}>
+                    {s.name} · {reminderText(s, st)}
+                  </p>
+                ))}
                 <p className={`text-xs mt-1.5 font-medium ${isOverdue ? 'text-rose-600' : 'text-amber-600'}`}>
                   {isOverdue ? 'Renueva para seguir disfrutando tus clases.' : 'Renueva tu membresía antes de que venza.'}
                 </p>
@@ -1115,9 +1109,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
 
         {/* Student Cards */}
         {students.map((student, idx) => {
-          const badge = student.is_courtesy
-            ? { label: 'Activo', color: 'bg-green-100 text-green-700' }
-            : getStatusBadge(student.payment_status)
+          const status = getPortalStatus(student)
+          const badge = status
           const studentRequests = requests[student.id] || []
           const pendingReqs = studentRequests.filter(r => r.status === 'pending')
           const cycleMode = isCycleBased(student)
@@ -1150,14 +1143,9 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const nextClassLabel = !cycleMode && student.class_days?.length > 0 && !cicloFinalizado
             ? getNextClassDate(student.class_days, student.ciclo_inicio, student.ciclo_fin)
             : null
-          // Payment reminder: days until next payment (negative = overdue)
-          const daysUntilPayment = (() => {
-            if (!student.next_payment_date || student.payment_status === 'paid') return null
-            const todayGYE = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-            todayGYE.setHours(0, 0, 0, 0)
-            const due = new Date(student.next_payment_date + 'T00:00:00')
-            return Math.round((due - todayGYE) / (1000 * 60 * 60 * 24))
-          })()
+          // Recordatorio de pago — solo si el estado real lo requiere
+          const needsPayment = NEEDS_PAYMENT.has(status.status)
+          const overdue = IS_OVERDUE.has(status.status)
 
           return (
             <div
@@ -1351,29 +1339,13 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                 )}
 
                 {/* Recordatorio de pago */}
-                {daysUntilPayment !== null && daysUntilPayment <= 3 && (
+                {needsPayment && (
                   <div className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 border ${
-                    daysUntilPayment < 0
-                      ? 'bg-rose-50 border-rose-200'
-                      : daysUntilPayment === 0
-                        ? 'bg-orange-50 border-orange-200'
-                        : 'bg-amber-50 border-amber-200'
+                    overdue ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'
                   }`}>
-                    <Bell size={14} className={
-                      daysUntilPayment < 0 ? 'text-rose-500' :
-                      daysUntilPayment === 0 ? 'text-orange-500' : 'text-amber-500'
-                    } />
-                    <p className={`text-xs font-medium flex-1 ${
-                      daysUntilPayment < 0 ? 'text-rose-700' :
-                      daysUntilPayment === 0 ? 'text-orange-700' : 'text-amber-700'
-                    }`}>
-                      {daysUntilPayment < 0
-                        ? `Tu pago venció hace ${Math.abs(daysUntilPayment)} día${Math.abs(daysUntilPayment) !== 1 ? 's' : ''}`
-                        : daysUntilPayment === 0
-                          ? 'Tu pago vence hoy'
-                          : daysUntilPayment === 1
-                            ? 'Tu pago vence mañana'
-                            : `Tu pago vence en ${daysUntilPayment} días`}
+                    <Bell size={14} className={overdue ? 'text-rose-500' : 'text-amber-500'} />
+                    <p className={`text-xs font-medium flex-1 ${overdue ? 'text-rose-700' : 'text-amber-700'}`}>
+                      {reminderText(student, status)}
                     </p>
                   </div>
                 )}
@@ -1634,7 +1606,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             ¿Dudas? Escríbenos por WhatsApp
           </a>
           <p className="text-center text-[10px] text-gray-300">
-            Los datos se actualizan automáticamente · v{new Date('2026-02-28').toLocaleDateString('es-EC',{day:'2-digit',month:'short'})}
+            Los datos se actualizan automáticamente
           </p>
         </div>
       </div>

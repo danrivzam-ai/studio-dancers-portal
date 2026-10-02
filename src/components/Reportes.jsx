@@ -11,24 +11,23 @@ function fmtDate(iso) {
   return `${parseInt(d)} ${MONTHS[parseInt(m)]}`
 }
 
-export default function Reportes({ students, onLogout }) {
+export default function Reportes({ students, cedula, phoneLast4, onLogout }) {
   const [reportes,    setReportes]    = useState([])
   const [loading,     setLoading]     = useState(true)
   const [downloading, setDownloading] = useState({}) // { [id]: true }
 
   useEffect(() => {
     if (!students?.length) { setLoading(false); return }
-    const ids = students.map(s => s.id)
-    getReportesAprobados(ids).then(({ data }) => {
+    getReportesAprobados(cedula, phoneLast4).then(({ data }) => {
       setReportes(data || [])
       setLoading(false)
     })
-  }, [students])
+  }, [students, cedula, phoneLast4])
 
   async function handleDownload(reporte) {
     setDownloading(d => ({ ...d, [reporte.id]: true }))
     try {
-      const { evaluations } = await getEvaluacionesCiclo(reporte.cycle_id, reporte.student_id)
+      const { evaluations } = await getEvaluacionesCiclo(cedula, phoneLast4, reporte.cycle_id, reporte.student_id)
       await generateReportePDF(reporte, evaluations)
     } catch (err) {
       console.error('PDF error:', err)

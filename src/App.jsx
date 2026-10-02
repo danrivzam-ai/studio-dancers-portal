@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { AlertCircle, MessageCircle, LogOut } from 'lucide-react'
 import { supabase } from './lib/supabase'
+import { getTodayEC, getPortalStatus } from './lib/dateUtils'
 import ErrorBoundary from './components/ErrorBoundary'
 import LandingPage from './components/LandingPage'
 import Login from './components/Login'
@@ -240,7 +241,7 @@ export default function App() {
 
   useEffect(() => {
     if (!session?.cedula || authTab !== 'recursos' || !hasNewTips) return
-    localStorage.setItem('tips_last_seen_' + session.cedula, new Date().toISOString().slice(0, 10))
+    localStorage.setItem('tips_last_seen_' + session.cedula, getTodayEC())
     setHasNewTips(false)
   }, [authTab, hasNewTips, session])
 
@@ -317,22 +318,17 @@ export default function App() {
   }
 
   // --- INACTIVE CHECK (soft block) ---
-  // If ALL students have next_payment_date older than 60 days, block access
+  // If ALL students are 'inactive' per getPaymentStatus (60+ days past due), block access
   const INACTIVE_DAYS = 60
   const isInactive = (() => {
     if (!session.students || session.students.length === 0) return false
-    const now = new Date()
     // Block ONLY if every student with a payment date is overdue by 60+ days
     // Students without next_payment_date are skipped (not counted as inactive)
     const studentsWithDate = session.students.filter(s =>
       !s.is_courtesy && !s.is_paused && s.next_payment_date
     )
     if (studentsWithDate.length === 0) return false // No payment dates → don't block
-    return studentsWithDate.every(s => {
-      const nextPay = new Date(s.next_payment_date + 'T12:00:00')
-      const diffDays = Math.floor((now - nextPay) / (1000 * 60 * 60 * 24))
-      return diffDays > INACTIVE_DAYS
-    })
+    return studentsWithDate.every(s => getPortalStatus(s).status === 'inactive')
   })()
 
   if (isInactive) {
@@ -450,7 +446,7 @@ export default function App() {
         />
       )}
       {currentTab === 'reportes' && (
-        <Reportes students={session.students} onLogout={handleLogout} />
+        <Reportes students={session.students} cedula={session.cedula} phoneLast4={session.phoneLast4} onLogout={handleLogout} />
       )}
       <BottomNav activeTab={currentTab} onChangeTab={navigateTab} isAdultas={isAdultas} hasNewTips={hasNewTips} />
     </div>

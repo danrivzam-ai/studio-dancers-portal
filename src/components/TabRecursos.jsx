@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Lightbulb, Calendar, BookOpen } from 'lucide-react'
 import { getTips, toggleReaction } from '../lib/adultas'
+import { getNowEC } from '../lib/dateUtils'
 import BalletGlossary from './BalletGlossary'
 
 const EMOJIS = ['👏', '❤️', '💪', '🩰']
@@ -57,7 +58,7 @@ export default function TabRecursos({ students, cedula, phoneLast4 }) {
     })
   }
 
-  const h = new Date().getHours()
+  const h = getNowEC().getHours()
   const greeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
   const firstName = student?.name?.split(' ')[0] || ''
 
