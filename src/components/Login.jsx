@@ -111,7 +111,7 @@ export default function Login({ onLogin, onBack }) {
       </div>
 
       {/* Card de login */}
-      <div className="w-full max-w-sm rounded-2xl shadow-xl overflow-hidden relative z-10" style={{ backgroundColor: '#f4ece6' }}>
+      <div className="force-light w-full max-w-sm rounded-2xl shadow-xl overflow-hidden relative z-10" style={{ backgroundColor: '#f4ece6' }}>
         <div className="px-1 pt-1">
           <div className="rounded-xl px-6 py-4" style={{ background: 'linear-gradient(135deg, #ffcfe0 0%, #f4ece6 100%)' }}>
             <div className="flex items-center justify-center gap-2 mb-1">

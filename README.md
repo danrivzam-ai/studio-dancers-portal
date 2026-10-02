@@ -11,5 +11,5 @@ npm run dev     # desarrollo
 npm run build   # producción (Vercel)
 ```
 
-Variables de entorno: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
-`VITE_TELEGRAM_TRANSFERS_BOT_TOKEN`, `VITE_TELEGRAM_TRANSFERS_CHAT_ID`.
+Variables de entorno: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+El aviso de Telegram y la subida de fotos usan Edge Functions (repo del Admin).

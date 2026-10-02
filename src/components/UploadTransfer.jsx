@@ -3,9 +3,6 @@ import { supabase } from '../lib/supabase'
 import { BANKS } from '../lib/banks'
 import { X, Upload, CheckCircle, Camera, Hash } from 'lucide-react'
 
-// Texto de usuario dentro de mensajes Telegram con parse_mode HTML
-const escapeHtml = (str) => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
 export default function UploadTransfer({ studentId, studentName, cedula, phoneLast4, onClose }) {
   const [amount, setAmount] = useState('')
   const [bankName, setBankName] = useState('')
@@ -75,7 +72,7 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
       // Upload image to Supabase Storage
       // El bucket es público: el nombre no debe incluir la cédula
       const fileName = `portal_${studentId}_${Date.now()}.jpg`
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('transfer-receipts')
         .upload(fileName, image, { contentType: 'image/jpeg' })
 
@@ -102,33 +99,10 @@ export default function UploadTransfer({ studentId, studentName, cedula, phoneLa
 
       if (rpcError) throw rpcError
 
-      // Notificar a Telegram
-      try {
-        const botToken = import.meta.env.VITE_TELEGRAM_TRANSFERS_BOT_TOKEN
-        const chatId   = import.meta.env.VITE_TELEGRAM_TRANSFERS_CHAT_ID
-        if (botToken && chatId) {
-          const hora  = new Date().toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Guayaquil' })
-          const fecha = new Date().toLocaleDateString('es-EC', { day: '2-digit', month: 'short', timeZone: 'America/Guayaquil' })
-          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: chatId,
-              parse_mode: 'HTML',
-              text:
-                `💸 <b>Nueva transferencia recibida</b>\n\n` +
-                `👤 <b>Alumna:</b> ${escapeHtml(studentName)}\n` +
-                `🏦 <b>Banco:</b> ${escapeHtml(bankName)}\n` +
-                `💰 <b>Monto:</b> $${parseFloat(amount).toFixed(2)}` +
-                (receiptNumber.trim() ? `\n🔢 <b>Comprobante:</b> ${escapeHtml(receiptNumber.trim())}` : '') +
-                (notes.trim() ? `\n📝 <b>Nota:</b> ${escapeHtml(notes.trim())}` : '') +
-                `\n\n🕐 ${fecha} · ${hora}\n` +
-                `<i>Revisa la sección de Transferencias en el sistema.</i>`,
-            }),
-          })
-        }
-      } catch {
-        // Silencioso — no bloquea el flujo
+      // Aviso a Telegram desde el servidor (Edge Function notify-transfer):
+      // el token del bot nunca llega al navegador. No bloquea el flujo.
+      if (data) {
+        supabase.functions.invoke('notify-transfer', { body: { requestId: data } }).catch(() => {})
       }
 
       setSuccess(true)

@@ -729,6 +729,9 @@ function getAvatarUrl(studentId, ts) {
   return ts ? `${data.publicUrl}?t=${ts}` : data.publicUrl
 }
 
+// Nombre corto para los chips de banco ("Banco del Pacífico" → "Pacífico")
+const shortBankName = (name = '') => name.replace(/^Banco (del |de |de la )?/i, '').trim() || name
+
 // Texto del recordatorio según el estado real de pago (getPaymentStatus)
 function reminderText(student, st) {
   if (st.status === 'mora') return 'Asistencia suspendida — renueva para retomar tus clases'
@@ -747,6 +750,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [liveStudents, setLiveStudents] = useState(initialStudents)
   const students = liveStudents
   const [bankInfo, setBankInfo] = useState(null)
+  const [bankAccounts, setBankAccounts] = useState([])
   const [requests, setRequests] = useState({})
   const [showUpload, setShowUpload] = useState(null)
   const [showHistory, setShowHistory] = useState(null)
@@ -779,11 +783,15 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
   const [announcements, setAnnouncements] = useState([])
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState(new Set())
 
-  // Fetch bank info
+  // Fetch bank info + cuentas para transferencia (school_settings.portal_bank_accounts, v47)
   useEffect(() => {
     const fetchBank = async () => {
-      const { data } = await supabase.rpc('rpc_client_get_bank_info')
+      const [{ data }, { data: accounts }] = await Promise.all([
+        supabase.rpc('rpc_client_get_bank_info'),
+        supabase.rpc('rpc_client_get_bank_accounts'),
+      ])
       if (data && data.length > 0) setBankInfo(data[0])
+      if (accounts?.length) setBankAccounts(accounts)
     }
     fetchBank()
   }, [])
@@ -971,10 +979,15 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
     setPhotoUploading(prev => ({ ...prev, [studentId]: true }))
     try {
       const blob = await compressAvatar(file)
-      const { error } = await supabase.storage
-        .from('avatars')
-        .upload(`${studentId}.jpg`, blob, { upsert: true, contentType: 'image/jpeg' })
-      if (error) throw error
+      // La subida pasa por la Edge Function upload-avatar, que valida cédula +
+      // teléfono: el bucket no acepta escritura anónima (v47).
+      const form = new FormData()
+      form.append('cedula', cedula)
+      form.append('phoneLast4', phoneLast4)
+      form.append('studentId', studentId)
+      form.append('file', new File([blob], `${studentId}.jpg`, { type: 'image/jpeg' }))
+      const { data, error } = await supabase.functions.invoke('upload-avatar', { body: form })
+      if (error || !data?.ok) throw error || new Error(data?.error || 'upload_failed')
       // Cache-bust so browser reloads the new photo
       setPhotoError(prev => ({ ...prev, [studentId]: false }))
       setPhotoTimestamp(prev => ({ ...prev, [studentId]: Date.now() }))
@@ -1418,13 +1431,15 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   {/* ── Transfer Expanded ── */}
                   {activeMethod === 'transfer' && (
                     <div className="mt-3 bg-[#fdf2f7] rounded-xl border border-[#e8b4cc] overflow-hidden animate-slideDown">
-                      {bankInfo?.bank_account_number && (() => {
-                        const allBanks = [
-                          { short: bankInfo.bank_name, name: bankInfo.bank_name, account: bankInfo.bank_account_number, type: bankInfo.bank_account_type, holder: bankInfo.bank_account_holder },
-                          { short: 'Produbanco', name: 'Produbanco', account: '20007543342', type: 'Cuenta de Ahorros', holder: bankInfo.bank_account_holder },
-                          { short: 'Pacífico', name: 'Banco del Pacífico', account: '1040219097', type: 'Cuenta de Ahorros', holder: bankInfo.bank_account_holder },
-                        ]
-                        const bIdx = selectedBankIdx[student.id] ?? 0
+                      {(() => {
+                        // Cuentas configuradas en el Admin; si aún no existen, la cuenta principal
+                        const allBanks = bankAccounts.length
+                          ? bankAccounts.map(a => ({ short: shortBankName(a.bank), name: a.bank, account: a.account, type: a.type, holder: a.holder, holderId: a.holder_id }))
+                          : bankInfo?.bank_account_number
+                            ? [{ short: bankInfo.bank_name, name: bankInfo.bank_name, account: bankInfo.bank_account_number, type: bankInfo.bank_account_type, holder: bankInfo.bank_account_holder }]
+                            : []
+                        if (!allBanks.length) return null
+                        const bIdx = Math.min(selectedBankIdx[student.id] ?? 0, allBanks.length - 1)
                         const bank = allBanks[bIdx]
                         return (
                           <div className="p-3 space-y-2">
@@ -1452,8 +1467,8 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                                 { label: 'Nro. Cuenta', value: bank.account, key: `cuenta-${student.id}-${bIdx}`, mono: true },
                                 { label: 'Tipo', value: bank.type, key: `tipo-${student.id}-${bIdx}` },
                                 { label: 'Titular', value: bank.holder, key: `titular-${student.id}-${bIdx}` },
-                                { label: 'Cédula', value: '0915553630', key: `ced-${student.id}-${bIdx}`, mono: true },
-                              ].map(({ label, value, key, mono }) => (
+                                { label: 'Cédula', value: bank.holderId, key: `ced-${student.id}-${bIdx}`, mono: true },
+                              ].filter(f => f.value).map(({ label, value, key, mono }) => (
                                 <button
                                   key={key}
                                   onClick={() => copyToClipboard(value, key)}

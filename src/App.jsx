@@ -3,10 +3,8 @@ import { AlertCircle, MessageCircle, LogOut } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { getTodayEC, getPortalStatus } from './lib/dateUtils'
 import ErrorBoundary from './components/ErrorBoundary'
-import LandingPage from './components/LandingPage'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
-import CourseCatalog from './components/CourseCatalog'
 import Reportes from './components/Reportes'
 import TabBienestar from './components/TabBienestar'
 import TabRetos from './components/TabRetos'
@@ -63,13 +61,16 @@ function getSession() {
   }
 }
 
-// Restore public view from history.state on refresh
-function getInitialPublicView() {
+// "Recordar este dispositivo": token opaco emitido por la base (v47).
+// Si la RPC no responde, se conserva lo que haya (no se guardan credenciales nuevas).
+const DEVICE_KEY = 'studio_device_token'
+async function rememberDevice(cedula, phoneLast4) {
   try {
-    const state = history.state
-    if (state?.type === 'public' && state.view) return state.view
+    const { data: token, error } = await supabase.rpc('rpc_client_device_register', {
+      p_cedula: cedula, p_phone_last4: phoneLast4
+    })
+    if (!error && token) localStorage.setItem(DEVICE_KEY, JSON.stringify({ token }))
   } catch { /* ignore */ }
-  return 'home'
 }
 
 function getInitialAuthTab() {
@@ -82,9 +83,6 @@ function getInitialAuthTab() {
 
 export default function App() {
   const [session, setSession] = useState(getSession)
-  const [publicView, setPublicView] = useState(getInitialPublicView)
-  const [catalogCategory, setCatalogCategory] = useState(null)
-  const [catalogCourseName, setCatalogCourseName] = useState(null)
   const [authTab, setAuthTab] = useState(getInitialAuthTab)
   const [error, setError] = useState(null)
   const [hasNewTips, setHasNewTips] = useState(false)
@@ -140,7 +138,7 @@ export default function App() {
     if (!currentState || !currentState.type) {
       const initialState = session
         ? { type: 'auth', tab: authTab }
-        : { type: 'public', view: publicView }
+        : { type: 'public', view: 'home' }
       history.replaceState(initialState, '')
     }
 
@@ -149,38 +147,22 @@ export default function App() {
       const state = e.state
 
       if (!state) {
-        if (session) {
-          setAuthTab('payments')
-        } else {
-          setPublicView('home')
-        }
+        if (session) setAuthTab('payments')
         isHandlingPopState.current = false
         return
       }
 
       if (state.type === 'auth') {
         setAuthTab(state.tab || 'payments')
-      } else if (state.type === 'public') {
-        setPublicView(state.view || 'home')
-        setCatalogCategory(state.category || null)
-        setCatalogCourseName(state.courseName || null)
       }
       isHandlingPopState.current = false
     }
 
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
-  }, [session, authTab, publicView])
+  }, [session, authTab])
 
   // --- NAVIGATION HELPERS ---
-  const navigatePublic = useCallback((view, category = null, courseName = null) => {
-    if (isHandlingPopState.current) return
-    history.pushState({ type: 'public', view, category, courseName }, '')
-    setPublicView(view)
-    setCatalogCategory(category)
-    setCatalogCourseName(courseName)
-  }, [])
-
   const navigateTab = useCallback((tab) => {
     if (isHandlingPopState.current) return
     if (tab !== authTab) {
@@ -190,29 +172,41 @@ export default function App() {
   }, [authTab])
 
   // --- REMEMBER DEVICE: auto-login on mount if valid token ---
+  // localStorage guarda solo un token aleatorio (v47); la base lo canjea por la
+  // sesión mientras siga vigente. Formato viejo ({cedula, phoneLast4}) se migra.
   useEffect(() => {
     if (session) return // already logged in via sessionStorage
-    try {
-      const stored = localStorage.getItem('studio_device_token')
-      if (!stored) return
-      const token = JSON.parse(stored)
-      if (!token?.cedula || !token?.phoneLast4 || !token?.expires) return
-      if (Date.now() > token.expires) { localStorage.removeItem('studio_device_token'); return }
-      // Re-verify with RPC to get fresh student data
-      supabase.rpc('rpc_client_login', { p_cedula: token.cedula, p_phone_last4: token.phoneLast4 })
-        .then(({ data, error: rpcErr }) => {
-          if (!rpcErr && data?.length > 0) {
-            const sessionData = { students: data, cedula: token.cedula, phoneLast4: token.phoneLast4 }
-            sessionStorage.setItem('portal_session', JSON.stringify(sessionData))
-            setSession(sessionData)
-            setAuthTab('payments')
-            history.replaceState({ type: 'auth', tab: 'payments' }, '')
-          } else {
-            localStorage.removeItem('studio_device_token')
-          }
+    let stored
+    try { stored = JSON.parse(localStorage.getItem(DEVICE_KEY) || 'null') } catch { stored = null }
+    if (!stored) return
+
+    const resolveCredentials = async () => {
+      if (stored.token) {
+        const { data } = await supabase.rpc('rpc_client_device_login', { p_token: stored.token })
+        return data?.[0] ? { cedula: data[0].cedula, phoneLast4: data[0].phone_last4 } : null
+      }
+      if (stored.cedula && stored.phoneLast4 && Date.now() < stored.expires) {
+        return { cedula: stored.cedula, phoneLast4: stored.phoneLast4, legacy: true }
+      }
+      return null
+    }
+
+    ;(async () => {
+      try {
+        const creds = await resolveCredentials()
+        if (!creds) { localStorage.removeItem(DEVICE_KEY); return }
+        const { data, error: rpcErr } = await supabase.rpc('rpc_client_login', {
+          p_cedula: creds.cedula, p_phone_last4: creds.phoneLast4
         })
-        .catch(() => localStorage.removeItem('studio_device_token'))
-    } catch { localStorage.removeItem('studio_device_token') }
+        if (rpcErr || !data?.length) { localStorage.removeItem(DEVICE_KEY); return }
+        if (creds.legacy) await rememberDevice(creds.cedula, creds.phoneLast4)
+        const sessionData = { students: data, cedula: creds.cedula, phoneLast4: creds.phoneLast4 }
+        sessionStorage.setItem('portal_session', JSON.stringify(sessionData))
+        setSession(sessionData)
+        setAuthTab('payments')
+        history.replaceState({ type: 'auth', tab: 'payments' }, '')
+      } catch { /* sin conexión: se mantiene el token para el próximo intento */ }
+    })()
   }, [])
 
   // Tips badge — hooks declarados aquí para no violar reglas de React (no después de returns condicionales)
@@ -250,13 +244,7 @@ export default function App() {
     try {
       const sessionData = { students: data.students, cedula: data.cedula, phoneLast4: data.phoneLast4 }
       sessionStorage.setItem('portal_session', JSON.stringify(sessionData))
-      if (data.rememberDevice) {
-        localStorage.setItem('studio_device_token', JSON.stringify({
-          cedula: data.cedula,
-          phoneLast4: data.phoneLast4,
-          expires: Date.now() + 30 * 24 * 60 * 60 * 1000
-        }))
-      }
+      if (data.rememberDevice) rememberDevice(data.cedula, data.phoneLast4)
       setSession(sessionData)
       setAuthTab('payments')
       history.replaceState({ type: 'auth', tab: 'payments' }, '')
@@ -267,9 +255,12 @@ export default function App() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('portal_session')
-    localStorage.removeItem('studio_device_token')
+    try {
+      const stored = JSON.parse(localStorage.getItem(DEVICE_KEY) || 'null')
+      if (stored?.token) supabase.rpc('rpc_client_device_revoke', { p_token: stored.token }).then(() => {}, () => {})
+    } catch { /* ignore */ }
+    localStorage.removeItem(DEVICE_KEY)
     setSession(null)
-    setPublicView('home')
     setAuthTab('payments')
     setError(null)
     history.replaceState({ type: 'public', view: 'home' }, '')
@@ -300,20 +291,8 @@ export default function App() {
     )
   }
 
-  // --- PUBLIC VIEWS ---
+  // --- PUBLIC VIEW: login ---
   if (!session) {
-    if (publicView === 'catalog') {
-      return <CourseCatalog onBack={() => navigatePublic('home')} initialCategory={catalogCategory} initialCourseName={catalogCourseName} />
-    }
-    if (publicView === 'landing') {
-      return (
-        <LandingPage
-          onGoToCatalog={(category, courseName) => navigatePublic('catalog', category || null, courseName || null)}
-          onGoToLogin={() => navigatePublic('home')}
-        />
-      )
-    }
-    // Login is now the default home view
     return <Login onLogin={handleLogin} onBack={null} />
   }
 
