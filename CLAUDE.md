@@ -50,6 +50,9 @@ No hay tests. Se verifica en el navegador (vista móvil). `D:\Studio Dancers Por
 - Si cambia `getPaymentStatus()` en el Admin, replicar el cambio en `src/lib/dateUtils.js` del portal.
 - El estado necesita los datos del curso: `Dashboard.jsx` enriquece cada alumna con `rpc_public_courses` (`price_type`, `class_days`, `classes_per_cycle`, `age_min`, `course_price`). `class_days` en el portal usa ISO (1=Lun … 7=Dom); `courseFromStudent()` lo convierte a la convención del Admin (0=Dom … 6=Sáb).
 - Respetar `priceType` del curso (`mes`, `paquete`, `programa`) y la tarifa histórica (`student.monthly_fee`), como en el Admin.
+- **Ciclo por alumna (v48/v50):** `rpc_client_login` devuelve `cycle_classes`, `frozen_classes`, `next_course_id`, `next_course_name`, `next_monthly_fee`. `getStudentCycleClasses(student)` tiene prioridad sobre el estándar del curso (6.º parámetro `totalOverride` de `getCycleInfo`, contador de clases, calendario).
+- **Días mostrados vs. umbrales:** lo que se muestra ("Vence en N días", "Venció hace N") usa `getDaysToDueDate` / `getDaysLate` (días reales a `next_payment_date`). `getDaysUntilDue` (= real − 1) solo decide gracia/mora/inactiva. No mezclarlos.
+- **Varias inscripciones (v49):** una fila por persona + curso; cada tarjeta usa su propio `id` para ciclo, pagos, transferencias e historial. Para contar personas, agrupar por nombre, no por filas.
 
 ## Fechas
 

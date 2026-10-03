@@ -87,8 +87,32 @@ export const getDaysUntilDue = (nextPaymentDate) => {
   return diffDays(dueDate, getTodayEC())
 }
 
-/** Clases del ciclo actual: { totalClasses, classesPassed }. */
-export const getCycleInfo = (lastPaymentDate, nextPaymentDate, rawClassDays, classesPerCycle) => {
+/**
+ * Días reales hasta la fecha de vencimiento (next_payment_date), en hora Ecuador:
+ * >0 faltan N días · 0 vence hoy · <0 lleva N días de atraso.
+ * Es lo que se MUESTRA. Los umbrales de gracia/mora/inactiva siguen usando
+ * getDaysUntilDue (= getDaysToDueDate - 1), igual que el Admin.
+ */
+export const getDaysToDueDate = (nextPaymentDate) => {
+  if (!nextPaymentDate) return null
+  return diffDays(nextPaymentDate, getTodayEC())
+}
+
+/** Días de atraso reales para mostrar (0 = vence hoy). */
+export const getDaysLate = (nextPaymentDate) => Math.max(0, -(getDaysToDueDate(nextPaymentDate) ?? 0))
+
+/** Total de clases del ciclo actual guardado en la alumna (v48; null = el estándar del curso). */
+export const getStudentCycleClasses = (student) => {
+  const n = parseInt(student?.cycle_classes)
+  return n > 0 ? n : null
+}
+
+/**
+ * Clases del ciclo actual: { totalClasses, classesPassed }.
+ * totalOverride = students.cycle_classes (meses adelantados, clases congeladas o
+ * cambio de curso): tiene prioridad sobre el estándar del curso.
+ */
+export const getCycleInfo = (lastPaymentDate, nextPaymentDate, rawClassDays, classesPerCycle, planMonths = null, totalOverride = null) => {
   if (!lastPaymentDate || !nextPaymentDate) return null
   const classDays = toAdminClassDays(rawClassDays)
   const lastPay = toNoonLocal(lastPaymentDate)
@@ -103,11 +127,12 @@ export const getCycleInfo = (lastPaymentDate, nextPaymentDate, rawClassDays, cla
     for (let cur = new Date(cycleStart), i = 0; cur <= cycleEnd && i < 400; cur = addDays(cur, 1), i++) {
       if (classDays.includes(cur.getDay())) totalClasses++
     }
-    if (classesPerCycle > 0) totalClasses = classesPerCycle
+    if (classesPerCycle > 0) totalClasses = classesPerCycle * (planMonths > 1 ? planMonths : 1)
+    if (totalOverride > 0) totalClasses = totalOverride
   } else {
     cycleStart = lastPay
     cycleEnd = addDays(nextPay, -1)
-    totalClasses = classesPerCycle || null
+    totalClasses = classesPerCycle ? classesPerCycle * (planMonths || 1) : null
   }
 
   let classesPassed = 0
@@ -177,7 +202,9 @@ export const getPaymentStatus = (student, course, autoInactiveDays = 60, graceDa
     if (!student.next_payment_date) {
       return { status: 'pending', label: 'Sin pago', color: 'bg-slate-100 text-slate-500 border border-slate-200', colorCode: 'gray', priority: 4 }
     }
-    const classesTotal = course?.classesPerCycle || 4
+    const packageClasses = course?.classesPerCycle || 4
+    // Clases congeladas o convertidas por cambio de curso amplían el ciclo de esta alumna
+    const classesTotal = getStudentCycleClasses(student) || packageClasses
     const baseDate = student.last_payment_date || student.enrollment_date
     let classesTaken = student.classes_used || 0
     if (baseDate && course?.classDays) {
@@ -187,8 +214,8 @@ export const getPaymentStatus = (student, course, autoInactiveDays = 60, graceDa
     const remaining = classesTotal - classesTaken
     const classDaysArr = course?.classDays || []
     const subCycleSize = classDaysArr.length >= 2 ? 8 : 4
-    const isMultiCycle = classesTotal > subCycleSize && classesTotal % subCycleSize === 0
-    const totalMonths = isMultiCycle ? Math.round(classesTotal / subCycleSize) : 1
+    const isMultiCycle = packageClasses > subCycleSize && packageClasses % subCycleSize === 0
+    const totalMonths = isMultiCycle ? Math.round(packageClasses / subCycleSize) : 1
     const currentMonth = isMultiCycle ? Math.min(totalMonths, Math.floor(classesTaken / subCycleSize) + 1) : 1
     const remainingInMonth = isMultiCycle ? subCycleSize - (classesTaken % subCycleSize) : remaining
     const days = getDaysUntilDue(student.next_payment_date)
@@ -197,8 +224,8 @@ export const getPaymentStatus = (student, course, autoInactiveDays = 60, graceDa
       return { status: 'inactive', label: 'Inactiva', color: 'bg-slate-200 text-slate-600 border border-slate-300', colorCode: 'gray', priority: 6 }
     }
     if (days < 0) {
-      const absDays = Math.abs(days)
-      return { status: 'cycle_complete', label: absDays === 1 ? 'Lista para renovar · 1d' : `Lista para renovar · ${absDays}d`, color: 'bg-sky-100 text-sky-800 border border-sky-200', colorCode: 'blue', priority: 3 }
+      const late = getDaysLate(student.next_payment_date)
+      return { status: 'cycle_complete', label: late === 0 ? 'Lista para renovar' : `Lista para renovar · ${late}d`, color: 'bg-sky-100 text-sky-800 border border-sky-200', colorCode: 'blue', priority: 3 }
     }
     if (isMultiCycle) {
       return {
@@ -236,7 +263,7 @@ export const getPaymentStatus = (student, course, autoInactiveDays = 60, graceDa
   if (isAdultCourse && days >= 0) {
     const baseDate = student.last_payment_date || student.enrollment_date
     if (baseDate && course?.classDays) {
-      const info = getCycleInfo(baseDate, student.next_payment_date, course.classDays, course.classesPerCycle)
+      const info = getCycleInfo(baseDate, student.next_payment_date, course.classDays, course.classesPerCycle, null, getStudentCycleClasses(student))
       const classesTotal = info?.totalClasses ?? null
       const classesTaken = info?.classesPassed ?? 0
       const remaining = classesTotal != null ? classesTotal - classesTaken : -1
@@ -256,27 +283,36 @@ export const getPaymentStatus = (student, course, autoInactiveDays = 60, graceDa
 
   if (days < 0) {
     const absDays = Math.abs(days)
+    // Para las etiquetas: días reales desde la fecha de vencimiento (0 = vence hoy)
+    const late = getDaysLate(student.next_payment_date)
+    const lateDays = late === 1 ? '1 día' : `${late} días`
     if (absDays > autoInactiveDays) {
       return { status: 'inactive', label: 'Inactiva', color: 'bg-slate-200 text-slate-600 border border-slate-300', colorCode: 'gray', canAttend: false, priority: 6 }
     }
     if (isAdultCourse) {
-      return { status: 'adult_renewal', label: absDays === 1 ? 'Lista para renovar · 1d' : `Lista para renovar · ${absDays}d`, color: 'bg-sky-100 text-sky-800 border border-sky-200', colorCode: 'blue', canAttend: false, priority: 3 }
+      return { status: 'adult_renewal', label: late === 0 ? 'Lista para renovar' : `Lista para renovar · ${late}d`, color: 'bg-sky-100 text-sky-800 border border-sky-200', colorCode: 'blue', canAttend: false, priority: 3 }
     }
     if (absDays > moraDays) {
-      return { status: 'mora', label: `Suspendida (${absDays}d)`, color: 'bg-rose-700 text-white ring-1 ring-rose-800', colorCode: 'rose', canAttend: false, priority: 0 }
+      return { status: 'mora', label: `Suspendida (${late}d)`, color: 'bg-rose-700 text-white ring-1 ring-rose-800', colorCode: 'rose', canAttend: false, priority: 0 }
     }
     if (absDays > graceDays) {
-      return { status: 'overdue', label: absDays === 1 ? 'Vencida (1 día)' : `Vencida (${absDays} días)`, color: 'bg-red-600 text-white ring-1 ring-red-700', colorCode: 'red', canAttend: true, priority: 1 }
+      return { status: 'overdue', label: `Vencida (${lateDays})`, color: 'bg-red-600 text-white ring-1 ring-red-700', colorCode: 'red', canAttend: true, priority: 1 }
     }
-    return { status: 'grace', label: absDays === 1 ? 'Gracia (1 día)' : `Gracia (${absDays} días)`, color: 'bg-amber-400 text-white ring-1 ring-amber-500', colorCode: 'amber', canAttend: true, priority: 2 }
+    // El día del vencimiento se muestra como "Vence hoy" (rojo); luego "Gracia (N días)"
+    return {
+      status: 'grace',
+      label: late === 0 ? 'Vence hoy' : `Gracia (${lateDays})`,
+      color: late === 0 ? 'bg-red-500 text-white ring-1 ring-red-600' : 'bg-amber-400 text-white ring-1 ring-amber-500',
+      colorCode: 'amber', canAttend: true, priority: 2
+    }
   }
 
   if (days === 0) {
     return {
       status: 'due_today',
-      label: isAdultCourse ? 'Última clase hoy' : 'Renovar hoy',
-      color: isAdultCourse ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-red-500 text-white ring-1 ring-red-600',
-      colorCode: isAdultCourse ? 'orange' : 'red',
+      label: isAdultCourse ? 'Última clase hoy' : 'Vence mañana',
+      color: isAdultCourse ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-orange-500 text-white ring-1 ring-orange-600',
+      colorCode: 'orange',
       canAttend: true, priority: 1
     }
   }
@@ -285,16 +321,16 @@ export const getPaymentStatus = (student, course, autoInactiveDays = 60, graceDa
       status: 'urgent',
       label: isAdultCourse
         ? (days === 1 ? 'Última clase mañana' : `Termina en ${days} días`)
-        : (days === 1 ? 'Vence mañana' : `Vence en ${days} días`),
+        : `Vence en ${days + 1} días`,
       color: isAdultCourse ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-orange-500 text-white ring-1 ring-orange-600',
       colorCode: isAdultCourse ? 'yellow' : 'orange',
       canAttend: true, priority: 2
     }
   }
   if (days <= 7) {
-    return { status: 'upcoming', label: isAdultCourse ? `Por renovar · ${days}d` : `Vence en ${days} días`, color: 'bg-amber-100 text-amber-800 border border-amber-300', colorCode: 'yellow', canAttend: true, priority: 3 }
+    return { status: 'upcoming', label: isAdultCourse ? `Por renovar · ${days + 1}d` : `Vence en ${days + 1} días`, color: 'bg-amber-100 text-amber-800 border border-amber-300', colorCode: 'yellow', canAttend: true, priority: 3 }
   }
-  return { status: 'ok', label: `Al día (${days}d)`, color: 'bg-emerald-100 text-emerald-700 border border-emerald-200', colorCode: 'green', canAttend: true, priority: 5 }
+  return { status: 'ok', label: `Al día (${days + 1}d)`, color: 'bg-emerald-100 text-emerald-700 border border-emerald-200', colorCode: 'green', canAttend: true, priority: 5 }
 }
 
 /**

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { getNowEC } from '../lib/dateUtils'
+import { getNowEC, getStudentCycleClasses } from '../lib/dateUtils'
 import { LogOut, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 
 // ── Tips del día ──────────────────────────────────────────────────────────────
@@ -201,7 +201,10 @@ export default function CalendarTab({ students: initial, cedula, phoneLast4, onL
                   i === selIdx ? 'bg-white text-[#551735]' : 'bg-white/20 text-white'
                 }`}
               >
-                {s.name.split(' ')[0]}
+                {/* Varias inscripciones de la misma persona (v49): mostrar también el curso */}
+                {students.filter(o => o.name.split(' ')[0] === s.name.split(' ')[0]).length > 1
+                  ? `${s.name.split(' ')[0]} · ${(s.course_name || '').split('|')[0].trim()}`
+                  : s.name.split(' ')[0]}
               </button>
             ))}
           </div>
@@ -289,6 +292,15 @@ export default function CalendarTab({ students: initial, cedula, phoneLast4, onL
             </p>
           </div>
         </div>
+
+        {/* ── Ciclo de esta alumna (v48): meses adelantados, clases congeladas o cambio de curso ── */}
+        {getStudentCycleClasses(student) && (
+          <div className="bg-white rounded-xl px-4 py-3 border border-gray-100 shadow-sm text-xs text-gray-600">
+            Tu ciclo actual tiene <strong className="text-[#551735]">{getStudentCycleClasses(student)} clases</strong>
+            {parseInt(student.frozen_classes) > 0 && ` · incluye ${parseInt(student.frozen_classes)} congelada${parseInt(student.frozen_classes) > 1 ? 's' : ''}`}
+            {student.next_payment_date && ` · renuevas el ${new Date(student.next_payment_date + 'T12:00:00').toLocaleDateString('es-EC', { day: 'numeric', month: 'long' })}`}
+          </div>
+        )}
 
         {/* ── Streak celebration ── */}
         {(total - upcoming) >= 5 && (

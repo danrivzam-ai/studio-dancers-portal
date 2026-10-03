@@ -4,7 +4,7 @@ import { LogOut, Copy, CheckCircle, Upload, Clock, XCircle, History, BookOpen, R
 import UploadTransfer from './UploadTransfer'
 import PaymentHistory from './PaymentHistory'
 import MilestoneModal from './MilestoneModal'
-import { getTodayEC, getNowEC, getDaysUntilDue, getPortalStatus, NEEDS_PAYMENT, IS_OVERDUE } from '../lib/dateUtils'
+import { getTodayEC, getNowEC, getDaysUntilDue, getDaysToDueDate, getDaysLate, getStudentCycleClasses, getPortalStatus, NEEDS_PAYMENT, IS_OVERDUE } from '../lib/dateUtils'
 
 // ═══════ FIDELIDAD ═══════
 function getLoyaltyTier(consecutiveMonths) {
@@ -713,18 +713,24 @@ function getAvatarUrl(studentId, ts) {
 // Nombre corto para los chips de banco ("Banco del Pacífico" → "Pacífico")
 const shortBankName = (name = '') => name.replace(/^Banco (del |de |de la )?/i, '').trim() || name
 
-// Texto del recordatorio según el estado real de pago (getPaymentStatus)
+// Texto del recordatorio según el estado real de pago (getPaymentStatus).
+// Los días que se MUESTRAN son reales hasta next_payment_date (getDaysToDueDate);
+// getDaysUntilDue (= real − 1) solo decide umbrales, igual que en el Admin.
 function reminderText(student, st) {
   if (st.status === 'mora') return 'Asistencia suspendida — renueva para retomar tus clases'
   if (st.status === 'cycle_complete') return 'Completaste tu paquete de clases'
-  const days = getDaysUntilDue(student.next_payment_date)
-  if (st.status === 'adult_renewal' && days >= 0) return 'Completaste las clases de tu ciclo'
-  if (st.status === 'due_today' && days > 0) return 'Hoy es tu última clase del ciclo'
+  if (st.status === 'adult_renewal' && getDaysUntilDue(student.next_payment_date) >= 0) return 'Completaste las clases de tu ciclo'
+  if (st.status === 'due_today' && st.label === 'Última clase hoy') return 'Hoy es tu última clase del ciclo'
+  const days = getDaysToDueDate(student.next_payment_date)
   if (days < 0) return `Venció hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? 's' : ''}`
   if (days === 0) return 'Vence hoy'
   if (days === 1) return 'Vence mañana'
   return `Vence en ${days} días`
 }
+
+// ¿Ya pasó la fecha (o el ciclo terminó)? El día del vencimiento todavía no cuenta como vencida.
+const isLateStatus = (student, st) =>
+  IS_OVERDUE.has(st.status) && !(st.status === 'grace' && getDaysLate(student.next_payment_date) === 0)
 
 // ═══════ MAIN DASHBOARD ═══════
 export default function Dashboard({ students: initialStudents, cedula, phoneLast4, isAdultas = false, onLogout, onSessionUpdate }) {
@@ -817,9 +823,12 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             if (!classDays.length) classDays = parseScheduleToDays(course?.schedule || s.schedule)
             const classesPer = course?.classes_per_cycle ?? s.classes_per_cycle ?? 0
             const priceType = course?.price_type || s.price_type || null
+            // cycle_classes (v48): total real del ciclo de esta alumna (meses adelantados,
+            // clases congeladas o cambio de curso); si no hay, el estándar del curso.
+            const cycleTotal = getStudentCycleClasses(s) || classesPer
             const classes_used = (s.classes_used != null && s.classes_used > 0)
               ? s.classes_used
-              : computeEstimatedClasses(s.last_payment_date, classDays, classesPer)
+              : computeEstimatedClasses(s.last_payment_date, classDays, cycleTotal)
             // Ciclo escolar — viene del curso (rpc_public_courses) o del student (rpc_client_login)
             const ciclo_inicio = course?.ciclo_inicio ?? s.ciclo_inicio ?? null
             const ciclo_fin = course?.ciclo_fin ?? s.ciclo_fin ?? null
@@ -1055,8 +1064,10 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
               {(() => {
                 const h = getNowEC().getHours()
                 const greeting = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches'
-                const firstName = students.length === 1 ? students[0].name.split(' ')[0] : ''
-                return firstName ? `${greeting}, ${firstName}` : `${greeting} · ${students.length} alumno${students.length > 1 ? 's' : ''}`
+                // Una persona puede tener varias inscripciones (v49): contar personas, no tarjetas
+                const people = [...new Set(students.map(s => (s.name || '').trim().toLowerCase()))]
+                const firstName = people.length === 1 ? students[0].name.split(' ')[0] : ''
+                return firstName ? `${greeting}, ${firstName}` : `${greeting} · ${people.length} alumnos`
               })()}
             </p>
           </div>
@@ -1078,7 +1089,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             .map(s => ({ s, st: getPortalStatus(s) }))
             .filter(({ st }) => NEEDS_PAYMENT.has(st.status))
           if (!urgentStudents.length) return null
-          const isOverdue = urgentStudents.some(({ st }) => IS_OVERDUE.has(st.status))
+          const isOverdue = urgentStudents.some(({ s, st }) => isLateStatus(s, st))
           return (
             <div className={`rounded-2xl p-4 flex items-start gap-3 shadow-sm border ${isOverdue ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isOverdue ? 'bg-rose-100' : 'bg-amber-100'}`}>
@@ -1111,9 +1122,10 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
           const classesUsed = student.classes_used || 0
           // If classes_per_cycle is not stored, compute it from the monthly calendar
           // (respeta ciclo escolar — descarta clases anteriores a ciclo_inicio).
-          const classesTotal = student.classes_per_cycle > 0
-            ? student.classes_per_cycle
-            : computeMonthlyTotal(student.last_payment_date, student.class_days, student.ciclo_inicio, student.ciclo_fin)
+          const studentCycleClasses = getStudentCycleClasses(student)
+          const classesTotal = studentCycleClasses
+            || (student.classes_per_cycle > 0 ? student.classes_per_cycle : null)
+            || computeMonthlyTotal(student.last_payment_date, student.class_days, student.ciclo_inicio, student.ciclo_fin)
           // Ciclo escolar finalizado / aún no iniciado — afecta estado y contadores.
           const todayECStr = new Intl.DateTimeFormat('en-CA', {
             timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit'
@@ -1139,7 +1151,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
             : null
           // Recordatorio de pago — solo si el estado real lo requiere
           const needsPayment = NEEDS_PAYMENT.has(status.status)
-          const overdue = IS_OVERDUE.has(status.status)
+          const overdue = isLateStatus(student, status)
 
           return (
             <div
@@ -1349,7 +1361,7 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                   <div className="flex items-center justify-between bg-[#fdf2f7] rounded-lg px-3 py-2">
                     <span className="text-[10px] text-[#6b2145] uppercase font-medium tracking-wider flex items-center gap-1.5">
                       <BookOpen size={10} className="shrink-0" />
-                      {scheduleLabel ? `${scheduleLabel} · Clase` : 'Clases del mes'}
+                      {scheduleLabel ? `${scheduleLabel} · Clase` : studentCycleClasses ? 'Clases del ciclo' : 'Clases del mes'}
                     </span>
                     <span className="text-xs font-semibold text-[#551735]">{classesUsed}/{classesTotal}</span>
                   </div>
@@ -1359,6 +1371,18 @@ export default function Dashboard({ students: initialStudents, cedula, phoneLast
                     {classesUsed >= 8 ? '¡Excelente constancia este mes!' :
                      classesUsed >= 4 ? 'Buen ritmo, sigue así' :
                      'Cada clase cuenta, ¡vamos por más!'}
+                  </p>
+                )}
+
+                {/* Ciclo de esta alumna (v48): clases congeladas y cambio de curso programado */}
+                {parseInt(student.frozen_classes) > 0 && (
+                  <p className="text-xs text-[#6b2145] bg-[#fdf2f7] rounded-lg px-3 py-2">
+                    Incluye {parseInt(student.frozen_classes)} clase{parseInt(student.frozen_classes) > 1 ? 's' : ''} congelada{parseInt(student.frozen_classes) > 1 ? 's' : ''}
+                  </p>
+                )}
+                {student.next_course_id && (
+                  <p className="text-xs text-sky-800 bg-sky-50 border border-sky-200 rounded-lg px-3 py-2">
+                    Desde tu próxima renovación pasas a <strong>{(student.next_course_name || 'otro curso').replace(' | ', ' · ')}</strong>
                   </p>
                 )}
 
